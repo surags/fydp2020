@@ -1,0 +1,22 @@
+{
+  "name": "StreamingOS",
+  "version": "1.0.0",
+  "description": "StreamingOS Desktop Application",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/surags/FYDP.git"
+  },
+  "author": "Anurag Joshi",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/surags/FYDP/issues"
+  },
+  "homepage": "https://github.com/surags/FYDP#readme",
+  "dependencies": {
+    "electron": "^5.0.1"
+  }
+}
