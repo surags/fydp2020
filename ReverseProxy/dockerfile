@@ -1,0 +1,31 @@
+FROM alpine:3.7
+VOLUME /usr/src/app/public
+WORKDIR /usr/src/app
+RUN apk add --no-cache \
+        uwsgi-python3 \
+        python3 \ 
+        python-dev \
+        py-pip 
+
+RUN pip install --upgrade pip
+
+RUN apk add alpine-sdk \
+		libc-dev \
+		linux-headers \
+		vim \
+		dos2unix
+
+RUN python3 -m pip install bottle
+
+COPY . .
+RUN rm -rf public/*
+#RUN pip3 install --no-cache-dir -r requirements.txt
+
+CMD ["/bin/ash", "./start.sh"]
+
+
+
+
+#uwsgi --http-socket :9090 --plugin /usr/lib/uwsgi/python3_plugin.so --wsgi-file ./wsgi.py
+
+#--plugin /usr/lib/uwsgi/python3_plugin.so
