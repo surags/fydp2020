@@ -1,4 +1,5 @@
 import subprocess
+from queue import Queue
 from threading import Lock
 from src.model import session_info
 
@@ -12,10 +13,19 @@ class Router:
         process = subprocess.Popen("grep \"$HOSTNAME\" /etc/hosts|awk '{print $1}'", stdout=subprocess.PIPE, shell=True)
         self.reverse_proxy_ip = process.communicate()[0].strip().decode('utf-8')
         self.session_info_map = {}
+        self.port_queue = Queue()
+        self.setup_ports()
+
+    def setup_ports(self):
+        for i in range(0, 5):
+            self.port_queue.put(8080+i)
+
+    def add_to_port_queue(self, port):
+        self.port_queue.put(port)
 
     def get_free_port(self):
         #TODO: Change this function to return a port from a pool of available ports
-        return 8080
+        return self.port_queue.get()
 
     def get_destination_ip_port(self):
         #TODO: Change this function to read from the database, and get a free ip/port
@@ -36,14 +46,15 @@ class Router:
         return route1 + route2 + route3
 
     def setup_routes(self, user_id, destination_ip):
-        source_port = self.get_free_port()
-        destination_ip, destination_port = self.get_destination_ip_port()
-        iptables_rules = self.build_iptable_rules_setup(destination_ip, source_port, destination_port)
-        self.session_info_map[user_id] = session_info.SessionInfo(self.client_ip, source_port, destination_ip, destination_port)
-        process = subprocess.Popen(iptables_rules, stdout=subprocess.PIPE, shell=True)
-        proc_stdout = process.communicate()[0].strip()
-        print(iptables_rules)
-        print(proc_stdout)
+        if user_id not in self.session_info_map:
+            source_port = self.get_free_port()
+            destination_ip, destination_port = self.get_destination_ip_port()
+            iptables_rules = self.build_iptable_rules_setup(destination_ip, source_port, destination_port)
+            self.session_info_map[user_id] = session_info.SessionInfo(self.client_ip, source_port, destination_ip, destination_port)
+            process = subprocess.Popen(iptables_rules, stdout=subprocess.PIPE, shell=True)
+            proc_stdout = process.communicate()[0].strip()
+            print(iptables_rules)
+            print(proc_stdout)
 
     def delete_iptable_rules(self, user_id):
         if user_id in self.session_info_map:
@@ -57,6 +68,7 @@ class Router:
             process = subprocess.Popen(iptables_rules, stdout=subprocess.PIPE, shell=True)
             proc_stdout = process.communicate()[0].strip()
             print(proc_stdout)
+            self.add_to_port_queue(self.session_info_map[user_id].source_port)
             del self.session_info_map[user_id]
 
 
