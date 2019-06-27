@@ -13,14 +13,14 @@ RUN apk add alpine-sdk \
 		libc-dev \
 		linux-headers \
 		vim \
-		dos2unix
+		dos2unix \
+		iptables
 
 RUN python3 -m pip install bottle
 
 COPY . .
 RUN rm -rf public/*
 #RUN pip3 install --no-cache-dir -r requirements.txt
-
 CMD ["/bin/ash", "./start.sh"]
 
 
