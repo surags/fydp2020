@@ -2,3 +2,6 @@ peewee
 bottle
 pymysql
 cryptography
+oauthlib
+bottle_oauthlib
+requests
