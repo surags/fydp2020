@@ -29,7 +29,7 @@ class Router:
 
     def get_destination_ip_port(self):
         #TODO: Change this function to read from the database, and get a free ip/port
-        return "172.18.0.2", "5901"
+        return "172.19.0.4", "5901"
 
     def build_iptable_rules_setup(self, destination_ip, source_port, destination_port):
         route1 = "iptables -t nat -A PREROUTING -p tcp --dport %s -j DNAT --to-destination %s:%s;" % (source_port, destination_ip, destination_port)
