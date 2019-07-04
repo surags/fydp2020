@@ -15,7 +15,7 @@ RUN apk add alpine-sdk \
 		libffi-dev \
         libressl-dev
 
-#COPY . .
+COPY . .
 RUN rm -rf public/*
 RUN python3 -m pip install --no-cache-dir -r requirements.txt
 CMD ["/bin/ash", "./start.sh"]
