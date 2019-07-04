@@ -6,6 +6,7 @@ class Users(BaseModel):
     user_id = peewee.AutoField(primary_key=True)
     school_id = peewee.CharField(unique=True)
     user_name = peewee.CharField(unique=True)
+    hashed_password = peewee.CharField()
     registration_date = peewee.DateTimeField(default=datetime.datetime.now())
     first_name = peewee.CharField()
     last_name = peewee.CharField()

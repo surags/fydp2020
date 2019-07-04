@@ -1,3 +1,4 @@
+import bcrypt
 import bottle
 from bottle import request, response
 from bottle import post, get, put, delete
@@ -5,12 +6,14 @@ from oauthlib import oauth2
 from bottle_oauthlib.oauth2 import BottleOAuth2
 
 from src.helper import router
+from src.model.users import Users
 
 router = router.Factory().get_router()
 
 
 class Client():
     client_id = None
+
 
 class OAuth2_PasswordValidator(oauth2.RequestValidator):
     """dict of clients containing list of valid scopes"""
@@ -88,6 +91,40 @@ def setup_routes(user_id):
 def setup_routes(user_id):
     router.delete_iptable_rules(user_id)
     response.status = 200
+    return
+
+
+# Authenticate user
+@get('/student/<user_id>/auth/<password>')
+def authenticate_user(userid, password):
+    try:
+        authUser = Users.select().where(Users.user_id == userid)
+        if not authUser.exists():
+            response.status = 400
+            response.body = "Error, user does not exit"
+
+        check = bcrypt.checkpw(password.encode('utf-8'), authUser)
+        if check:
+            response.body = "User successfully authenticated"
+            response.status = 200
+    except Exception as e:
+        response.body = str(e)
+        response.status = 500
+    return
+
+
+# Create user, returns user_id
+@put('/student/<username>/create/<password>')
+def create_user(username, password):
+    try:
+        newUser = Users()
+        newUser.user_name = username
+        newUser.hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+        response.status = 200
+        response.body = newUser.user_id
+    except Exception as e:
+        response.body = str(e)
+        response.status = 500
     return
 
 
