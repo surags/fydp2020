@@ -6,6 +6,7 @@ from src.model.os_container import OSContainer
 from src.model.session_info_table import SessionInfo
 from src.model.student import Student
 from src.model.teacher import Teacher
+from src.model.user_type import UserType
 from src.model.users import Users
 import peewee
 
@@ -17,10 +18,11 @@ db = peewee.MySQLDatabase(
     passwd="supersecret"
 )
 
+
 class DatabaseInitializer:
     def __init__(self):
         try:
-            db.connect()
+            UserType.create_table()
             Application.create_table()
             Users.create_table()
             ApplicationPermission.create_table()

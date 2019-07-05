@@ -15,24 +15,22 @@ class AuthenticationHelper:
         new_user.school_id = username
         new_user.first_name = "John"
         new_user.last_name = "Smith"
+        new_user.user_type = 'teacher'
         new_user.email = username + "@abc.com"
         new_user.save()
         return "Successfully Created New User", 200
 
-    def validate_user(self, username, password):
+    def validate_user(self, user_type_id, username, password):
         try:
-            user = Users.select().where(Users.user_name == (username))
+            user = Users.select().where(Users.user_name == username)
             if not user:
-                print("Failed")
-                return "Failed Authentication", 401
-            if bcrypt.checkpw(password.encode('utf-8'), user[0].hashed_password.encode('utf8')):
-                print("Success")
-                return "Successfully Authenticated", 200
+                return False
+            if bcrypt.checkpw(password.encode('utf-8'), user[0].hashed_password.encode('utf8')) and user[0].user_type_id == user_type_id:
+                return True
             else:
-                print("Failed")
-                return "Failed Authentication", 401
+                return False
         except peewee.DoesNotExist as e:
-            return "Failed Authentication", 401
+            return False
 
 
 class Factory:

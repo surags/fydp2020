@@ -51,6 +51,7 @@ class Router:
 
         return container_info[0]
 
+
     def build_iptable_rules_setup(self, destination_ip, source_port, destination_port):
         route1 = "iptables -t nat -A PREROUTING -p tcp --dport %s -j DNAT --to-destination %s:%s;" % (source_port, destination_ip, destination_port)
         route2 = "iptables -t nat -A POSTROUTING -p tcp -s %s --dport %s -j SNAT --to-source %s;" % (destination_ip, destination_port, self.client_ip)
