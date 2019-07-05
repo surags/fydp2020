@@ -1,4 +1,3 @@
-import bcrypt
 import bottle
 from bottle import request, response
 from bottle import post, get, put, delete
@@ -74,31 +73,29 @@ app.auth.initialize(server)
 def listing_handler():
     return [b"Hello"]
 
-
 @get('/setup/routes/<user_id>')
 def setup_routes(user_id):
     router.setup_routes(user_id)
     response.status = 200
     return
 
-
 @get('/delete/routes/<user_id>')
-def setup_routes(user_id):
+def delete_routes(user_id):
     router.delete_iptable_rules(user_id)
     response.status = 200
     return
 
 
 # Authenticate user
-@get('/student/<user_id>/auth/<password>')
-def authenticate_user(user_id, password):
+@get('/student/<username>/auth/<password>')
+def authenticate_user(username, password):
     try:
-        response.body, response.status = authentication_helper.validate_user(user_id, password)
+        response.body, response.status = authentication_helper.validate_user(username, password)
     except Exception as e:
         print(e)
         response.body = str(e)
         response.status = 500
-    return
+    return response
 
 
 # Create user, returns user_id
@@ -109,8 +106,7 @@ def create_user(username, password):
     except Exception as e:
         response.body = str(e)
         response.status = 500
-    return
-
+    return response
 
 @get('/mail')
 @app.auth.verify_request(scopes=['streamingOS'])
