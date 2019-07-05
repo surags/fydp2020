@@ -2,7 +2,7 @@ import subprocess
 from queue import Queue
 from threading import Lock
 from src.model import session_info
-
+from src.model import os_container
 
 class Router:
 
@@ -27,9 +27,29 @@ class Router:
         #TODO: Change this function to return a port from a pool of available ports
         return self.port_queue.get()
 
-    def get_destination_ip_port(self):
+    def set_container_busy(self, container):
+        (os_container.OSContainer
+            .set_by_id(container.container_id, {'is_free': False}))
+
+
+    def set_container_free(self, container_id):
+        (os_container.OSContainer
+            .set_by_id(container_id, {'is_free': True}))
+
+
+    def get_free_container(self):
         #TODO: Change this function to read from the database, and get a free ip/port
-        return "172.19.0.4", "5901"
+        container_info = (os_container.OSContainer
+                .select()
+                .where(
+                    (os_container.OSContainer.is_free == True) &
+                    (os_container.OSContainer.is_running == True)
+                )
+        )
+
+        self.set_container_busy(container_info[0])
+
+        return container_info[0]
 
     def build_iptable_rules_setup(self, destination_ip, source_port, destination_port):
         route1 = "iptables -t nat -A PREROUTING -p tcp --dport %s -j DNAT --to-destination %s:%s;" % (source_port, destination_ip, destination_port)
@@ -45,12 +65,13 @@ class Router:
 
         return route1 + route2 + route3
 
-    def setup_routes(self, user_id, destination_ip):
+    def setup_routes(self, user_id):
         if user_id not in self.session_info_map:
             source_port = self.get_free_port()
-            destination_ip, destination_port = self.get_destination_ip_port()
-            iptables_rules = self.build_iptable_rules_setup(destination_ip, source_port, destination_port)
-            self.session_info_map[user_id] = session_info.SessionInfo(self.client_ip, source_port, destination_ip, destination_port)
+            destination_port = "5901"
+            container = self.get_free_container()
+            iptables_rules = self.build_iptable_rules_setup(container.ip_address, source_port, destination_port)
+            self.session_info_map[user_id] = session_info.SessionInfo(container.container_id, self.client_ip, source_port, container.ip_address, destination_port)
             process = subprocess.Popen(iptables_rules, stdout=subprocess.PIPE, shell=True)
             proc_stdout = process.communicate()[0].strip()
             print(iptables_rules)
@@ -64,6 +85,7 @@ class Router:
                 self.session_info_map[user_id].source_port,
                 self.session_info_map[user_id].destination_port,
             )
+            self.set_container_free(self.session_info_map[user_id].container_id)
             print(iptables_rules)
             process = subprocess.Popen(iptables_rules, stdout=subprocess.PIPE, shell=True)
             proc_stdout = process.communicate()[0].strip()
