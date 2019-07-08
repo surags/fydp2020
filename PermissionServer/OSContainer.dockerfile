@@ -6,6 +6,7 @@ FROM ubuntu:16.04
 
 ENV DISPLAY=:1 \
     VNC_PORT=5901
+
 EXPOSE $VNC_PORT
 
 ### Envrionment config
@@ -21,33 +22,57 @@ ENV HOME=/headless \
 WORKDIR $HOME
 
 ### Add all install scripts for further steps
-ADD ./src/common/install/ $INST_SCRIPTS/
-ADD ./src/ubuntu/install/ $INST_SCRIPTS/
+ADD ./oscontainer/src/common/install/ $INST_SCRIPTS/
+ADD ./oscontainer/src/ubuntu/install/ $INST_SCRIPTS/
 RUN find $INST_SCRIPTS -name '*.sh' -exec chmod a+x {} +
 
 ### Install some common tools
-RUN $INST_SCRIPTS/tools.sh
-ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
+#RUN $INST_SCRIPTS/tools.sh
+#ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
+#
+#### Install custom fonts
+#RUN $INST_SCRIPTS/install_custom_fonts.sh
+#
+#### Install xvnc-server & noVNC - HTML5 based VNC viewer
+#RUN $INST_SCRIPTS/tigervnc.sh
+#
+#### Install firefox and chrome browser
+#RUN $INST_SCRIPTS/firefox.sh
+#
+#### Install xfce UI
+#RUN $INST_SCRIPTS/xfce_ui.sh
+ADD ./oscontainer/src/common/xfce/ $HOME/
+#
+#### configure startup
+#RUN $INST_SCRIPTS/libnss_wrapper.sh
+ADD ./oscontainer/src/common/scripts $STARTUPDIR
+#RUN $INST_SCRIPTS/set_user_permission.sh $STARTUPDIR $HOME
 
-### Install custom fonts
-RUN $INST_SCRIPTS/install_custom_fonts.sh
+######## Setup Permissions Server
+WORKDIR $STARTUPDIR
 
-### Install xvnc-server & noVNC - HTML5 based VNC viewer
-RUN $INST_SCRIPTS/tigervnc.sh
+RUN apt-get update && apt-get install -y\
+        uwsgi-plugin-python3 \
+        python3 \
+        python3-dev
 
-### Install firefox and chrome browser
-RUN $INST_SCRIPTS/firefox.sh
+RUN apt-get install -y build-essential \
+		libc-dev \
+		vim \
+		dos2unix \
+		libffi-dev
 
-### Install xfce UI
-RUN $INST_SCRIPTS/xfce_ui.sh
-ADD ./src/common/xfce/ $HOME/
+RUN apt-get install -y uwsgi-plugin-python
 
-### configure startup
-RUN $INST_SCRIPTS/libnss_wrapper.sh
-ADD ./src/common/scripts $STARTUPDIR
-RUN $INST_SCRIPTS/set_user_permission.sh $STARTUPDIR $HOME
+COPY . $STARTUPDIR
+COPY requirements.txt $STARTUPDIR
 
-USER 1000
 
-ENTRYPOINT ["/dockerstartup/vnc_startup.sh"]
+RUN apt-get install -y python3-pip
+RUN python3 -m pip install --no-cache-dir -r requirements.txt
+
+
+#USER 1000
+
+#ENTRYPOINT ["/dockerstartup/start.sh"]
 CMD ["--wait"]
