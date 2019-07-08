@@ -2,14 +2,18 @@ import bottle
 
 from src.helper import authentication_helper
 from src.wsgi import app
-from bottle import response
-from bottle import post, get, put
+from bottle import response, request
+from bottle import post, get, put, delete
 
 from src.helper import router
 
 router = router.Factory().get_router()
 authentication_helper = authentication_helper.Factory().get_authentication_helper()
 
+
+@get('/test')
+def test_call():
+    return [b"This is a test call"]
 
 @get('/')
 @app.auth.verify_request(scopes=['streamingOS'])
@@ -31,23 +35,21 @@ def delete_routes(user_id):
     return
 
 
-# Authenticate user
-@get('/student/<username>/auth/<password>')
-def authenticate_user(username, password):
-    try:
-        response.body, response.status = authentication_helper.validate_user(username, password)
-    except Exception as e:
-        print(e)
-        response.body = str(e)
-        response.status = 500
-    return response
-
-
 # Create user, returns user_id
 @put('/student/<username>/create/<password>')
 def create_user(username, password):
     try:
-        response.body, response.status = authentication_helper.create_new_user(username, password)
+        response.body, response.status = authentication_helper.create_new_user(username, password, request.params)
+    except Exception as e:
+        response.body = str(e)
+        response.status = 500
+    return response
+
+# Delete user
+@delete('/student/<username>/delete')
+def delete_user(username):
+    try:
+        response.body, response.status = authentication_helper.delete_user(username)
     except Exception as e:
         response.body = str(e)
         response.status = 500
