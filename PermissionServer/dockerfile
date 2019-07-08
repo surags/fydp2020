@@ -24,3 +24,5 @@ CMD ["/bin/ash", "./start.sh"]
 #uwsgi --http-socket :9090 --plugin /usr/lib/uwsgi/python3_plugin.so --wsgi-file ./wsgi.py
 
 #--plugin /usr/lib/uwsgi/python3_plugin.so
+
+# This Dockerfile is used to build an headles vnc image based on Ubuntu
