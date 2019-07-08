@@ -27,26 +27,26 @@ ADD ./oscontainer/src/ubuntu/install/ $INST_SCRIPTS/
 RUN find $INST_SCRIPTS -name '*.sh' -exec chmod a+x {} +
 
 ### Install some common tools
-#RUN $INST_SCRIPTS/tools.sh
-#ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
-#
+RUN $INST_SCRIPTS/tools.sh
+ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
+
 #### Install custom fonts
-#RUN $INST_SCRIPTS/install_custom_fonts.sh
-#
+RUN $INST_SCRIPTS/install_custom_fonts.sh
+
 #### Install xvnc-server & noVNC - HTML5 based VNC viewer
-#RUN $INST_SCRIPTS/tigervnc.sh
-#
+RUN $INST_SCRIPTS/tigervnc.sh
+
 #### Install firefox and chrome browser
-#RUN $INST_SCRIPTS/firefox.sh
-#
+RUN $INST_SCRIPTS/firefox.sh
+
 #### Install xfce UI
-#RUN $INST_SCRIPTS/xfce_ui.sh
+RUN $INST_SCRIPTS/xfce_ui.sh
 ADD ./oscontainer/src/common/xfce/ $HOME/
-#
+
 #### configure startup
-#RUN $INST_SCRIPTS/libnss_wrapper.sh
+RUN $INST_SCRIPTS/libnss_wrapper.sh
 ADD ./oscontainer/src/common/scripts $STARTUPDIR
-#RUN $INST_SCRIPTS/set_user_permission.sh $STARTUPDIR $HOME
+RUN $INST_SCRIPTS/set_user_permission.sh $STARTUPDIR $HOME
 
 ######## Setup Permissions Server
 WORKDIR $STARTUPDIR
@@ -60,6 +60,7 @@ RUN apt-get install -y build-essential \
 		libc-dev \
 		vim \
 		dos2unix \
+		libssl-dev \
 		libffi-dev
 
 RUN apt-get install -y uwsgi-plugin-python
@@ -74,5 +75,6 @@ RUN python3 -m pip install --no-cache-dir -r requirements.txt
 
 #USER 1000
 
-#ENTRYPOINT ["/dockerstartup/start.sh"]
-CMD ["--wait"]
+ENTRYPOINT ["/dockerstartup/start.sh"]
+#docker run --cap-add=NET_ADMIN --name os -v "$(pwd)/src:/dockerstartup/src/" --net mynet -p5901:5901 oscontainer:latest
+#chmod -R -x /usr/lib/<app name>

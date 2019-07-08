@@ -2,6 +2,7 @@ import bottle
 
 from src.helper import database_intializer_helper
 from src.helper.application_permission_helper import ApplicationPermissionHelper
+from src import routes
 
 app = application = bottle.default_app()
 db_init = database_intializer_helper.DatabaseInitializer()
