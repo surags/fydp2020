@@ -1,6 +1,9 @@
 import bcrypt
 import peewee
 from threading import Lock
+
+from src.model.student import Student
+from src.model.teacher import Teacher
 from src.model.users import Users
 
 
@@ -19,7 +22,22 @@ class AuthenticationHelper:
             new_user.user_type = query.user_type
             new_user.email = query.email
             new_user.save()
-            return "Successfully Created New User", 200
+            if query.user_type.lower() == "teacher":
+                new_teacher = Teacher()
+                new_teacher.user_id = new_user.user_id
+                new_teacher.has_system_access = True
+                new_teacher.save()
+                return "Successfully created teacher " + new_user.user_name + " created", 200
+            elif query.user_type.lower() == "student":
+                new_student = Student()
+                new_student.user_id = new_user.user_id
+                new_student.has_system_access = False
+                new_student.save()
+                return "Successfully created student " + new_user.user_name + " created", 200
+            else:
+                return "Unknown user type", 400
+
+
         except Exception as e:
             return str(e), 500
 
@@ -38,13 +56,10 @@ class AuthenticationHelper:
     def delete_user(self, username):
         try:
             user = Users.get(Users.user_name == username)
-            user.delete_instance()
-            if not user:
-                return "User does not exist", 404
-            Users.delete().where(Users.user_name == username)
+            user.delete_instance(recursive=True)
             return "Successfully deleted user", 200
-        except Exception as e:
-            return e, 418
+        except peewee.DoesNotExist as e:
+            return "Error: User does not exist", 400
 
 
 class Factory:
