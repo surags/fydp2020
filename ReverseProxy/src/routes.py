@@ -36,7 +36,7 @@ def delete_routes(user_id):
 
 
 # Create user, returns user_id
-@put('/student/<username>/create/<password>')
+@put('/user/<username>/create/<password>')
 def create_user(username, password):
     try:
         response.body, response.status = authentication_helper.create_new_user(username, password, request.params)
@@ -46,7 +46,7 @@ def create_user(username, password):
     return response
 
 # Delete user
-@delete('/student/<username>/delete')
+@delete('/user/<username>/delete')
 def delete_user(username):
     try:
         response.body, response.status = authentication_helper.delete_user(username)

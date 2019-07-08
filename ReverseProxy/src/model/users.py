@@ -5,7 +5,7 @@ import peewee
 
 class Users(BaseModel):
     user_id = peewee.AutoField(primary_key=True)
-    school_id = peewee.CharField(unique=True)
+    school_id = peewee.CharField()
     user_name = peewee.CharField(unique=True)
     user_type = peewee.ForeignKeyField(UserType, field='user_type')
     hashed_password = peewee.CharField()
