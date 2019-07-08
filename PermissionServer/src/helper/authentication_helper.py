@@ -8,20 +8,17 @@ class AuthenticationHelper:
     def __init__(self):
         pass
 
-    def create_new_user(self, username, password, query):
-        try:
-            new_user = Users()
-            new_user.user_name = username
-            new_user.hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-            new_user.school_id = query.school_id
-            new_user.first_name = query.first_name
-            new_user.last_name = query.last_name
-            new_user.user_type = query.user_type
-            new_user.email = query.email
-            new_user.save()
-            return "Successfully Created New User", 200
-        except Exception as e:
-            return str(e), 500
+    def create_new_user(self, username, password):
+        new_user = Users()
+        new_user.user_name = username
+        new_user.hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+        new_user.school_id = username
+        new_user.first_name = "John"
+        new_user.last_name = "Smith"
+        new_user.user_type = 'teacher'
+        new_user.email = username + "@abc.com"
+        new_user.save()
+        return "Successfully Created New User", 200
 
     def validate_user(self, user_type_id, username, password):
         try:
@@ -34,17 +31,6 @@ class AuthenticationHelper:
                 return False
         except peewee.DoesNotExist as e:
             return False
-
-    def delete_user(self, username):
-        try:
-            user = Users.get(Users.user_name == username)
-            user.delete_instance()
-            if not user:
-                return "User does not exist", 404
-            Users.delete().where(Users.user_name == username)
-            return "Successfully deleted user", 200
-        except Exception as e:
-            return e, 418
 
 
 class Factory:
