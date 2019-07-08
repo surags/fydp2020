@@ -12,7 +12,6 @@ authentication_helper = authentication_helper.Factory().get_authentication_helpe
 
 
 @get('/')
-@app.auth.verify_request(scopes=['streamingOS'])
 def listing_handler():
     return [b"Hello"]
 
