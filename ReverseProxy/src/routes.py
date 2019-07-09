@@ -7,6 +7,8 @@ import json
 from peewee import JOIN
 
 from src.helper import authentication_helper
+from src.model.application import Application
+from src.model.application_permissions import ApplicationPermission
 from src.model.school import School
 from src.model.users import Users
 from src.wsgi import app
@@ -93,6 +95,15 @@ def user_info(username):
 def student_list():
     query = Users.select(Users.user_id, Users.first_name, Users.last_name).where(Users.user_type == "Student").dicts()
     response.body = json.dumps({'students': list(query)})
+    response.status = 200
+    return response
+
+# Get the list of permitted applications for a student
+@get('/user/<user_id>/applications')
+def student_list(user_id):
+    join_condition = ApplicationPermission.application_id == Application.application_id
+    query = ApplicationPermission.select(Application.application_name).join(Application, JOIN.INNER, on=join_condition).where(ApplicationPermission.user_id == user_id).dicts()
+    response.body = json.dumps({'applications': list(query)})
     response.status = 200
     return response
 
