@@ -75,8 +75,7 @@ class Router:
             self.session_info_map[user_id] = session_info.SessionInfo(container.container_id, self.client_ip, source_port, container.ip_address, destination_port)
             process = subprocess.Popen(iptables_rules, stdout=subprocess.PIPE, shell=True)
             proc_stdout = process.communicate()[0].strip()
-            print(iptables_rules)
-            print(proc_stdout)
+            # return source_port, container.ip_address
 
     def delete_iptable_rules(self, user_id):
         if user_id in self.session_info_map:

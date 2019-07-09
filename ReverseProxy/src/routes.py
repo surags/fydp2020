@@ -1,6 +1,12 @@
+from functools import singledispatch
+from datetime import datetime
+
 import bottle
+import json
 
 from src.helper import authentication_helper
+from src.model.school import School
+from src.model.users import Users
 from src.wsgi import app
 from bottle import response, request
 from bottle import post, get, put, delete
@@ -54,6 +60,30 @@ def delete_user(username):
         response.status = 500
     return response
 
+# Get info about a user
+@get('/user/<username>/info')
+def user_info(username):
+    try:
+        user = Users.get(Users.user_name == username)
+        school = School.get(School.school_id == user.school_id)
+        data = {}
+        data['username'] = user.user_name
+        data['user_id'] = user.user_id
+        data['first_name'] = user.first_name
+        data['last_name'] = user.last_name
+        data['school_id'] = user.school_id
+        data['email'] = user.email
+        data['user_type'] = user.school_id
+        data['school_name'] = school.school_name
+        data['date_created'] = user.registration_date
+        response.body = json.dumps(data, default=to_serializable)
+        response.status = 200
+    except Exception as e:
+        print(e)
+        response.body = "Error: User does not exist"
+        response.status = 400
+    return response
+
 
 @get('/mail')
 @app.auth.verify_request(scopes=['streamingOS'])
@@ -70,3 +100,15 @@ def access_streamingOS():
 @app.auth.create_token_response()
 def generate_token():
     pass
+
+
+@singledispatch
+def to_serializable(val):
+    """Used by default."""
+    return str(val)
+
+
+@to_serializable.register(datetime)
+def ts_datetime(val):
+    """Used if *val* is an instance of datetime."""
+    return val.isoformat() + "Z"
