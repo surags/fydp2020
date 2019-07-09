@@ -21,6 +21,7 @@ authentication_helper = authentication_helper.Factory().get_authentication_helpe
 def test_call():
     return [b"This is a test call"]
 
+
 @get('/')
 def listing_handler():
     return [b"Hello"]
@@ -28,8 +29,16 @@ def listing_handler():
 
 @get('/setup/routes/<user_id>')
 def setup_routes(user_id):
-    router.setup_routes(user_id)
-    response.status = 200
+    try:
+        source_port, container_ip = router.setup_routes(user_id)
+        data = {}
+        data['source_port'] = source_port
+        data['container_ip'] = container_ip
+        response.body = json.dumps(data)
+        response.status = 200
+    except Exception as e:
+        print(e)
+        response.status = 500
     return
 
 
@@ -50,6 +59,7 @@ def create_user(username, password):
         response.status = 500
     return response
 
+
 # Delete user
 @delete('/user/<username>/delete')
 def delete_user(username):
@@ -59,6 +69,7 @@ def delete_user(username):
         response.body = str(e)
         response.status = 500
     return response
+
 
 # Get info about a user
 @get('/user/<username>/info')
@@ -73,7 +84,7 @@ def user_info(username):
         data['last_name'] = user.last_name
         data['school_id'] = user.school_id
         data['email'] = user.email
-        data['user_type'] = user.school_id
+        data['user_type'] = user.school_id  # TODO: Fix this
         data['school_name'] = school.school_name
         data['date_created'] = user.registration_date
         response.body = json.dumps(data, default=to_serializable)
