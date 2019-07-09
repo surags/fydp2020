@@ -1,12 +1,9 @@
-from functools import singledispatch
-from datetime import datetime
-
-import bottle
 import json
 
 from peewee import JOIN
 
 from src.helper import authentication_helper
+from src.helper import response_format_helper
 from src.model.application import Application
 from src.model.application_permissions import ApplicationPermission
 from src.model.school import School
@@ -19,6 +16,7 @@ from src.helper import router
 
 router = router.Factory().get_router()
 authentication_helper = authentication_helper.Factory().get_authentication_helper()
+response_format_helper = response_format_helper.Factory().get_response_format_helper()
 
 
 @get('/test')
@@ -31,7 +29,7 @@ def listing_handler():
     return [b"Hello"]
 
 
-@get('/setup/routes/<user_id>')
+@get('/routes/start/<user_id>')
 def setup_routes(user_id):
     try:
         source_port, container_ip = router.setup_routes(user_id)
@@ -46,7 +44,7 @@ def setup_routes(user_id):
     return
 
 
-@get('/delete/routes/<user_id>')
+@get('/routes/delete/<user_id>')
 def delete_routes(user_id):
     router.delete_iptable_rules(user_id)
     response.status = 200
@@ -65,10 +63,10 @@ def create_user(username, password):
 
 
 # Delete user
-@delete('/user/<username>/delete')
-def delete_user(username):
+@delete('/user/<user_id>/delete')
+def delete_user(user_id):
     try:
-        response.body, response.status = authentication_helper.delete_user(username)
+        response.body, response.status = authentication_helper.delete_user(user_id)
     except Exception as e:
         response.body = str(e)
         response.status = 500
@@ -76,12 +74,12 @@ def delete_user(username):
 
 
 # Get info about a user
-@get('/user/<username>/info')
-def user_info(username):
+@get('/user/<user_id>/info')
+def user_info(user_id):
     try:
         join_condition = Users.school_id == School.school_id
-        query = Users.select(Users, School.school_name).join(School, JOIN.LEFT_OUTER, on=join_condition).where(Users.user_name == username).dicts()
-        response.body = json.dumps({'student': list(query)}, default=to_serializable)
+        query = Users.select(Users, School.school_name).join(School, JOIN.LEFT_OUTER, on=join_condition).where(Users.user_id == user_id).dicts()
+        response.body = json.dumps({'student': list(query)}, default=response_format_helper.to_serializable)
         response.status = 200
     except Exception as e:
         print(e)
@@ -90,10 +88,10 @@ def user_info(username):
     return response
 
 
-# Get a list of all the students
-@get('/user/studentlist')
-def student_list():
-    query = Users.select(Users.user_id, Users.first_name, Users.last_name).where(Users.user_type == "Student").dicts()
+# Get a list of all the students in the school specified
+@get('/school/<school_id>/studentlist')
+def student_list(school_id):
+    query = Users.select(Users.user_id, Users.first_name, Users.last_name).where(Users.user_type == "Student" and Users.school_id == school_id).dicts()
     response.body = json.dumps({'students': list(query)})
     response.status = 200
     return response
@@ -107,30 +105,9 @@ def student_list(user_id):
     response.status = 200
     return response
 
-@get('/mail')
-@app.auth.verify_request(scopes=['streamingOS'])
-def access_streamingOS():
-    response.status = 200
-    response.body = bottle.request.oauth
-    return "Welcome {}, you have permissioned {} to use streamingOS".format(
-        bottle.request.oauth["user"],
-        bottle.request.oauth["client"].client_id
-    )
-
 
 @post('/token')
 @app.auth.create_token_response()
 def generate_token():
     pass
 
-
-@singledispatch
-def to_serializable(val):
-    """Used by default."""
-    return str(val)
-
-
-@to_serializable.register(datetime)
-def ts_datetime(val):
-    """Used if *val* is an instance of datetime."""
-    return val.isoformat() + "Z"

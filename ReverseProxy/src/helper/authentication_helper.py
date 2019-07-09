@@ -53,9 +53,9 @@ class AuthenticationHelper:
         except peewee.DoesNotExist as e:
             return False
 
-    def delete_user(self, username):
+    def delete_user(self, user_id):
         try:
-            user = Users.get(Users.user_name == username)
+            user = Users.get(Users.user_id == user_id)
             user.delete_instance(recursive=True)
             return "Successfully deleted user", 200
         except peewee.DoesNotExist as e:
