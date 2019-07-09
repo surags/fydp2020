@@ -4,6 +4,8 @@ from datetime import datetime
 import bottle
 import json
 
+from peewee import JOIN
+
 from src.helper import authentication_helper
 from src.model.school import School
 from src.model.users import Users
@@ -75,19 +77,9 @@ def delete_user(username):
 @get('/user/<username>/info')
 def user_info(username):
     try:
-        user = Users.get(Users.user_name == username)
-        school = School.get(School.school_id == user.school_id)
-        data = {}
-        data['username'] = user.user_name
-        data['user_id'] = user.user_id
-        data['first_name'] = user.first_name
-        data['last_name'] = user.last_name
-        data['school_id'] = user.school_id
-        data['email'] = user.email
-        data['user_type'] = user.school_id  # TODO: Fix this
-        data['school_name'] = school.school_name
-        data['date_created'] = user.registration_date
-        response.body = json.dumps(data, default=to_serializable)
+        join_condition = Users.school_id == School.school_id
+        query = Users.select(Users, School.school_name).join(School, JOIN.LEFT_OUTER, on=join_condition).where(Users.user_name == username).dicts()
+        response.body = json.dumps({'student': list(query)}, default=to_serializable)
         response.status = 200
     except Exception as e:
         print(e)
@@ -95,6 +87,14 @@ def user_info(username):
         response.status = 400
     return response
 
+
+# Get a list of all the students
+@get('/user/studentlist')
+def student_list():
+    query = Users.select(Users.user_id, Users.first_name, Users.last_name).where(Users.user_type == "Student").dicts()
+    response.body = json.dumps({'students': list(query)})
+    response.status = 200
+    return response
 
 @get('/mail')
 @app.auth.verify_request(scopes=['streamingOS'])
