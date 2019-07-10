@@ -1,6 +1,10 @@
+import json
+
 import bcrypt
 import peewee
 from threading import Lock
+
+from bottle import response
 
 from src.model.student import Student
 from src.model.teacher import Teacher
@@ -27,18 +31,25 @@ class AuthenticationHelper:
                 new_teacher.user_id = new_user.user_id
                 new_teacher.has_system_access = True
                 new_teacher.save()
-                return "Successfully created teacher " + new_user.user_name, 200
+
+                response.body = json.dumps({'success': 'Successfully created teacher ' + new_user.user_name + ' with id ' + str(new_user.user_id), 'id': new_user.user_id})
+                response.status = 200
             elif query.user_type.lower() == "student":
                 new_student = Student()
                 new_student.user_id = new_user.user_id
                 new_student.has_system_access = False
                 new_student.save()
-                return "Successfully created student " + new_user.user_name, 200
+
+                response.body = json.dumps({'success': 'Successfully created student ' + new_user.user_name + ' with id ' + str(new_user.user_id), 'id': new_user.user_id})
+                response.status = 200
             else:
-                return "Unknown user type", 400
+                response.body = json.dumps({'error': 'Unknown user type'})
+                response.status = 500
 
         except Exception as e:
-            return str(e), 500
+            response.body = json.dumps({'error': str(e)})
+            response.status = 500
+        return response
 
     def validate_user(self, user_type_id, username, password):
         try:
@@ -56,9 +67,15 @@ class AuthenticationHelper:
         try:
             user = Users.get(Users.user_id == user_id)
             user.delete_instance(recursive=True)
-            return "Successfully deleted user", 200
+            response.body = json.dumps({'user': 'Successfully deleted user ' + user_id})
+            response.status = 200
         except peewee.DoesNotExist as e:
-            return "Error: User does not exist", 400
+            response.body = json.dumps({'error': 'User does not exist'})
+            response.status = 400
+        except Exception as e:
+            response.body = json.dumps({'error': str(e)})
+            response.status = 500
+        return response
 
 
 class Factory:

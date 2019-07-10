@@ -22,9 +22,9 @@ class UserHelper:
     def user_info(self, user_id):
         try:
             join_condition = Users.school_id == School.school_id
-            query = Users.select(Users, School.school_name).join(School, JOIN.LEFT_OUTER, on=join_condition).where(
+            query = Users.select(Users, School.school_name).join(School, JOIN.INNER, on=join_condition).where(
                 Users.user_id == user_id).dicts()
-            response.body = json.dumps({'student': list(query)}, default=response_format_helper.to_serializable)
+            response.body = json.dumps({'user': list(query)}, default=response_format_helper.to_serializable)
             response.status = 200
         except Exception as e:
             print(e)
@@ -46,9 +46,7 @@ class UserHelper:
 
     def permitted_apps(self, user_id):
         join_condition = ApplicationPermission.application_id == Application.application_id
-        query = ApplicationPermission.select(Application.application_name).join(Application, JOIN.INNER,
-                                                                                on=join_condition).where(
-            ApplicationPermission.user_id == user_id).dicts()
+        query = ApplicationPermission.select(Application.application_id, Application.application_name).join(Application, JOIN.INNER, on=join_condition).where(ApplicationPermission.user_id == user_id).dicts()
         response.body = json.dumps({'applications': list(query)})
         response.status = 200
         return response

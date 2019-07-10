@@ -25,46 +25,25 @@ def listing_handler():
 
 @get('/routes/start/<user_id>')
 def setup_routes(user_id):
-    try:
-        source_port, container_ip = router.setup_routes(user_id)
-        data = {}
-        data['source_port'] = source_port
-        data['container_ip'] = container_ip
-        response.body = json.dumps(data)
-        response.status = 200
-    except Exception as e:
-        print(e)
-        response.status = 500
-    return
+    return router.setup_routes(user_id)
 
 
+# Deletes routes for user
 @get('/routes/delete/<user_id>')
 def delete_routes(user_id):
-    router.delete_iptable_rules(user_id)
-    response.status = 200
-    return
+    return router.delete_iptable_rules(user_id)
 
 
 # Create user, returns user_id
 @put('/user/<username>/create/<password>')
 def create_user(username, password):
-    try:
-        response.body, response.status = authentication_helper.create_new_user(username, password, request.params)
-    except Exception as e:
-        response.body = str(e)
-        response.status = 500
-    return response
+    return authentication_helper.create_new_user(username, password, request.params)
 
 
 # Delete user
 @delete('/user/<user_id>/delete')
 def delete_user(user_id):
-    try:
-        response.body, response.status = authentication_helper.delete_user(user_id)
-    except Exception as e:
-        response.body = str(e)
-        response.status = 500
-    return response
+    return authentication_helper.delete_user(user_id)
 
 
 # Get info about a user
