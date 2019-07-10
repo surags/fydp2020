@@ -4,6 +4,7 @@ from src.model.application_permissions import ApplicationPermission
 from src.model.device import Device
 from src.model.os_container import OSContainer
 from src.model.session_info_table import SessionInfo
+from src.model.school import School
 from src.model.student import Student
 from src.model.teacher import Teacher
 from src.model.user_type import UserType
@@ -22,6 +23,7 @@ db = peewee.MySQLDatabase(
 class DatabaseInitializer:
     def __init__(self):
         try:
+            School.create_table()
             UserType.create_table()
             Application.create_table()
             Users.create_table()

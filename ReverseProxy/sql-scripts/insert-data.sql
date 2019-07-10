@@ -1,3 +1,10 @@
 INSERT INTO oscontainer (docker_container_id, ip_address, is_free, is_running)  VALUES (12345, '172.18.0.2', TRUE, TRUE);
 INSERT INTO usertype (user_type) VALUES ('student');
 INSERT INTO usertype (user_type) VALUES ('teacher');
+INSERT INTO school (school_id, school_name) VALUES ('10', "City High School");
+INSERT INTO application(application_id, application_name) VALUES ('25', "Microsoft Word");
+INSERT INTO application(application_id, application_name) VALUES ('26', "Notepad ++");
+INSERT INTO application(application_id, application_name) VALUES ('27', "Google Chrome");
+INSERT INTO application(application_id, application_name) VALUES ('28', "Borderlands 2");
+INSERT INTO applicationpermission(user_id, application_id) VALUES ('9', '28');
+INSERT INTO applicationpermission(user_id, application_id) VALUES ('9', '26');

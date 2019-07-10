@@ -1,3 +1,5 @@
+import json
+from bottle import response
 import subprocess
 from queue import Queue
 from threading import Lock
@@ -67,16 +69,26 @@ class Router:
         return route1 + route2 + route3
 
     def setup_routes(self, user_id):
-        if user_id not in self.session_info_map:
-            source_port = self.get_free_port()
-            destination_port = "5901"
-            container = self.get_free_container()
-            iptables_rules = self.build_iptable_rules_setup(container.ip_address, source_port, destination_port)
-            self.session_info_map[user_id] = session_info.SessionInfo(container.container_id, self.client_ip, source_port, container.ip_address, destination_port)
-            process = subprocess.Popen(iptables_rules, stdout=subprocess.PIPE, shell=True)
-            proc_stdout = process.communicate()[0].strip()
-            print(iptables_rules)
-            print(proc_stdout)
+        try:
+            data = {}
+            if user_id not in self.session_info_map:
+                source_port = self.get_free_port()
+                destination_port = "5901"
+                container = self.get_free_container()
+                iptables_rules = self.build_iptable_rules_setup(container.ip_address, source_port, destination_port)
+                self.session_info_map[user_id] = session_info.SessionInfo(container.container_id, self.client_ip, source_port, container.ip_address, destination_port)
+                process = subprocess.Popen(iptables_rules, stdout=subprocess.PIPE, shell=True)
+                proc_stdout = process.communicate()[0].strip()
+                data['source_port'] = source_port
+                data['container_ip'] = container.ip_address
+            else:
+                data['source_port'] = self.session_info_map[user_id].source_port
+                data['container_ip'] = self.session_info_map[user_id].destination_ip
+            response.body = json.dumps({'routes': data})
+            response.status = 200
+        except Exception as e:
+            response.body = json.dumps({'error': str(e)})
+            response.status = 500
 
     def delete_iptable_rules(self, user_id):
         if user_id in self.session_info_map:
@@ -93,6 +105,9 @@ class Router:
             print(proc_stdout)
             self.add_to_port_queue(self.session_info_map[user_id].source_port)
             del self.session_info_map[user_id]
+        response.body = json.dumps({'success': 'Deleted routes for user_id ' + str(user_id)})
+        response.status = 200
+        return response
 
 
 class Factory:
