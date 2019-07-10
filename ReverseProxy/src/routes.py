@@ -8,7 +8,7 @@ from bottle import post, get, put, delete
 
 from src.helper import router
 
-router = router.Factory().get_router()
+router = router.factory.get_router()
 authentication_helper = authentication_helper.Factory().get_authentication_helper()
 user_helper = user_helper.Factory().get_user_helper()
 
@@ -23,7 +23,7 @@ def listing_handler():
     return [b"Hello"]
 
 
-@get('/routes/start/<user_id>')
+@get('/routes/setup/<user_id>')
 def setup_routes(user_id):
     return router.setup_routes(user_id)
 

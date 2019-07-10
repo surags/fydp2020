@@ -5,9 +5,11 @@ from src import routes
 
 from src.helper import database_intializer_helper
 from src.authentication.oauth2_password_validator import OAuth2_PasswordValidator
+from src.helper.database_data_initializer import DatabaseDataInitializer
 
 app = application = bottle.default_app()
 db_init = database_intializer_helper.DatabaseInitializer()
+db_data_init = DatabaseDataInitializer()
 
 validator = OAuth2_PasswordValidator()
 app.auth = BottleOAuth2(app)

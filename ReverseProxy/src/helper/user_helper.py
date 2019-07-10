@@ -1,6 +1,7 @@
 import json
 
 import peewee
+import requests
 from bottle import response, request
 from peewee import JOIN
 from threading import Lock
@@ -10,10 +11,11 @@ from src.model.application import Application
 from src.model.application_permissions import ApplicationPermission
 from src.helper import response_format_helper
 from src.model.users import Users
-
+from src.helper import router
 
 response_format_helper = response_format_helper.Factory().get_response_format_helper()
-
+assert router.factory.get_router() is router.factory.get_router()
+router = router.factory.get_router()
 
 class UserHelper:
     def __init__(self):
@@ -33,7 +35,8 @@ class UserHelper:
         return response
 
     def student_list(self, school_id):
-        query = Users.select(Users.user_id, Users.first_name, Users.last_name).where(Users.user_type == "Student" and Users.school_id == school_id).dicts()
+        query = Users.select(Users.user_id, Users.first_name, Users.last_name).where(
+            Users.user_type == "Student" and Users.school_id == school_id).dicts()
         response.body = json.dumps({'students': list(query)})
         response.status = 200
         return response
@@ -46,7 +49,10 @@ class UserHelper:
 
     def permitted_apps(self, user_id):
         join_condition = ApplicationPermission.application_id == Application.application_id
-        query = ApplicationPermission.select(Application.application_id, Application.application_name).join(Application, JOIN.INNER, on=join_condition).where(ApplicationPermission.user_id == user_id).dicts()
+        query = ApplicationPermission.select(Application.application_id, Application.application_name).join(Application,
+                                                                                                            JOIN.INNER,
+                                                                                                            on=join_condition).where(
+            ApplicationPermission.user_id == user_id).dicts()
         response.body = json.dumps({'applications': list(query)})
         response.status = 200
         return response
@@ -65,9 +71,12 @@ class UserHelper:
                 perm.user_id = user_id
                 perm.application_id = application_id
                 perm.save()
+                os_container_ip = router.get_session_for_user(user_id).destination_ip
+                self.add_application_permission_in_container(os_container_ip, application_id)
                 response.body = json.dumps({'applications': 'Successfully granted permission'})
                 response.status = 200
-            except Exception:
+            except Exception as e:
+                print(e)
                 response.body = json.dumps({'error': 'Invalid application_id'})
                 response.status = 400
         return response
@@ -77,13 +86,26 @@ class UserHelper:
             perm = ApplicationPermission.get(
                 ApplicationPermission.user_id == user_id and ApplicationPermission.application_id == application_id)
             perm.delete_instance(recursive=True)
+            os_container_ip = router.get_session_for_user(user_id).destination_ip
+            self.revoke_application_permission_in_container(os_container_ip, application_id)
             response.body = json.dumps({'applications': 'Successfully deleted permission'})
             response.status = 200
-        except Exception:
+        except Exception as e:
+            print(e)
             response.body = json.dumps({'error': 'user_id or application_id does not exist'})
             response.status = 400
 
         return response
+
+    def add_application_permission_in_container(self, os_container_ip, application_id):
+        url = 'http://{0}:9090/application/permission/add/{1}'.format(os_container_ip, application_id)
+        print(url)
+        response = requests.post(url)
+
+    def revoke_application_permission_in_container(self, os_container_ip, application_id):
+        url = 'http://{0}:9090/application/permission/remove/{1}'.format(os_container_ip, application_id)
+        print(url)
+        response = requests.post(url)
 
 
 class Factory:
