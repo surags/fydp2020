@@ -7,21 +7,31 @@ from src.helper import application_permission_helper
 
 permission_helper = application_permission_helper.Factory().get_application_permissions_helper()
 
+
 @get('/')
 def listing_handler():
     return [b"Hello"]
 
-@get('/application/permission/add/<application_id>')
-def listing_handler(application_id):
+
+@post('/application/permission/add/<application_id>')
+def add_application_permission(application_id):
     permission_helper.add_permission(application_id)
-    return [b"Hello"]
+    response.body = "Success"
+    response.status = 200
+    return response
 
-@get('/setup/user/<user_id>')
-def listing_handler(user_id):
+
+@post('/user/setup/<user_id>')
+def setup_user(user_id):
     permission_helper.setup_user(user_id)
-    return [b"Hello"]
+    response.body = "Success"
+    response.status = 200
+    return response
 
-@get('/application/permission/remove/<application_id>')
-def listing_handler(application_id):
+
+@post('/application/permission/remove/<application_id>')
+def remove_application_permission(application_id):
     permission_helper.remove_permission(application_id)
-    return [b"Hello"]
+    response.body = "Success"
+    response.status = 200
+    return response
