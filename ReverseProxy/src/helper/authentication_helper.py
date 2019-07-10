@@ -27,16 +27,15 @@ class AuthenticationHelper:
                 new_teacher.user_id = new_user.user_id
                 new_teacher.has_system_access = True
                 new_teacher.save()
-                return "Successfully created teacher " + new_user.user_name + " created", 200
+                return "Successfully created teacher " + new_user.user_name, 200
             elif query.user_type.lower() == "student":
                 new_student = Student()
                 new_student.user_id = new_user.user_id
                 new_student.has_system_access = False
                 new_student.save()
-                return "Successfully created student " + new_user.user_name + " created", 200
+                return "Successfully created student " + new_user.user_name, 200
             else:
                 return "Unknown user type", 400
-
 
         except Exception as e:
             return str(e), 500

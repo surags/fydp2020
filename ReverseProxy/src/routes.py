@@ -1,5 +1,6 @@
 import json
 
+import peewee
 from peewee import JOIN
 
 from src.helper import authentication_helper
@@ -96,6 +97,14 @@ def student_list(school_id):
     response.status = 200
     return response
 
+# Get a list of all applications supported
+@get('/applications')
+def application_list():
+    query = Application.select().dicts()
+    response.body = json.dumps({'applications': list(query)})
+    response.status = 200
+    return response
+
 # Get the list of permitted applications for a student
 @get('/user/<user_id>/applications')
 def student_list(user_id):
@@ -103,6 +112,43 @@ def student_list(user_id):
     query = ApplicationPermission.select(Application.application_name).join(Application, JOIN.INNER, on=join_condition).where(ApplicationPermission.user_id == user_id).dicts()
     response.body = json.dumps({'applications': list(query)})
     response.status = 200
+    return response
+
+# Give access to a user for an application
+@put('/user/<user_id>/grant/<application_id>')
+def give_access(user_id, application_id):
+    try:
+        # If this query doesn't return empty, than this permission is already in the DB
+        query = ApplicationPermission.get(ApplicationPermission.user_id == user_id and ApplicationPermission.application_id == application_id)
+        response.body = json.dumps({'error': 'This permission already exists, or invalid username'})
+        response.status = 400
+
+    except peewee.DoesNotExist:
+        try:
+            perm = ApplicationPermission()
+            perm.user_id = user_id
+            perm.application_id = application_id
+            perm.save()
+            response.body = json.dumps({'applications': 'Successfully granted permission'})
+            response.status = 200
+        except Exception:
+            response.body = json.dumps({'error': 'Invalid application_id'})
+            response.status = 400
+    return response
+
+
+# Revoke access to a user for an application
+@delete('/user/<user_id>/revoke/<application_id>')
+def revoke_access(user_id, application_id):
+    try:
+        perm = ApplicationPermission.get(ApplicationPermission.user_id == user_id and ApplicationPermission.application_id == application_id)
+        perm.delete_instance(recursive=True)
+        response.body = json.dumps({'applications': 'Successfully deleted permission'})
+        response.status = 200
+    except Exception:
+        response.body = json.dumps({'error': 'user_id or application_id does not exist'})
+        response.status = 400
+
     return response
 
 
