@@ -1,40 +1,84 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>StreamingOS</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
-</head>
-<body>
-  <nav>
-    <div class="nav-wrapper">
-      <a class="brand-logo center">Low Cost Education System</a>   
-    </div>
-  </nav>
-  <ul></ul>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>StreamingOS: Low Cost Education System</title>
 
-  <script>
-    const electron = require('electron');
-    const {ipcRenderer} = electron;
-    const ul = document.querySelector('ul');
-    ipcRenderer.on('item:add', function(e, item){
-      ul.className = 'collection';
-      const li = document.createElement('li');
-      li.className = 'collection-item';
-      const itemText = document.createTextNode(item);
-      li.appendChild(itemText);
-      ul.appendChild(li);
-    });
-    ipcRenderer.on('item:clear', function(){
-      ul.className = '';
-      ul.innerHTML = '';
-    });
-    ul.addEventListener('dblclick', removeItem);
-    function removeItem(e){
-      event.target.remove();
-      if(ul.children.length == 0){
-        ul.className = '';
-      }
-    }
-  </script>
-</body>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" type="text/css" href="assets/css/bootstrap.min.css">
+    <!-- Fonts -->
+    <link rel="stylesheet" type="text/css" href="assets/fonts/line-icons.css">
+    <!-- Main Style -->
+    <link rel="stylesheet" type="text/css" href="assets/css/main.css">
+    <!-- Responsive Style -->
+    <link rel="stylesheet" type="text/css" href="assets/css/responsive.css">
+
+  </head>
+
+  <body>
+    <div class="app header-default side-nav-dark">
+      <div class="layout">
+        <!-- Header START -->
+        <div style="border: 1px solid blue;" class="header navbar">
+          <div class="header-container">
+            <div class="nav-logo">
+              <img style="height:100%; width: 23%;" src="assets/img/user.png" alt="">	
+			  <div style = "width: 1px; background-color: blue; height: 63px; float:right;"></div>			  
+            </div>		
+			<div id = "schoolNameDiv" style= "font-size:28px;font-family:Serif;text-align:center;width:50%; padding:1%;"class="nav-logo">{schoolName}</div>	
+			<div style = "width: 1px; background-color: blue; height: 63px; float:left;"></div>				
+			<div id = "professorNameDiv" style= "font-size:17px;font-family:Serif;text-align:center;width:30%; padding:0.5%;white-space:pre-wrap;"class="nav-logo">Welcome {professorName}&#10;</div>
+			<a style= "font-size:17px;font-family:Serif;text-align:center;width:30%; white-space:pre-wrap;"class="nav-logo" href = "404.html">Logout</a>
+          </div>
+        </div>
+        <!-- Header END -->
+      </div>
+    </div>
+    <div class="col-sm-6" style = "bottom:65%; position:absolute;">
+	  <div class="dropdown m-b-10">
+	    <select id = "studentDropdown" class="dropdown-menu dropdown m-b-10" onchange="studentNameChange()" aria-labelledby="dropdownMenuLink" x-placement="bottom-start" style = "border:1px solid black;background:white;color:black;">
+	    </select>
+	  </div>
+    </div>
+	<div class="col-sm-6" style = "bottom:65%; left: 15%; position:absolute;">
+	  <div class="dropdown m-b-10">
+	    <select id = "applicationDropdown" class="dropdown-menu dropdown m-b-10" onchange="applicationNameChange()" aria-labelledby="dropdownMenuLink" x-placement="bottom-start" style = "border:1px solid black;background:white;color:black;">
+	    </select>
+	  </div>
+    </div>
+	<div class="table" style = "left: 35%; position:absolute; padding-top:15%">
+	  <table id = "statusTable" style = "width:50%;" class="table table-sm">
+        <thead>
+		  <tr>
+			<td style = "width:50%;" class="text-dark text-semibold">Application Name</td>
+			<td style = "width:50%;" class="text-dark text-semibold">Status</td>   
+		  </tr>
+		</thead>
+	  </table>
+	</div>
+	<div style = "left: 1%; position:absolute; padding-top:24%">
+	  <div class="m-t-20">
+	    <button id = "giveAccessButton" type="button" class="btn btn-primary" onclick="giveAccessClicked()">Give Access</button>
+	  </div>
+	</div>
+	<div style = "left: 15%; position:absolute; padding-top:24%">
+	  <div class="m-t-20">
+	    <button id = "revokeAccessButton" type="button" class="btn btn-primary" onclick="revokeAccessClicked()">Revoke Access</button>
+	  </div>
+	</div>
+    <!-- Preloader -->
+    <div id="preloader">
+      <div class="loader" id="loader-1"></div>
+    </div>
+    <!-- End Preloader -->
+
+     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="assets/js/jquery-min.js"></script>
+    <script src="assets/js/popper.min.js"></script>
+    <script src="assets/js/bootstrap.min.js"></script>
+    <script src="assets/js/jquery.app.js"></script>
+    <script src="assets/js/main.js"></script>
+
+  </body>
 </html>
