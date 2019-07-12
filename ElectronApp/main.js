@@ -13,7 +13,9 @@ let addWindow;
 // Listen for app to be ready
 app.on('ready', function(){
   // Create new window
-  mainWindow = new BrowserWindow({});
+  mainWindow = new BrowserWindow({
+  webPreferences: {webSecurity:false}  
+  });
   // Load html in window
   // file://dirname/mainWindow.html
   mainWindow.loadURL(url.format({

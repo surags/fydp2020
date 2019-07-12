@@ -11,97 +11,129 @@
 	$('[data-toggle="popover"]').popover()
 	populateStudentList();
 	populateApplicationList();
-	toggleButtons();
-	populateStatusTable();
 	populateSchoolName();
 	populateProfessorName();
-	UserAction();
   });      
 
 }(jQuery));
 
-function studentNameChange(){
+var applicationList = [];
+var applicationId = [];
+var studentData = [];
+var currStudentIndex = 0;
 	
+function studentNameChange(){
+	currStudentIndex = getStudentIndexfromUserId();
 }
 
 function applicationNameChange(){
 	toggleButtons();
 }
 
-function populateStudentList(){
-	var studentList = ["Anurag Joshi","Matthew Milne","Surag Sudesh"];
-    	
-	var studentDropdown = document.getElementById("studentDropdown");
+function populateStudentList(){  				
+	$.get('http://25.7.156.188:9090/school/10/studentlist', function(responseText) {
+		var myData = JSON.parse(responseText);
+		
+		if(myData){
+			for(var i = 0; i < myData.students.length; i++){				
+				studentData.push({
+					studentName: myData.students[i].first_name + " " + myData.students[i].last_name,
+					studentId: myData.students[i].user_id,
+				});
+			}
+		}
+		
+		var studentDropdown = document.getElementById("studentDropdown");
 	
-	for(var i = 0; i < studentList.length; i++){
-		var option = document.createElement("option");
-		option.text = studentList[i];
-		option.value = i+1;
-		option.className = "dropdown-item";
-		studentDropdown.add(option);	
-	}	
+		for(var i = 0; i < studentData.length; i++){
+			var option = document.createElement("option");
+			option.text = studentData[i].studentName;
+			option.value = studentData[i].studentId ;
+			option.className = "dropdown-item";
+			studentDropdown.add(option);	
+		}	
+	});	
 }
 
 
 function populateApplicationList(){
-	var applicationList = getApplicationList();
 	var applicationDropdown = document.getElementById("applicationDropdown");
 	
-	for(var i = 0; i < applicationList.length; i++){
-		var option = document.createElement("option");
-		option.text = applicationList[i];
-		option.value = i+1;
-		option.className = "dropdown-item";
-		applicationDropdown.add(option);	
-	}	
+	$.get('http://25.7.156.188:9090/applications', function(responseText) {
+		var myData = JSON.parse(responseText);
+		if(myData){
+			for(var i = 0; i < studentData.length; i++){
+				var applicationData = [];
+				for(var j = 0; j < myData.applications.length; j++){
+					applicationList.push(myData.applications[j].application_name);
+					applicationId.push(myData.applications[j].application_id);
+					applicationData.push({
+						applicationName: myData.applications[j].application_name,
+						applicationId: myData.applications[j].application_id,
+						hasAccess: false,
+					});
+				}
+				studentData[i].applicationData = applicationData;				
+			}
+		}
+		
+		for(var i = 0; i < studentData[currStudentIndex].applicationData.length; i++){
+			var option = document.createElement("option");
+			option.text = applicationData[i].applicationName;
+			option.value = applicationData[i].applicationId;
+			option.className = "dropdown-item";
+			applicationDropdown.add(option);	
+		}	
+		
+		populateStatusTable();
+	});	
 }
 
 function populateStatusTable(){
-	var applicationList = getApplicationList();
-	var applicationPermissionGranted = getApplicationPermissionGranted();
+	var userId = document.getElementById("studentDropdown").value; 
 	
-	var statusTable = document.getElementById("statusTable");
-	var offset = statusTable.rows.length;
-	for(var i = 0; i < applicationList.length; i++){
-		var row = statusTable.insertRow(offset + i);
-		var cell1 = row.insertCell(0);
-		var cell2 = row.insertCell(1);
-		
-		var cellSpan = document.createElement('span')
-		cellSpan.innerHTML = applicationList[i];
-		cellSpan.classList = "title text-semibold";
-		cell1.appendChild(cellSpan);
-		
-		var cellSpan = document.createElement('span')
-		cellSpan.style = "width:8px; height:8px; padding: 6px;";
-		
-		if(applicationPermissionGranted[i] === true){
-			cellSpan.classList = "btn btn-circle btn-success";	
-		}
-		else{
-			cellSpan.classList = "media-img btn btn-circle btn-danger";			
+	$.get('http://25.7.156.188:9090/user/' + userId + '/applications', function(responseText) {
+		var myData = JSON.parse(responseText);
+		if(myData){
+			for(var i = 0; i < myData.applications.length; i++){
+				index = getApplicationIndexfromApplicationId(myData.applications[i].application_id);
+				studentData[currStudentIndex].applicationData[index].hasAccess = true;
+			}
 		}
 		
-		cell2.appendChild(cellSpan);
-	}
-}
-
-function getApplicationList(){
-	var applicationList = ["Notepad","Turbo C++","Microsoft Word"];
-	return applicationList;
-}
-
-function getApplicationPermissionGranted(){
-	var applicationPermissionGranted = [true,true,false];
-	return applicationPermissionGranted;
-}
-
-
-function toggleButtons(){
-	var applicationList = getApplicationList();
-	var applicationPermissionGranted = getApplicationPermissionGranted();
+		toggleButtons();
 		
-	if(applicationPermissionGranted[parseInt(document.getElementById("applicationDropdown").value)] + 1){
+		var statusTable = document.getElementById("statusTable");
+		var offset = 1;
+		for(var i = 0; i < studentData[currStudentIndex].applicationData.length; i++){
+			var row = statusTable.insertRow(offset + i);
+			var cell1 = row.insertCell(0);
+			var cell2 = row.insertCell(1);
+			
+			var cellSpan = document.createElement('span')
+			cellSpan.innerHTML = studentData[currStudentIndex].applicationData[i].applicationName;
+			cellSpan.classList = "title text-semibold";
+			cell1.appendChild(cellSpan);
+			
+			var cellSpan = document.createElement('span')
+			cellSpan.style = "width:8px; height:8px; padding: 6px;";
+			
+			if(studentData[currStudentIndex].applicationData[i].hasAccess === true){
+				cellSpan.classList = "btn btn-circle btn-success";	
+			}
+			else{
+				cellSpan.classList = "media-img btn btn-circle btn-danger";			
+			}
+			
+			cell2.appendChild(cellSpan);
+		}
+	});	
+}
+
+function toggleButtons(){		
+	index = getApplicationIndexfromApplicationId(document.getElementById("applicationDropdown").value);
+	
+	if(studentData[currStudentIndex].applicationData[index].hasAccess === true){
 		// If the student already has access to the app, give option to revoke it and disable give access button
 		var giveAccessButton = document.getElementById("giveAccessButton");
 		giveAccessButton.disabled = true;
@@ -137,24 +169,84 @@ function populateProfessorName(){
 	
 }
 
-function UserAction() {
-		  
-	const Http = new XMLHttpRequest();
-	const url = 'http://25.78.224.183:9090/';
-	Http.open("POST", url);
-	Http.setRequestHeader('Access-Control-Allow-Origin', "*");
-	Http.send();
-	
-	Http.onreadystatechange=(e)=> {
-		console.log(Http.responseText);
-	}
-	// do something with myJson
-}
-
 function giveAccessClicked(){
-
+	var userId = document.getElementById("studentDropdown").value; 
+	var applicationId = document.getElementById("applicationDropdown").value;
+	
+	$.ajax({
+	  url: 'http://25.7.156.188:9090/user/' + userId + '/grant/' + applicationId,
+	  type: 'PUT',
+	  crossDomain: true,
+	  success: function() {
+		studentData[currStudentIndex].applicationData[getApplicationIndexfromApplicationId(applicationId)].hasAccess = true;
+		toggleButtons();
+		
+		while(document.getElementById("statusTable").rows.length > 1) {
+			document.getElementById("statusTable").deleteRow(1);
+		}
+		
+		populateStatusTable();
+	  },
+	  error: function(xhr){
+        console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
+	  }
+	});
 }
 
 function revokeAccessClicked(){
+	var userId = document.getElementById("studentDropdown").value; 
+	var applicationId = document.getElementById("applicationDropdown").value;
 
+	$.ajax({
+	  url: 'http://25.7.156.188:9090/user/' + userId + '/revoke/' + applicationId,
+	  type: 'DELETE',
+	  success: function() {
+		studentData[currStudentIndex].applicationData[getApplicationIndexfromApplicationId(applicationId)].hasAccess = false;
+		toggleButtons();
+		
+		while(document.getElementById("statusTable").rows.length > 1) {
+			document.getElementById("statusTable").deleteRow(1);
+		}
+		
+		populateStatusTable();
+	  },
+	  error: function(xhr){
+        console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
+	  }
+	});
+}
+
+
+function getStudentIndexfromUserId(){
+	index = 0;
+	for(var i = 0; i < studentData.length; i++){
+		if(studentData[i].studentId === parseInt(document.getElementById("studentDropdown").value)){
+			index = i;
+		}
+	}
+	
+	return index;
+}
+
+
+function getApplicationIndexfromApplicationId(inpApplicationId){
+	index = 0;
+	for(var i = 0; i < studentData[currStudentIndex].applicationData.length; i++){
+		if(studentData[currStudentIndex].applicationData[i].applicationId === parseInt(inpApplicationId)){
+			index = i;
+		}
+	}
+	
+	return index;
+}
+
+function returnSuccessString(isGrant){
+	var myStr = "Successfully revoked application access.";
+	
+	if(isGrant){
+		myStr = myStr.replace("revoked","granted");
+		return myStr;
+	}
+	
+	return myStr;
 }
