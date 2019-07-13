@@ -21,11 +21,11 @@ class UserHelper:
     def __init__(self):
         pass
 
-    def user_info(self, user_id):
+    def user_info(self, username):
         try:
             join_condition = Users.school_id == School.school_id
             query = Users.select(Users, School.school_name).join(School, JOIN.INNER, on=join_condition).where(
-                Users.user_id == user_id).dicts()
+                Users.user_name == username).dicts()
             response.body = json.dumps({'user': list(query)}, default=response_format_helper.to_serializable)
             response.status = 200
         except Exception as e:
@@ -35,7 +35,7 @@ class UserHelper:
         return response
 
     def student_list(self, school_id):
-        query = Users.select(Users.user_id, Users.first_name, Users.last_name).where(
+        query = Users.select(Users.user_id, Users.user_name, Users.first_name, Users.last_name).where(
             Users.user_type == "Student" and Users.school_id == school_id).dicts()
         response.body = json.dumps({'students': list(query)})
         response.status = 200

@@ -47,9 +47,9 @@ def delete_user(user_id):
 
 
 # Get info about a user
-@get('/user/<user_id>/info')
-def user_info(user_id):
-    return user_helper.user_info(user_id)
+@get('/user/<username>/info')
+def user_info(username):
+    return user_helper.user_info(username)
 
 
 # Get a list of all the students in the school specified
