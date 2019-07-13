@@ -1,6 +1,7 @@
 import bottle
 from bottle_oauthlib.oauth2 import BottleOAuth2
 from oauthlib import oauth2
+# Do not remove this important statement! Otherwise routes cannot be found
 from src import routes
 
 from src.helper import database_intializer_helper
