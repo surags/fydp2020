@@ -51,16 +51,20 @@ class AuthenticationHelper:
             response.status = 500
         return response
 
-    def validate_user(self, user_type_id, username, password):
+    def validate_user(self, username, password):
         try:
             user = Users.select().where(Users.user_name == username)
             if not user:
                 return False
-            if bcrypt.checkpw(password.encode('utf-8'), user[0].hashed_password.encode('utf8')) and user[0].user_type_id == user_type_id:
+            if bcrypt.checkpw(password.encode('utf-8'), user[0].hashed_password.encode('utf8')):
                 return True
             else:
                 return False
         except peewee.DoesNotExist as e:
+            print(str(e))
+            return False
+        except Exception as f:
+            print(str(f))
             return False
 
     def delete_user(self, user_id):

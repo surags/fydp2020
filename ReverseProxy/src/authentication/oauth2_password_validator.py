@@ -39,7 +39,7 @@ class OAuth2_PasswordValidator(oauth2.RequestValidator):
             print(e)
 
     def validate_user(self, username, password, client, request, *args, **kwargs):
-        if authentication_helper.validate_user(request.client.client_id, username, password):
+        if authentication_helper.validate_user(username, password):
             request.user = username
             return True
         return False
