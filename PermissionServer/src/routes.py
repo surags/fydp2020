@@ -35,3 +35,9 @@ def remove_application_permission(application_id):
     response.body = "Success"
     response.status = 200
     return response
+
+@get('/health/check')
+def health_check():
+    response.body = "OK"
+    response.status = 200
+    return response
