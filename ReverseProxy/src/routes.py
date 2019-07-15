@@ -96,7 +96,7 @@ def generate_token():
     pass
 
 # Test call for authenticating
-@get('/user/<username>/auth/<password>/')
+@get('/user/<username>/auth/<password>')
 def auth_user(username, password):
     if authentication_helper.validate_user(username, password):
         response.body = "Yay we're authenticated"
