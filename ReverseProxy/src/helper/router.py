@@ -1,4 +1,5 @@
 import json
+import threading
 
 import requests
 from bottle import response
@@ -95,6 +96,8 @@ class Router:
                 proc_stdout = process.communicate()[0].strip()
                 data['source_port'] = source_port
                 self.setup_user_in_container(user_id, container.ip_address)
+                # health_check = threading.Thread(name='os_container_health_check', target=self.os_container_health_check(container.ip_address))
+                # health_check.start()
             else:
                 data['source_port'] = self.session_info_map[user_id].source_port
             response.body = json.dumps({'routes': data})
@@ -127,6 +130,14 @@ class Router:
     def setup_user_in_container(self, user_id, os_container_ip):
         url = 'http://{0}:9090/user/setup/{1}'.format(os_container_ip, user_id)
         response = requests.post(url)
+
+    # def os_container_health_check(self, os_container_ip):
+    #     while True:
+    #         url = 'http://{0}:9090/health/check/'.format(os_container_ip)
+    #         health_response = requests.get(url)
+    #         if health_response.status_code != 200:
+    #             TODO: Update database
+    #             print("No connection")
 
 
 class Factory:
