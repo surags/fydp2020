@@ -22,8 +22,8 @@ ENV HOME=/headless \
 WORKDIR $HOME
 
 ### Add all install scripts for further steps
-ADD ./oscontainer/src/common/install/ $INST_SCRIPTS/
-ADD ./oscontainer/src/ubuntu/install/ $INST_SCRIPTS/
+ADD ./PermissionServer/oscontainer/src/common/install/ $INST_SCRIPTS/
+ADD ./PermissionServer/oscontainer/src/ubuntu/install/ $INST_SCRIPTS/
 RUN find $INST_SCRIPTS -name '*.sh' -exec chmod a+x {} +
 
 ### Install some common tools
@@ -41,11 +41,11 @@ RUN $INST_SCRIPTS/firefox.sh
 
 #### Install xfce UI
 RUN $INST_SCRIPTS/xfce_ui.sh
-ADD ./oscontainer/src/common/xfce/ $HOME/
+ADD ./PermissionServer/oscontainer/src/common/xfce/ $HOME/
 
 #### configure startup
 RUN $INST_SCRIPTS/libnss_wrapper.sh
-ADD ./oscontainer/src/common/scripts $STARTUPDIR
+ADD ./PermissionServer/oscontainer/src/common/scripts $STARTUPDIR
 RUN $INST_SCRIPTS/set_user_permission.sh $STARTUPDIR $HOME
 
 ######## Setup Permissions Server
@@ -65,14 +65,22 @@ RUN apt-get install -y build-essential \
 
 RUN apt-get install -y uwsgi-plugin-python
 
-COPY . $STARTUPDIR
-COPY requirements.txt $STARTUPDIR
-COPY start.sh $STARTUPDIR
+COPY /PermissionServer/. $STARTUPDIR
+COPY /PermissionServer/requirements.txt $STARTUPDIR
+COPY /PermissionServer/start.sh $STARTUPDIR
 
 
 RUN apt-get install -y python3-pip
 RUN python3 -m pip install --no-cache-dir -r requirements.txt
 
+COPY /TeacherElectronApp/ $STARTUPDIR
+
+RUN apt-get install -y curl \
+  && curl -sL https://deb.nodesource.com/setup_9.x | bash - \
+  && apt-get install -y nodejs \
+  && curl -L https://www.npmjs.com/install.sh | sh
+
+RUN npm install ./TeacherElectronApp/package.json
 
 #USER 1000
 
