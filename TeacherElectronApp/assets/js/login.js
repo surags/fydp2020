@@ -13,9 +13,8 @@
 
 }(jQuery));
 
-
-// var IPAddr = 'http://25.76.110.191:9090';
-var IPAddr = 'http://rp:9090'; //Vidit Changes
+var IPAddr = 'http://25.76.110.191:9090';
+// var IPAddr = 'http://rp:9090'; //Vidit Changes
 
 function login(){
 	if(document.getElementById("inputUserId").value && document.getElementById("inputPassword").value){
