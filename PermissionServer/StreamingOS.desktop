@@ -1,0 +1,10 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Version=1.0
+Type=Application
+Terminal=false
+Icon[en_US]=gnome-panel-launcher
+Name[en_US]=Streaming OS Teachers App
+Exec=/usr/lib/streamingos-teacher-portal/streaming-os-teacher-portal-linux-x64/streaming-os-teacher-portal --no-sandbox
+Name=Streaming OS Teachers App
+Icon=gnome-panel-launcher

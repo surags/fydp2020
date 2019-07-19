@@ -65,7 +65,7 @@ RUN apt-get install -y build-essential \
 
 RUN apt-get install -y uwsgi-plugin-python
 
-COPY /PermissionServer/. $STARTUPDIR
+COPY /PermissionServer/src/. $STARTUPDIR
 COPY /PermissionServer/requirements.txt $STARTUPDIR
 COPY /PermissionServer/start.sh $STARTUPDIR
 
@@ -73,17 +73,27 @@ COPY /PermissionServer/start.sh $STARTUPDIR
 RUN apt-get install -y python3-pip
 RUN python3 -m pip install --no-cache-dir -r requirements.txt
 
-COPY /TeacherElectronApp/ $STARTUPDIR
+COPY /TeacherElectronApp/ $STARTUPDIR/TeacherElectronApp
 
 RUN apt-get install -y curl \
   && curl -sL https://deb.nodesource.com/setup_9.x | bash - \
   && apt-get install -y nodejs \
   && curl -L https://www.npmjs.com/install.sh | sh
 
-RUN npm install ./TeacherElectronApp/package.json
+RUN npm install -g --unsafe-perm=true --allow-root ./TeacherElectronApp/ 
+RUN npm install -g --unsafe-perm=true --allow-root electron
+RUN npm install electron-packager -g
+
+RUN apt-get install -y libnss3-dev
+RUN apt-get install -y unzip
+RUN electron-packager ./TeacherElectronApp/ streaming-os-teacher-portal --overwrite --asar=true --platform=linux --arch=x64 --prune=true --out=/usr/lib/streamingos-teacher-portal
+
+COPY /PermissionServer/StreamingOS.desktop /headless/Desktop/
+RUN chmod +x ~/Desktop/StreamingOS.desktop
+
+CMD ["/bin/bash", "./start.sh"]
 
 #USER 1000
 
-CMD ["/bin/bash", "./start.sh"]
 #docker run --cap-add=NET_ADMIN --name os -v "$(pwd)/src:/dockerstartup/src/" --net mynet os:latest
 #chmod -R -x /usr/lib/<app name>

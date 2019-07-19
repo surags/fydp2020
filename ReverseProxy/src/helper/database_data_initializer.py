@@ -18,6 +18,7 @@ class DatabaseDataInitializer:
             data3 = [(10, 'City High School'), (50, 'University of Waterloo')]
 
             data5 = [(1, 'firefox'),
+                     (2, 'streamingos-teacher-portal'),
                      (25, 'Microsoft Word'),
                      (26, 'Notepad ++'),
                      (27, 'Google Chrome'),
