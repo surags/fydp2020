@@ -58,27 +58,32 @@ class UserHelper:
         return response
 
     def give_access(self, user_id, application_id):
-        try:
-            # If this query doesn't return empty, than this permission is already in the DB
-            query = ApplicationPermission.get(
-                ApplicationPermission.user_id == user_id and ApplicationPermission.application_id == application_id)
-            response.body = json.dumps({'error': 'This permission already exists, or invalid username'})
+        # If this query doesn't return empty, than this permission is already in the DB
+        query = ApplicationPermission.select().where(ApplicationPermission.user_id == user_id,
+                                                     ApplicationPermission.application_id == application_id)
+        if query.exists():
+            response.body = json.dumps({'error_database': 'This permission already exists'})
             response.status = 400
-
-        except peewee.DoesNotExist:
+        else:
             try:
                 perm = ApplicationPermission()
                 perm.user_id = user_id
                 perm.application_id = application_id
                 perm.save()
-                os_container_ip = router.get_session_for_user(user_id).destination_ip
-                self.add_application_permission_in_container(os_container_ip, application_id)
-                response.body = json.dumps({'applications': 'Successfully granted permission'})
+                response.body = '{"applications": "Successfully granted permission",'
                 response.status = 200
             except Exception as e:
-                print(e)
-                response.body = json.dumps({'error': 'Invalid application_id'})
+                print(str(e))
+                response.body = '{"error_database": "Invalid user_id or application_id",'
                 response.status = 400
+        try:
+            os_container_ip = router.get_session_for_user(user_id).destination_ip
+            self.add_application_permission_in_container(os_container_ip, application_id)
+            response.body += '"containers": "Successfully added permission in container"}'
+        except Exception as e:
+            print(str(e))
+            response.body += '"error_container": "Could not add permission to container"}'
+            response.status = 500
         return response
 
     def revoke_access(self, user_id, application_id):
@@ -86,15 +91,21 @@ class UserHelper:
             perm = ApplicationPermission.get(
                 ApplicationPermission.user_id == user_id and ApplicationPermission.application_id == application_id)
             perm.delete_instance(recursive=True)
-            os_container_ip = router.get_session_for_user(user_id).destination_ip
-            self.revoke_application_permission_in_container(os_container_ip, application_id)
-            response.body = json.dumps({'applications': 'Successfully deleted permission'})
+            response.body = response.body = '{"applications": "Successfully revoked permission",'
             response.status = 200
         except Exception as e:
             print(e)
-            response.body = json.dumps({'error': 'user_id or application_id does not exist'})
+            response.body = '{"error_database": "Invalid user_id or application_id",'
             response.status = 400
 
+        try:
+            os_container_ip = router.get_session_for_user(user_id).destination_ip
+            self.revoke_application_permission_in_container(os_container_ip, application_id)
+            response.body += '"containers": "Successfully deleted permission in container"}'
+        except Exception as e:
+            print(str(e))
+            response.body += '"error_container": "Could not delete permission from container"}'
+            response.status = 500
         return response
 
     def add_application_permission_in_container(self, os_container_ip, application_id):
