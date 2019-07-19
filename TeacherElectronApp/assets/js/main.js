@@ -20,6 +20,10 @@ var applicationList = [];
 var applicationId = [];
 var studentData = [];
 var currStudentIndex = 0;
+// var IPAddr = 'http://25.76.110.191:9090';
+var IPAddr = 'http://rp:9090'; //Vidit Changes
+
+var oauth_token = window.localStorage.getItem('oauth_token');
 	
 function studentNameChange(){
 	currStudentIndex = getStudentIndexfromUserId();
@@ -29,10 +33,14 @@ function applicationNameChange(){
 	toggleButtons();
 }
 
-function populateStudentList(){  				
-	$.get('http://25.7.156.188:9090/school/10/studentlist', function(responseText) {
+function populateStudentList(){  		
+	$.ajax({
+	  url: IPAddr + '/school/10/studentlist',
+	  type: 'GET',
+	  crossDomain: true,
+	  data:oauth_token,
+	  success: function(responseText) {
 		var myData = JSON.parse(responseText);
-		
 		if(myData){
 			for(var i = 0; i < myData.students.length; i++){				
 				studentData.push({
@@ -41,7 +49,6 @@ function populateStudentList(){
 				});
 			}
 		}
-		
 		var studentDropdown = document.getElementById("studentDropdown");
 	
 		for(var i = 0; i < studentData.length; i++){
@@ -50,84 +57,109 @@ function populateStudentList(){
 			option.value = studentData[i].studentId ;
 			option.className = "dropdown-item";
 			studentDropdown.add(option);	
-		}	
-	});	
+		}
+	  },
+	  error: function(xhr){
+		console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
+		alert('Invalid username and password combination');
+	  }
+	});
 }
 
 
 function populateApplicationList(){
 	var applicationDropdown = document.getElementById("applicationDropdown");
 	
-	$.get('http://25.7.156.188:9090/applications', function(responseText) {
-		var myData = JSON.parse(responseText);
-		if(myData){
-			for(var i = 0; i < studentData.length; i++){
-				var applicationData = [];
-				for(var j = 0; j < myData.applications.length; j++){
-					applicationList.push(myData.applications[j].application_name);
-					applicationId.push(myData.applications[j].application_id);
-					applicationData.push({
-						applicationName: myData.applications[j].application_name,
-						applicationId: myData.applications[j].application_id,
-						hasAccess: false,
-					});
+	$.ajax({
+		  url: IPAddr + '/applications',
+		  type: 'GET',
+		  crossDomain: true,
+		  data:oauth_token,
+		  success: function(responseText) {
+			var myData = JSON.parse(responseText);
+			if(myData){
+				for(var i = 0; i < studentData.length; i++){
+					var applicationData = [];
+					for(var j = 0; j < myData.applications.length; j++){
+						applicationList.push(myData.applications[j].application_name);
+						applicationId.push(myData.applications[j].application_id);
+						applicationData.push({
+							applicationName: myData.applications[j].application_name,
+							applicationId: myData.applications[j].application_id,
+							hasAccess: false,
+						});
+					}
+					studentData[i].applicationData = applicationData;				
 				}
-				studentData[i].applicationData = applicationData;				
 			}
-		}
-		
-		// Cannot read property 'applicationData' of undefined
-		for(var i = 0; i < studentData[currStudentIndex].applicationData.length; i++){
-			var option = document.createElement("option");
-			option.text = applicationData[i].applicationName;
-			option.value = applicationData[i].applicationId;
-			option.className = "dropdown-item";
-			applicationDropdown.add(option);	
-		}	
-		
-		populateStatusTable();
-	});	
+			
+			// Cannot read property 'applicationData' of undefined
+			for(var i = 0; i < studentData[currStudentIndex].applicationData.length; i++){
+				var option = document.createElement("option");
+				option.text = applicationData[i].applicationName;
+				option.value = applicationData[i].applicationId;
+				option.className = "dropdown-item";
+				applicationDropdown.add(option);	
+			}	
+			
+			populateStatusTable();
+		  },
+		  error: function(xhr){
+			console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
+			alert('Invalid username and password combination');
+		  }
+	});
 }
 
 function populateStatusTable(){
 	var userId = document.getElementById("studentDropdown").value; 
 	
-	$.get('http://25.7.156.188:9090/user/' + userId + '/applications', function(responseText) {
-		var myData = JSON.parse(responseText);
-		if(myData){
-			for(var i = 0; i < myData.applications.length; i++){
-				index = getApplicationIndexfromApplicationId(myData.applications[i].application_id);
-				studentData[currStudentIndex].applicationData[index].hasAccess = true;
-			}
-		}
-		
-		toggleButtons();
-		
-		var statusTable = document.getElementById("statusTable");
-		var offset = 1;
-		for(var i = 0; i < studentData[currStudentIndex].applicationData.length; i++){
-			var row = statusTable.insertRow(offset + i);
-			var cell1 = row.insertCell(0);
-			var cell2 = row.insertCell(1);
-			
-			var cellSpan = document.createElement('span')
-			cellSpan.innerHTML = studentData[currStudentIndex].applicationData[i].applicationName;
-			cellSpan.classList = "title text-semibold";
-			cell1.appendChild(cellSpan);
-			
-			var cellSpan = document.createElement('span')
-			cellSpan.style = "width:8px; height:8px; padding: 6px;";
-			
-			if(studentData[currStudentIndex].applicationData[i].hasAccess === true){
-				cellSpan.classList = "btn btn-circle btn-success";	
-			}
-			else{
-				cellSpan.classList = "media-img btn btn-circle btn-danger";			
+	$.ajax({
+		  url: IPAddr + '/user/' + userId + '/applications',
+		  type: 'GET',
+		  crossDomain: true,
+		  data:oauth_token,
+		  success: function(responseText) {
+			var myData = JSON.parse(responseText);
+			if(myData){
+				for(var i = 0; i < myData.applications.length; i++){
+					index = getApplicationIndexfromApplicationId(myData.applications[i].application_id);
+					studentData[currStudentIndex].applicationData[index].hasAccess = true;
+				}
 			}
 			
-			cell2.appendChild(cellSpan);
-		}
-	});	
+			toggleButtons();
+			
+			var statusTable = document.getElementById("statusTable");
+			var offset = 1;
+			for(var i = 0; i < studentData[currStudentIndex].applicationData.length; i++){
+				var row = statusTable.insertRow(offset + i);
+				var cell1 = row.insertCell(0);
+				var cell2 = row.insertCell(1);
+				
+				var cellSpan = document.createElement('span')
+				cellSpan.innerHTML = studentData[currStudentIndex].applicationData[i].applicationName;
+				cellSpan.classList = "title text-semibold";
+				cell1.appendChild(cellSpan);
+				
+				var cellSpan = document.createElement('span')
+				cellSpan.style = "width:8px; height:8px; padding: 6px;";
+				
+				if(studentData[currStudentIndex].applicationData[i].hasAccess === true){
+					cellSpan.classList = "btn btn-circle btn-success";	
+				}
+				else{
+					cellSpan.classList = "media-img btn btn-circle btn-danger";			
+				}
+				
+				cell2.appendChild(cellSpan);
+			}
+		  },
+		  error: function(xhr){
+			console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
+			alert('Invalid username and password combination');
+		  }
+	});
 }
 
 function toggleButtons(){		
@@ -172,8 +204,9 @@ function giveAccessClicked(){
 	var applicationId = document.getElementById("applicationDropdown").value;
 	
 	$.ajax({
-	  url: 'http://25.7.156.188:9090/user/' + userId + '/grant/' + applicationId,
+	  url: IPAddr + '/user/' + userId + '/grant/' + applicationId,
 	  type: 'PUT',
+	  data: oauth_token,
 	  crossDomain: true,
 	  success: function() {
 		studentData[currStudentIndex].applicationData[getApplicationIndexfromApplicationId(applicationId)].hasAccess = true;
@@ -196,8 +229,9 @@ function revokeAccessClicked(){
 	var applicationId = document.getElementById("applicationDropdown").value;
 
 	$.ajax({
-	  url: 'http://25.7.156.188:9090/user/' + userId + '/revoke/' + applicationId,
+	  url: IPAddr + '/user/' + userId + '/revoke/' + applicationId,
 	  type: 'DELETE',
+	  data: oauth_token,
 	  success: function() {
 		studentData[currStudentIndex].applicationData[getApplicationIndexfromApplicationId(applicationId)].hasAccess = false;
 		toggleButtons();
@@ -250,14 +284,22 @@ function returnSuccessString(isGrant){
 }
 
 function populateOtherLogisticalData(){
-	
-	$.get('http://25.7.156.188:9090/user/' + window.localStorage.getItem('userName') + '/info', function(responseText) {
-		var myData = JSON.parse(responseText);
-		
-		if(myData){
-			populateSchoolName(myData.user[0].school_name);
-			populateProfessorName(myData.user[0].first_name + " " + myData.user[0].last_name);
-		}	
+	$.ajax({
+		  url: IPAddr + '/user/' + window.localStorage.getItem('userName') + '/info',
+		  type: 'GET',
+		  crossDomain: true,
+		  data:oauth_token,
+		  success: function(responseText) {
+			var myData = JSON.parse(responseText);
+			if(myData){
+				populateSchoolName(myData.user[0].school_name);
+				populateProfessorName(myData.user[0].first_name + " " + myData.user[0].last_name);
+			}	
+		  },
+		  error: function(xhr){
+			console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
+			alert('Invalid username and password combination');
+		  }
 	});	
 }
 	
