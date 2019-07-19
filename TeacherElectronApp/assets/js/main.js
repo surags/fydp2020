@@ -11,7 +11,6 @@
 	$('[data-toggle="popover"]').popover()
 	populateOtherLogisticalData();
 	populateStudentList();
-	populateApplicationList();
   });      
 
 }(jQuery));
@@ -20,13 +19,14 @@ var applicationList = [];
 var applicationId = [];
 var studentData = [];
 var currStudentIndex = 0;
-// var IPAddr = 'http://25.76.110.191:9090';
-var IPAddr = 'http://rp:9090'; //Vidit Changes
+var IPAddr = 'http://25.76.110.191:9090';
+// var IPAddr = 'http://rp:9090'; //Vidit Changes
 
 var oauth_token = window.localStorage.getItem('oauth_token');
 	
 function studentNameChange(){
 	currStudentIndex = getStudentIndexfromUserId();
+	updateStatusTable();
 }
 
 function applicationNameChange(){
@@ -58,6 +58,8 @@ function populateStudentList(){
 			option.className = "dropdown-item";
 			studentDropdown.add(option);	
 		}
+		
+		populateApplicationList();
 	  },
 	  error: function(xhr){
 		console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
@@ -212,11 +214,7 @@ function giveAccessClicked(){
 		studentData[currStudentIndex].applicationData[getApplicationIndexfromApplicationId(applicationId)].hasAccess = true;
 		toggleButtons();
 		
-		while(document.getElementById("statusTable").rows.length > 1) {
-			document.getElementById("statusTable").deleteRow(1);
-		}
-		
-		populateStatusTable();
+		updateStatusTable();
 	  },
 	  error: function(xhr){
         console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
@@ -236,11 +234,7 @@ function revokeAccessClicked(){
 		studentData[currStudentIndex].applicationData[getApplicationIndexfromApplicationId(applicationId)].hasAccess = false;
 		toggleButtons();
 		
-		while(document.getElementById("statusTable").rows.length > 1) {
-			document.getElementById("statusTable").deleteRow(1);
-		}
-		
-		populateStatusTable();
+		updateStatusTable();
 	  },
 	  error: function(xhr){
         console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
@@ -303,3 +297,10 @@ function populateOtherLogisticalData(){
 	});	
 }
 	
+function updateStatusTable(){
+	while(document.getElementById("statusTable").rows.length > 1) {
+			document.getElementById("statusTable").deleteRow(1);
+	}
+	
+	populateStatusTable();
+}
