@@ -6,3 +6,4 @@ venv/
 __pycache__/
 StudentElectronApp/node_modules/
 TeacherElectronApp/node_modules/
+.DS_Store
