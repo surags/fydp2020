@@ -19,8 +19,8 @@ var applicationList = [];
 var applicationId = [];
 var studentData = [];
 var currStudentIndex = 0;
-var IPAddr = 'http://25.76.110.191:9090';
-// var IPAddr = 'http://rp:9090'; //Vidit Changes
+// var IPAddr = 'http://25.76.110.191:9090';
+ var IPAddr = 'http://rp:9090'; //Vidit Changes
 
 var oauth_token = window.localStorage.getItem('oauth_token');
 	
