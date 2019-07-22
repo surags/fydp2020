@@ -20,7 +20,7 @@ var applicationId = [];
 var studentData = [];
 var currStudentIndex = 0;
 // var IPAddr = 'http://25.76.110.191:9090';
- var IPAddr = 'http://rp:9090'; //Vidit Changes
+var IPAddr = 'http://rp:9090'; //Vidit Changes
 
 var oauth_token = window.localStorage.getItem('oauth_token');
 	
@@ -115,6 +115,7 @@ function populateApplicationList(){
 
 function populateStatusTable(){
 	var userId = document.getElementById("studentDropdown").value; 
+	window.localStorage.setItem('userid', userId);
 	
 	$.ajax({
 		  url: IPAddr + '/user/' + userId + '/applications',
@@ -203,6 +204,7 @@ function populateProfessorName(professorName){
 
 function giveAccessClicked(){
 	var userId = document.getElementById("studentDropdown").value; 
+		
 	var applicationId = document.getElementById("applicationDropdown").value;
 	
 	$.ajax({

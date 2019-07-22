@@ -16,7 +16,7 @@
 
 
 function loginFunction(){
-	// var IPAddr = 'http://25.76.110.191:9090';
+	// var IPAddr = 'http://25.80.150.234:9090';
 	var IPAddr = 'http://rp:9090'; //Vidit Changes
 	
 	
@@ -38,7 +38,8 @@ function loginFunction(){
 		  crossDomain: true,
 		  data:myParams,
 		  success: function(response) {
-			  console.log(response);		
+			  console.log(response);	
+			  window.localStorage.setItem('oauth_token', response);
 			  $.ajax({
 				  url: IPAddr + '/user/' + userName + '/info',
 				  type: 'GET',
@@ -49,6 +50,7 @@ function loginFunction(){
 						var myData = JSON.parse(data);
 						if(myData){
 							userId = myData.user[0].user_id;
+							window.localStorage.setItem('userid', userId);
 						}
 						$.ajax({
 						  url: IPAddr + '/routes/setup/' + userId,
@@ -56,7 +58,9 @@ function loginFunction(){
 						  data: response,
 						  crossDomain: true,
 						  success: function(response) {
-							  // Call the Shell binaries
+							  // Go to the logout page
+							  window.location.href="logout.html";
+							  // Call the Shell binaries					
 							  console.log(response);
 						  },
 						  error: function(xhr){
