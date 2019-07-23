@@ -24,6 +24,7 @@ function logout(){
 	  success: function(response) {
 		  console.log("Logged out");
 		  alert("You have been successfully logged out. Thank you");
+		  window.location.href="login.html";
 	  },
 	  error: function(xhr){
 		console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
