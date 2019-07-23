@@ -83,7 +83,6 @@ class UserHelper:
         except Exception as e:
             print(str(e))
             response.body += '"error_container": "Could not add permission to container"}'
-            response.status = 500
         return response
 
     def revoke_access(self, user_id, application_id):
@@ -105,7 +104,6 @@ class UserHelper:
         except Exception as e:
             print(str(e))
             response.body += '"error_container": "Could not delete permission from container"}'
-            response.status = 500
         return response
 
     def add_application_permission_in_container(self, os_container_ip, application_id):
