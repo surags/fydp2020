@@ -1,0 +1,123 @@
+{
+	"info": {
+		"_postman_id": "2c81a751-569d-4fcb-99bf-af2826f85d48",
+		"name": "FYDP",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create User",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "http://52.168.51.92:9090/user/root/create/password",
+					"protocol": "http",
+					"host": [
+						"52",
+						"168",
+						"51",
+						"92"
+					],
+					"port": "9090",
+					"path": [
+						"user",
+						"root",
+						"create",
+						"password"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Test",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://52.168.51.92:9090/test",
+					"protocol": "http",
+					"host": [
+						"52",
+						"168",
+						"51",
+						"92"
+					],
+					"port": "9090",
+					"path": [
+						"test"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Token",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"client_id\":\"teacher\",\n\t\"grant_type\":\"password\",\n\t\"username\":\"root\",\n\t\"password:\":\"password\",\n\t\"scope\":\"streamingOS\"\n}"
+				},
+				"url": {
+					"raw": "http://52.168.51.92:9090/token",
+					"protocol": "http",
+					"host": [
+						"52",
+						"168",
+						"51",
+						"92"
+					],
+					"port": "9090",
+					"path": [
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Sign In",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Setup Routes",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Routes",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}

@@ -5,6 +5,7 @@ from src.model.user_type import UserType
 
 authentication_helper = authentication_helper.Factory().get_authentication_helper()
 
+
 class Client():
     client_id = None
 

@@ -13,8 +13,6 @@ from src.helper import response_format_helper
 from src.model.users import Users
 from src.helper import router
 
-response_format_helper = response_format_helper.Factory().get_response_format_helper()
-assert router.factory.get_router() is router.factory.get_router()
 router = router.factory.get_router()
 
 class UserHelper:

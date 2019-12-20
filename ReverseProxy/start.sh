@@ -1,1 +1,1 @@
-uwsgi --http-socket :9090 --plugin /usr/lib/uwsgi/python3_plugin.so --wsgi-file src/wsgi.py
+uwsgi --http-socket :9090 --plugin /usr/lib/uwsgi/python3_plugin.so --wsgi-file src/wsgi.py --set is_azure=False --set db_hostname=db --set db_port=3306 --set db_user=root --set db_password=supersecret

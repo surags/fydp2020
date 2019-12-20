@@ -21,10 +21,10 @@ def listing_handler():
     return [b"Hello"]
 
 
-@get('/routes/setup/<user_id>')
+@get('/routes/setup/<user_id>/<client_ip>')
 @app.auth.verify_request(scopes=['streamingOS'])
-def setup_routes(user_id):
-    return router.setup_routes(user_id)
+def setup_routes(user_id, client_ip):
+    return router.setup_routes(user_id, client_ip)
 
 
 # Deletes routes for user
@@ -36,7 +36,6 @@ def delete_routes(user_id):
 
 # Create user, returns user_id
 @put('/user/<username>/create/<password>')
-@app.auth.verify_request(scopes=['streamingOS'])
 def create_user(username, password):
     return authentication_helper.create_new_user(username, password, request.params)
 

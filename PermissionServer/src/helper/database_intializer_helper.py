@@ -4,15 +4,6 @@ from src.model.application_permissions import ApplicationPermission
 from src.model.os_container import OSContainer
 import peewee
 
-db = peewee.MySQLDatabase(
-    "streamingOS",
-    host="db",
-    port=3306,
-    user="root",
-    passwd="supersecret"
-)
-
-
 class DatabaseInitializer:
     def __init__(self):
         try:
