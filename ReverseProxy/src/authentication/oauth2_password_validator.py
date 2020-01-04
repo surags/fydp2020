@@ -13,8 +13,8 @@ class Client():
 class OAuth2_PasswordValidator(oauth2.RequestValidator):
     """dict of clients containing list of valid scopes"""
     clients_scopes = {
-        "student": ["streamingOS"],
-        "teacher": ["streamingOS"]
+        "student": ["studentStreamingOS", "studentTeacherStreamingOS"],
+        "teacher": ["teacherStreamingOS", "studentTeacherStreamingOS"]
     }
     """dict of username containing password"""
     users_password = {
@@ -64,5 +64,9 @@ class OAuth2_PasswordValidator(oauth2.RequestValidator):
             request.client = info["client"]
             request.user = info["user"]
             request.scopes = info["scopes"]
-            return all(scope in request.scopes for scope in scopes_required)
-        return False
+
+            scopes = oauth2.rfc6749.utils.scope_to_list(request.scopes)
+            for scope in scopes_required:
+                if scope not in scopes:
+                    return False
+        return True

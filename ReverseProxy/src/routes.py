@@ -1,14 +1,18 @@
+import requests
+
+from src.helper import router
+from src.helper import container_helper
 from src.helper import authentication_helper
 from src.helper import user_helper
 from src.wsgi import app
 from bottle import response, request
 from bottle import post, get, put, delete
 
-from src.helper import router
 
 router = router.factory.get_router()
 authentication_helper = authentication_helper.Factory().get_authentication_helper()
 user_helper = user_helper.Factory().get_user_helper()
+container_helper = container_helper.ContainerHelper()
 
 
 @get('/test')
@@ -21,80 +25,119 @@ def listing_handler():
     return [b"Hello"]
 
 
-@get('/routes/setup/<user_id>/<client_ip>')
-@app.auth.verify_request(scopes=['streamingOS'])
-def setup_routes(user_id, client_ip):
-    return router.setup_routes(user_id, client_ip)
+# Setup routes for the user.
+# client_ip: Should be the public ipv4 of the client
+# os_type: Should be either 'Windows' or 'Linux'
+# user_id: The unique identifier for the user
+# width: Screen width
+# height: Screen height
+@get('/routes/setup/<user_id>/<client_ip>/<os_type>/<width>/<height>')
+@app.auth.verify_request(scopes=['studentTeacherStreamingOS'])
+def setup_routes(user_id, client_ip, os_type, width, height):
+    return router.setup_routes(user_id, client_ip, os_type, width, height)
 
 
 # Deletes routes for user
+# user_id: The unique identifier for the user
 @get('/routes/delete/<user_id>')
-@app.auth.verify_request(scopes=['streamingOS'])
+@app.auth.verify_request(scopes=['studentTeacherStreamingOS'])
 def delete_routes(user_id):
-    return router.delete_iptable_rules(user_id)
+    container_helper.cleanup_user_session(user_id)
+    response.body = router.delete_iptable_rules(user_id)
+    response.status = 200
+    return response
 
 
 # Create user, returns user_id
+# username: The unique username for the user
+# password: The unique password for the user
 @put('/user/<username>/create/<password>')
 def create_user(username, password):
     return authentication_helper.create_new_user(username, password, request.params)
 
 
 # Delete user
+# user_id: The unique identifier for the user
 @delete('/user/<user_id>/delete')
-@app.auth.verify_request(scopes=['streamingOS'])
+@app.auth.verify_request(scopes=['teacherStreamingOS'])
 def delete_user(user_id):
     return authentication_helper.delete_user(user_id)
 
 
 # Get info about a user
+# user_id: The unique identifier for the user
+@get('/user/<user_id>/screen/snapshot')
+@app.auth.verify_request(scopes=['teacherStreamingOS'])
+def get_screen_snapshot(user_id):
+    buffer_image = container_helper.get_screenshot(user_id)
+    response.set_header('Content-type', 'image/jpeg')
+    return buffer_image.read()
+
+# Get info about a user
+# username: The unique username for the user
 @get('/user/<username>/info')
-@app.auth.verify_request(scopes=['streamingOS'])
+@app.auth.verify_request(scopes=['studentTeacherStreamingOS'])
 def user_info(username):
     return user_helper.user_info(username)
 
 
 # Get a list of all the students in the school specified
+# school_id: The unique identifier for the school
 @get('/school/<school_id>/studentlist')
-@app.auth.verify_request(scopes=['streamingOS'])
+@app.auth.verify_request(scopes=['teacherStreamingOS'])
 def student_list(school_id):
     return user_helper.student_list(school_id)
 
 
 # Get a list of all applications supported
 @get('/applications')
-@app.auth.verify_request(scopes=['streamingOS'])
+@app.auth.verify_request(scopes=['teacherStreamingOS'])
 def application_list():
     return user_helper.application_list()
 
 
 # Get the list of permitted applications for a student
+# user_id: The unique identifier for the user
 @get('/user/<user_id>/applications')
-@app.auth.verify_request(scopes=['streamingOS'])
+@app.auth.verify_request(scopes=['teacherStreamingOS'])
 def permitted_apps(user_id):
     return user_helper.permitted_apps(user_id)
 
 
 # Give access to a user for an application
+# user_id: The unique identifier for the user
+# application_id: The unique identifier for the application
 @put('/user/<user_id>/grant/<application_id>')
-@app.auth.verify_request(scopes=['streamingOS'])
+@app.auth.verify_request(scopes=['teacherStreamingOS'])
 def give_access(user_id, application_id):
     return user_helper.give_access(user_id, application_id)
 
 
 # Revoke access to a user for an application
+# user_id: The unique identifier for the user
+# application_id: The unique identifier for the application
 @delete('/user/<user_id>/revoke/<application_id>')
-@app.auth.verify_request(scopes=['streamingOS'])
+@app.auth.verify_request(scopes=['teacherStreamingOS'])
 def revoke_access(user_id, application_id):
     return user_helper.revoke_access(user_id, application_id)
 
 
+# Generates an OAuth2.0 token for the user
+# This requires a few fields in the body set as x-www-form-urlencoded. Also requires the following Content-Type header: application/x-www-form-urlencoded
+# client_id: The client type (i.e. teacher or student)
+# grant_type: The grant type. Only one supported right now which is 'password'
+# username: The unique username for the user
+# password: The password for the user
+# scope: Scopes define what you are requesting access to with the token (i.e. teacherStreamingOS, studentStreamingOS, studentAndTeacherStreamingOS)
 @post('/token')
 @app.auth.create_token_response()
 def generate_token():
     pass
 
+
 # Test call for authenticating
+# username: The unique username for the user
+# password: The password for the user
 @get('/user/<username>/auth/<password>')
 def auth_user(username, password):
     if authentication_helper.validate_user(username, password):

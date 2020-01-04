@@ -1,4 +1,5 @@
 import json
+import os
 
 import bottle
 
@@ -7,14 +8,17 @@ from bottle import response
 from bottle import post, get, put
 from bottle import static_file
 from src.helper import application_permission_helper
-from src.helper import snapshot_helper
+from src.helper import thread_helper
+from src.helper import vnc_helper
 from src.manager import os_container_info_manager
 from src.manager import user_info_manager
 
 permission_helper = application_permission_helper.factory.get_application_permissions_helper()
-snapshot_helper = snapshot_helper.factory.get_snapshot_helper()
+thread_helper = thread_helper.factory.get_thread_helper()
 container_info_manager = os_container_info_manager.factory.get_os_container_info_manager()
 user_info_manager = user_info_manager.factory.get_user_info_manager()
+vnc_helper = vnc_helper.VNCHelper()
+
 
 @get('/')
 def listing_handler():
@@ -29,19 +33,25 @@ def add_application_permission(application_id):
     return response
 
 
-@post('/user/setup/<user_id>')
-def setup_user(user_id):
+@post('/user/setup/<user_id>/<width>/<height>')
+def setup_user(user_id, width, height):
+    vnc_helper.start_vnc_server(width, height)
     permission_helper.setup_user(user_id)
     response.body = "Success"
     response.status = 200
     return response
 
+
 @post('/user/remove')
 def remove_user():
+    vnc_helper.cleanup_vnc_server()
     user_info_manager.user_id = ""
+    container_info_manager.is_free = True
+    thread_helper.enabled = False
     response.body = "Success"
     response.status = 200
     return response
+
 
 @post('/application/permission/remove/<application_id>')
 def remove_application_permission(application_id):
@@ -53,7 +63,10 @@ def remove_application_permission(application_id):
 
 @get('/screen/snapshot')
 def get_latest_snapshot():
-    return static_file(snapshot_helper.get_latest_snapshot(), root='snapshots')
+    project_root = os.path.dirname(os.path.dirname(__file__))
+    print(project_root)
+    return static_file(thread_helper.get_latest_snapshot(), root=os.path.join(os.path.dirname(__file__), 'snapshots'),
+                       mimetype='image/jpg')
 
 
 @get('/health/check')

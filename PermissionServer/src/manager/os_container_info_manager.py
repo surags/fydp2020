@@ -1,14 +1,18 @@
 import subprocess
-from threading import Lock
-
 import requests
 import uwsgi as uwsgi
 
+from threading import Lock
 from src.model.os_container import OSContainer
 
 
 class OSContainerInfoManager:
     def __init__(self):
+        self.os_type = ""
+        if uwsgi.opt["is_ubuntu"].decode("utf-8") == "True":
+            self.os_type = "Linux"
+        else:
+            self.os_type = "Windows"
         self.ip_address = self.initialize_container_ip_address()
         self.is_running = True
         self.is_free = True
@@ -20,7 +24,7 @@ class OSContainerInfoManager:
         else:
             ip_address = requests.get(
                 "http://169.254.169.254/metadata/instance/network/interface/0/ipv4/ipAddress/0/privateIpAddress?api-version=2017-04-02&format=text",
-                headers={"Metadata" : "true"}).content
+                headers={"Metadata": "true"}).content
         self.setup_os_container_info_in_db(ip_address)
         return ip_address
 
@@ -30,11 +34,12 @@ class OSContainerInfoManager:
             container.is_free = True
             container.is_running = True
             container.ip_address = os_container_ip
+            container.os_type = self.os_type
             container.save(force_insert=True)
-        except:
+        except Exception as e:
             print("Failed to save container info on startup")
+            print(e)
             pass
-
 
 
 class Factory:

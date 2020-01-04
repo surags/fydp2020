@@ -1,10 +1,4 @@
-import subprocess
 from threading import Lock
-
-import requests
-import uwsgi as uwsgi
-
-from src.model.os_container import OSContainer
 
 
 class UserInfoManager:

@@ -1,19 +1,19 @@
 import subprocess
+import threading
+
 import requests
 import uwsgi
 from threading import Lock
-
 from peewee import JOIN
-
 from src.model.application import Application
 from src.model.application_permissions import ApplicationPermission
-
-from src.model.os_container import OSContainer
 from src.manager import os_container_info_manager
 from src.manager import user_info_manager
+from src.helper import thread_helper
 
 container_info_manager = os_container_info_manager.factory.get_os_container_info_manager()
 user_info_manager = user_info_manager.factory.get_user_info_manager()
+thread_helper = thread_helper.factory.get_thread_helper()
 
 
 class ApplicationPermissionHelper:
@@ -34,7 +34,14 @@ class ApplicationPermissionHelper:
     def setup_user(self, user_id):
         user_info_manager.user_id = user_id
         self.remove_permissions()
+        print("Permissions removed")
         container_info_manager.is_free = False
+        snapshot_thread = threading.Thread(name='os_container_health_check', target=thread_helper.snapshot_with_repeating_interval)
+        vnc_check_thread = threading.Thread(name='os_container_health_check', target=thread_helper.check_vnc_connection_with_repeating_interval)
+        thread_helper.enabled = True
+        snapshot_thread.start()
+        vnc_check_thread.start()
+        print("Setup user")
 
     def add_permission(self, application_id):
         application_info = Application.get(Application.application_id == application_id)
@@ -63,5 +70,6 @@ class Factory:
     def reset_application_permissions_helper(self):
         with self.lock:
             self.application_permission_helper = ApplicationPermissionHelper()
+
 
 factory = Factory()

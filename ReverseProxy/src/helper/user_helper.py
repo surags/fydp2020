@@ -11,9 +11,10 @@ from src.model.application import Application
 from src.model.application_permissions import ApplicationPermission
 from src.helper import response_format_helper
 from src.model.users import Users
-from src.helper import router
+from src.helper import session_helper
 
-router = router.factory.get_router()
+session_helper = session_helper.factory.get_session_helper()
+
 
 class UserHelper:
     def __init__(self):
@@ -75,7 +76,7 @@ class UserHelper:
                 response.body = '{"error_database": "Invalid user_id or application_id",'
                 response.status = 400
         try:
-            os_container_ip = router.get_session_for_user(user_id).destination_ip
+            os_container_ip = session_helper.get_session_for_user(user_id).destination_ip
             self.add_application_permission_in_container(os_container_ip, application_id)
             response.body += '"containers": "Successfully added permission in container"}'
         except Exception as e:
@@ -96,7 +97,7 @@ class UserHelper:
             response.status = 400
 
         try:
-            os_container_ip = router.get_session_for_user(user_id).destination_ip
+            os_container_ip = session_helper.get_session_for_user(user_id).destination_ip
             self.revoke_application_permission_in_container(os_container_ip, application_id)
             response.body += '"containers": "Successfully deleted permission in container"}'
         except Exception as e:
@@ -106,13 +107,11 @@ class UserHelper:
 
     def add_application_permission_in_container(self, os_container_ip, application_id):
         url = 'http://{0}:9090/application/permission/add/{1}'.format(os_container_ip, application_id)
-        print(url)
-        response = requests.post(url)
+        requests.post(url)
 
     def revoke_application_permission_in_container(self, os_container_ip, application_id):
         url = 'http://{0}:9090/application/permission/remove/{1}'.format(os_container_ip, application_id)
-        print(url)
-        response = requests.post(url)
+        requests.post(url)
 
 
 class Factory:

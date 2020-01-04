@@ -31,7 +31,6 @@ class AuthenticationHelper:
                 new_teacher.user_id = new_user.user_id
                 new_teacher.has_system_access = True
                 new_teacher.save()
-
                 response.body = json.dumps({'success': 'Successfully created teacher ' + new_user.user_name + ' with id ' + str(new_user.user_id), 'id': new_user.user_id})
                 response.status = 200
             elif query.user_type.lower() == "student":

@@ -7,4 +7,3 @@ bottle_oauthlib
 requests
 bcrypt
 uwsgi
-timeloop
