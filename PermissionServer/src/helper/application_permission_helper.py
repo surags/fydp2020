@@ -1,8 +1,8 @@
 import subprocess
 import threading
-
-import requests
 import uwsgi
+import uuid
+
 from threading import Lock
 from peewee import JOIN
 from src.model.application import Application
@@ -45,13 +45,34 @@ class ApplicationPermissionHelper:
 
     def add_permission(self, application_id):
         application_info = Application.get(Application.application_id == application_id)
-        subprocess.Popen("chmod -R +x /usr/lib/{0}".format(application_info.application_name), stdout=subprocess.PIPE,
-                         shell=True)
+        if uwsgi.opt["is_ubuntu"].decode("utf-8") == "True":
+            subprocess.Popen("chmod -R +x /usr/lib/{0}".format(application_info.application_name), stdout=subprocess.PIPE,
+                            shell=True)
+        else:
+            file_name = self.generate_windows_regedit_file(application_info.application_name, True)
+            subprocess.Popen("cd /mnt/c && cmd.exe /c REGEDIT /s {0} && rm {1}".format(file_name, file_name), stdout=subprocess.PIPE,
+                            shell=True)
 
     def remove_permission(self, application_id):
         application_info = Application.get(Application.application_id == application_id)
-        subprocess.Popen("chmod -R -x /usr/lib/{0}".format(application_info.application_name), stdout=subprocess.PIPE,
-                         shell=True)
+        if uwsgi.opt["is_ubuntu"].decode("utf-8") == "True":
+            subprocess.Popen("chmod -R -x /usr/lib/{0}".format(application_info.application_name), stdout=subprocess.PIPE,
+                            shell=True)
+        else:
+            file_name = self.generate_windows_regedit_file(application_info.application_name, False)
+            subprocess.Popen("cd /mnt/c && cmd.exe /c REGEDIT /s {0} && rm {1}".format(file_name, file_name), stdout=subprocess.PIPE,
+                            shell=True)
+
+    def generate_windows_regedit_file(self, application_name, should_add_permission):
+        file_name = "{0}-permissions-{1}.reg".format(uuid.uuid4(), application_name)
+        with open("/mnt/c/{0}".format(file_name), "w") as file:
+            file.write("Windows Registry Editor Version 5.00\n")
+            file.write("[HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\DisallowRun]\n")
+            if should_add_permission:
+                file.write("\"{0}\"=-".format(application_name))
+            else:
+                file.write("\"{0}\"=\"{1}\"".format(application_name, application_name))
+        return file_name
 
 
 class Factory:
