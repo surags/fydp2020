@@ -46,6 +46,9 @@ class UserHelper:
         response.status = 200
         return response
 
+    def session_list(self):
+        return session_helper.get_all_sessions_that_exist()
+
     def permitted_apps(self, user_id):
         join_condition = ApplicationPermission.application_id == Application.application_id
         query = ApplicationPermission.select(Application.application_id, Application.application_name).join(Application,

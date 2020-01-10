@@ -15,11 +15,12 @@ user_helper = user_helper.Factory().get_user_helper()
 container_helper = container_helper.ContainerHelper()
 
 
+# A test call to determine if the API is working
 @get('/test')
 def test_call():
     return [b"This is a test call"]
 
-
+# A test call to determine if the API is working
 @get('/')
 def listing_handler():
     return [b"Hello"]
@@ -94,6 +95,18 @@ def student_list(school_id):
 @app.auth.verify_request(scopes=['teacherStreamingOS'])
 def application_list():
     return user_helper.application_list()
+
+# Get a list of all users that have an active session
+# Note that every time the ReverseProxy container is built,
+# the sessions must be recreated/freed in the DB and then the
+# setup_routes endpoint must be called to add the user to the
+# session. Then the call will work :)
+@get('/sessions')
+@app.auth.verify_request(scopes=['teacherStreamingOS'])
+def session_list():
+    response.body = user_helper.session_list()
+    response.status = 418
+    return response
 
 
 # Get the list of permitted applications for a student
