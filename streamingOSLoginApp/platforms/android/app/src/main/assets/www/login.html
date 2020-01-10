@@ -1,0 +1,35 @@
+<!-- Main Style -->
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+	
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <!--<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">-->
+    <title>StreamingOS: Low Cost Education System</title>
+</head>
+<body>
+    <div id="logreg-forms">
+        <form class="form-signin" method="post">
+            <h1 class="h3 mb-3 font-weight-normal" style="text-align: center"> Sign in</h1>
+            <input type="userId" id="inputUserId" class="form-control" placeholder="User ID" required = "" autofocus="">
+            <input type="password" id="inputPassword" class="form-control" placeholder="Password" required = "">
+            <div style = "padding:10px;"></div>
+			<input id="submit" class="btn btn-success btn-block" type="button" onclick="loginFunction()" value="Login"></input>
+            <a href="forgot-password.html" id="forgot_pswd">Forgot password?</a>
+            <hr>                   
+    </div>
+    <p style="text-align:center">
+    </p>
+</body>
+</html>
+
+ <!-- jQuery first, then Bootstrap JS -->
+<script src="js/jquery-min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/jquery.app.js"></script>
+<script src="js/login.js"></script>
+<script src="../node_modules/requirejs/require.js"></script>
