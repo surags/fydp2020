@@ -1,0 +1,12 @@
+{
+  "background_color": "#FFF",
+  "display": "standalone",
+  "orientation": "any",
+  "start_url": "index.html",
+  "name": "streamingOSLoginApp",
+  "short_name": "streamingOSLoginApp",
+  "version": "com.fydp.streamingOS.LoginApp",
+  "description": "A sample Apache Cordova application that responds to the deviceready event.",
+  "author": "Apache Cordova Team",
+  "icons": []
+}

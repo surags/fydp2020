@@ -1,0 +1,26 @@
+{
+  "main": "cdv-electron-main.js",
+  "name": "com.fydp.streamingOS.LoginApp",
+  "displayName": "streamingOSLoginApp",
+  "version": "1.0.0",
+  "description": "A sample Apache Cordova application that responds to the deviceready event.",
+  "dependencies": {
+    "child_process": "^1.0.2",
+    "cordova-android": "^8.1.0",
+    "cordova-electron": "^1.1.1",
+    "exec": "^0.2.1",
+    "exports": "0.0.1",
+    "express": "^4.17.1",
+    "module": "^1.2.5",
+    "requirejs": "^2.3.6",
+    "shelljs": "^0.8.3",
+    "super": "^0.2.3",
+    "util": "^0.12.1"
+  },
+  "homepage": "http://cordova.io",
+  "license": "Apache-2.0",
+  "author": {
+    "name": "Apache Cordova Team",
+    "email": "dev@cordova.apache.org"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "background_color": "#FFF",
+  "display": "standalone",
+  "orientation": "any",
+  "start_url": "index.html",
+  "name": "streamingOSTeacherApp",
+  "short_name": "streamingOSTeacherApp",
+  "version": "com.streamingOS.teacherapp",
+  "description": "A sample Apache Cordova application that responds to the deviceready event.",
+  "author": "Apache Cordova Team",
+  "icons": []
+}

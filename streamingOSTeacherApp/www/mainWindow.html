@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>StreamingOS: Low Cost Education System</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+    <!-- Fonts -->
+    <link rel="stylesheet" type="text/css" href="fonts/line-icons.css">
+    <!-- Main Style -->
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+    <!-- Responsive Style -->
+    <link rel="stylesheet" type="text/css" href="css/responsive.css">
+
+  </head>
+
+  <body>
+    <div class="app header-default side-nav-dark">
+      <div class="layout">
+        <!-- Header START -->
+        <div style="border: 1px solid blue;" class="header navbar">
+          <div class="header-container">
+            <div class="nav-logo">
+              <img style="height:100%; width: 23%;" src="img/user.png" alt="">	
+			  <div style = "width: 1px; background-color: blue; height: 63px; float:right;"></div>			  
+            </div>		
+			<div id = "schoolNameDiv" style= "font-size:28px;font-family:Serif;text-align:center;width:50%; padding:1%;"class="nav-logo">{schoolName}</div>	
+			<div style = "width: 1px; background-color: blue; height: 63px; float:left;"></div>				
+			<div id = "professorNameDiv" style= "font-size:17px;font-family:Serif;text-align:center;width:30%; padding:0.5%;white-space:pre-wrap;"class="nav-logo">Welcome {professorName}&#10;</div>
+			<a style= "font-size:17px;font-family:Serif;text-align:center;width:30%; white-space:pre-wrap;"class="nav-logo" href = "404.html">Logout</a>
+          </div>
+        </div>
+        <!-- Header END -->
+      </div>
+    </div>
+    <div class="col-sm-6" style = "bottom:65%; position:absolute;">
+	  <div class="dropdown m-b-10">
+	    <select id = "studentDropdown" class="dropdown-menu dropdown m-b-10" onchange="studentNameChange()" aria-labelledby="dropdownMenuLink" x-placement="bottom-start" style = "border:1px solid black;background:white;color:black;">
+	    </select>
+	  </div>
+    </div>
+	<div class="col-sm-6" style = "bottom:65%; left: 15%; position:absolute;">
+	  <div class="dropdown m-b-10" style = "right:-10%;">
+	    <select id = "applicationDropdown" class="dropdown-menu dropdown m-b-10" onchange="applicationNameChange()" aria-labelledby="dropdownMenuLink" x-placement="bottom-start" style = "border:1px solid black;background:white;color:black;">
+	    </select>
+	  </div>
+    </div>
+	<div class="table" style = "left: 50%; position:absolute; padding-top:15%">
+	  <table id = "statusTable" style = "width:50%;" class="table table-sm">
+        <thead>		 
+			<td style = "width:50%;" class="text-dark text-semibold">Application Name</td>
+			<td style = "width:50%;" class="text-dark text-semibold">Status</td>   
+		</thead>
+	  </table>
+	</div>
+	<div style = "left: 1%; position:absolute; padding-top:31%">
+	  <div class="m-t-20">
+	    <button id = "giveAccessButton" type="button" class="btn btn-primary" onclick="giveAccessClicked()">Give Access</button>
+	  </div>
+	</div>
+	<div style = "left: 15%; position:absolute; padding-top:31%">
+	  <div class="m-t-20">
+	    <button id = "revokeAccessButton" type="button" class="btn btn-primary" onclick="revokeAccessClicked()">Revoke Access</button>
+	  </div>
+	</div>
+    <!-- Preloader -->
+    <div id="preloader">
+      <div class="loader" id="loader-1"></div>
+    </div>
+    <!-- End Preloader -->
+
+     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="js/jquery-min.js"></script>
+    <script src="js/popper.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/jquery.app.js"></script>
+    <script src="js/main.js"></script>
+
+  </body>
+</html>
