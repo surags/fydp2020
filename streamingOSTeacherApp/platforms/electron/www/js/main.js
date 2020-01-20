@@ -20,7 +20,7 @@ var applicationId = [];
 var studentData = [];
 var currStudentIndex = 0;
 
-var IPAddr = 'http://157.56.178.122:9090';
+var IPAddr = 'http://40.117.173.75:9090';
 //var IPAddr = 'http://rp:9090'; //Vidit Changes
 
 var oauth_token = window.localStorage.getItem('oauth_token');
@@ -50,14 +50,13 @@ function populateStudentList(){
 				});
 			}
 		}
-		var studentDropdown = document.getElementById("studentDropdown");
+		var studentsTable = document.getElementById("studentsTable");
 	
 		for(var i = 0; i < studentData.length; i++){
-			var option = document.createElement("option");
-			option.text = studentData[i].studentName;
-			option.value = studentData[i].studentId ;
-			option.className = "dropdown-item";
-			studentDropdown.add(option);	
+			//option.value = studentData[i].studentId ;
+			var row = studentsTable.insertRow();			
+			var cell = row.insertCell(0);
+			cell.innerHTML = studentData[i].studentName;
 		}
 		
 		populateApplicationList();
@@ -71,7 +70,7 @@ function populateStudentList(){
 
 
 function populateApplicationList(){
-	var applicationDropdown = document.getElementById("applicationDropdown");
+	var applicationStatusTable = document.getElementById("applicationStatusTable");
 	
 	$.ajax({
 		  url: IPAddr + '/applications',
@@ -97,12 +96,11 @@ function populateApplicationList(){
 			}
 			
 			// Cannot read property 'applicationData' of undefined
-			for(var i = 0; i < studentData[currStudentIndex].applicationData.length; i++){
-				var option = document.createElement("option");
-				option.text = applicationData[i].applicationName;
-				option.value = applicationData[i].applicationId;
-				option.className = "dropdown-item";
-				applicationDropdown.add(option);	
+			for(var i = 0; i < studentData[currStudentIndex].applicationData.length; i++){			
+				// option.value = applicationData[i].applicationId;
+				var row = applicationStatusTable.insertRow();			
+				var cell = row.insertCell(0);
+				cell.innerHTML = applicationData[i].applicationName;				
 			}	
 			
 			populateStatusTable();

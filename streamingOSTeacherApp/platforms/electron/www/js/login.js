@@ -13,7 +13,7 @@
 
 }(jQuery));
 
-var IPAddr = 'http://157.56.178.122:9090';
+var IPAddr = 'http://40.117.173.75:9090';
 //var IPAddr = 'http://rp:9090'; //Vidit Changes
 
 function login(){
@@ -36,7 +36,7 @@ function login(){
 		  success: function(response) {
 			  window.localStorage.setItem('userName', userName);
 			  window.localStorage.setItem('oauth_token', response);		
-			  window.location.href = "mainWindow.html";
+			  window.location.href = "newMainWindow.html";
 		  },
 		  error: function(xhr){
 			console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
