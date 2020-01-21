@@ -46,8 +46,8 @@ function connectVM(var1) {
 			//window.location.href = "logout.html";
 			console.log("logout code")
 			var obj = JSON.parse(response);
-			console.log(obj.routes.source_port)
-			console.log(obj)
+			console.log(obj.routes.source_port);
+			console.log(obj);
 			noVNCConnect(obj.routes.source_port)
 			
 			// Call vnc endpoint on localhost:3000
@@ -84,8 +84,8 @@ function availableVM(){
     success: function(responseText) {
     var myData = JSON.parse(responseText);
     if(myData){
-			currAvailableLinuxVMs = myData.vm.linuxCount;
-			currAvailableWindowsVMs = myData.vm.windowsCount;	
+			currAvailableLinuxVMs = myData.Linux;
+			currAvailableWindowsVMs = myData.Windows;	
 		}
 		
 		document.getElementById("linuxCount").innerHTML = currAvailableLinuxVMs;
