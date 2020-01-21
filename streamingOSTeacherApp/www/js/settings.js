@@ -77,7 +77,7 @@ function connectVM(var1) {
 function availableVM(){
 	
   $.ajax({
-    url: IPAddr + '/availableVMlist',
+    url: IPAddr + '/availableVM',
     type: 'GET',
     crossDomain: true,
     data:oauth_token,
