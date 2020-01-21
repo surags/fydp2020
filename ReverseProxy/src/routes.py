@@ -203,3 +203,9 @@ def auth_user(username, password):
         response.body = "OoPs SoMeThInG wEnT wRoNg"
         response.status = 418
     return response
+
+# Get a list of all the students in the school specified
+# school_id: The unique identifier for the school
+@get('/availableVM')
+def available_vm_list():
+    return user_helper.available_vm_list()

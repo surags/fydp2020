@@ -46,6 +46,17 @@ class UserHelper:
         response.status = 200
         return response
 
+    def available_vm_list(self):
+        availablevm = OSContainer.select(OSContainer.os_type.alias('os_type'), fn.COUNT('*').alias('count')).where(
+            OSContainer.is_free == True and OSContainer.is_running == True).group_by(OSContainer.os_type).dicts()
+            
+        # for row in result_count:
+        #     availablevm[row['os_type']] = row['count']
+
+        response.body = json.dumps(availablevm)
+        response.status = 200
+        return response
+
     def session_list(self):
         return session_helper.get_all_sessions_that_exist()
 

@@ -1,18 +1,18 @@
 
-#LinuxVM img {
+#linuxVM #linux {
   border-radius: 25px;
   background-color: white;
   padding: 20px;
-  width: 100px;
-  height: 50px; 
+  width:150px; 
+  height:80px;
 }
 
-#windowsVM img {
+#windowsVM #windows {
+  width:150px; 
+  height:80px;
+  padding: 20px;
   border-radius: 25px;
   background-color: white;
-  padding: 20px;
-  width: 100px;
-  height: 100px;  
 }
 
 #availableVMContainer{
@@ -21,12 +21,37 @@
     top: 30%;
     left: 30%;
     display: flex;
+    background-color: white;
+    border-radius: 25px;
 }
 
 #linux {
-  width: 100px;
+  background-color: white;
+  border-radius: 25px;
 }
 
-#windows{
+#windows {
   flex:1;
+  background-color: white;
+  border-radius: 25px;
+  margin-left: 15px;
 }
+
+#windows button img {
+  width:200px; 
+  height:80px;
+  background-color: white;
+  margin-left: 15px;
+  border-radius: 20px;
+}
+
+
+#linux button img {
+
+    width: 200px;
+    height: 80px;
+    background-color:  white;
+    border-radius: 20px;
+}
+
+svg {background-color: white;}
