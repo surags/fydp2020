@@ -27,7 +27,7 @@ var userId = window.localStorage.getItem('userid');
 
 
 function noVNCConnect(port) {
-	var hostName = '13.92.140.22';
+	var hostName = '40.117.173.75';
 	window.location.href = `vnc_lite.html?host=${hostName}&port=${port}&scale=true`;
 }
 

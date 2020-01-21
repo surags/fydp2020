@@ -82,7 +82,7 @@
         var myData = JSON.parse(responseText);
         if(myData){
           var studentName= document.createTextNode(myData.user[0].first_name + " " + myData.user[0].last_name);
-          document.getElementById('StudentImage' + index).appendChild(studentName);
+          document.getElementById('student-screens-container').appendChild(studentName);
         }	
       },
       error: function(xhr){
