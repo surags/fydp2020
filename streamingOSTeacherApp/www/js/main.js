@@ -137,7 +137,10 @@ function populateStatusTable(){
 				cell1.appendChild(cellSpan);
 				
 				var cellSpan = document.createElement('span');
+				cellSpan.id = i.toString() + '_cellSpan';
+				
 				var divSpan = document.createElement('div');
+				divSpan.id = i.toString() + '_divSpan';
 				
 				cellSpan.style = "width:8px; height:8px; padding: 6px;";
 				divSpan.style = "display:inline; padding: 10%;";
@@ -239,10 +242,13 @@ function giveAccessClicked(applicationValue){
 	  data: oauth_token,
 	  crossDomain: true,
 	  success: function() {
-		studentData[currStudentIndex].applicationData[getApplicationIndexfromApplicationId(applicationId)].hasAccess = true;
-		toggleButtons();
+		studentData[currStudentIndex].applicationData[getApplicationIndexfromApplicationId(applicationId)].hasAccess = true;		
 		
-		updateStatusTable();
+		var cellSpan = document.getElementById(applicationValue.toString() + '_cellSpan');
+		var divSpan = document.getElementById(applicationValue.toString() + '_divSpan');
+		
+		cellSpan.classList = "btn btn-circle btn-success";	
+		divSpan.innerHTML = "Active";
 	  },
 	  error: function(xhr){
         console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
@@ -259,10 +265,13 @@ function revokeAccessClicked(applicationValue){
 	  type: 'DELETE',
 	  data: oauth_token,
 	  success: function() {
-		studentData[currStudentIndex].applicationData[getApplicationIndexfromApplicationId(applicationId)].hasAccess = false;
-		toggleButtons();
+		studentData[currStudentIndex].applicationData[getApplicationIndexfromApplicationId(applicationId)].hasAccess = false;	
 		
-		updateStatusTable();
+		var cellSpan = document.getElementById(applicationValue.toString() + '_cellSpan');
+		var divSpan = document.getElementById(applicationValue.toString() + '_divSpan');
+		
+		cellSpan.classList = "media-img btn btn-circle btn-danger";	
+		divSpan.innerHTML = "Inactive";					
 	  },
 	  error: function(xhr){
         console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);

@@ -59,6 +59,7 @@ function populateStudentList(){
 			cell.innerHTML = studentData[i].studentName;
 		}
 		
+		window.localStorage.setItem('userid', studentData[0].studentId);
 		populateApplicationList();
 	  },
 	  error: function(xhr){
@@ -93,16 +94,7 @@ function populateApplicationList(){
 					}
 					studentData[i].applicationData = applicationData;				
 				}
-			}
-			
-			// Cannot read property 'applicationData' of undefined
-			for(var i = 0; i < studentData[currStudentIndex].applicationData.length; i++){			
-				// option.value = applicationData[i].applicationId;
-				var row = applicationStatusTable.insertRow();			
-				var cell = row.insertCell(0);
-				cell.innerHTML = applicationData[i].applicationName;				
-			}	
-			
+			}			
 			populateStatusTable();
 		  },
 		  error: function(xhr){
@@ -113,8 +105,7 @@ function populateApplicationList(){
 }
 
 function populateStatusTable(){
-	var userId = document.getElementById("studentDropdown").value; 
-	window.localStorage.setItem('userid', userId);
+	var userId = window.localStorage.getItem('userid');
 	
 	$.ajax({
 		  url: IPAddr + '/user/' + userId + '/applications',
@@ -130,31 +121,71 @@ function populateStatusTable(){
 				}
 			}
 			
-			toggleButtons();
+			// toggleButtons();
 			
-			var statusTable = document.getElementById("statusTable");
+			var applicationStatusTable = document.getElementById("applicationStatusTable");
 			var offset = 1;
 			for(var i = 0; i < studentData[currStudentIndex].applicationData.length; i++){
-				var row = statusTable.insertRow(offset + i);
+				var row = applicationStatusTable.insertRow(offset + i);
 				var cell1 = row.insertCell(0);
 				var cell2 = row.insertCell(1);
+				var cell3 = row.insertCell(2);
 				
 				var cellSpan = document.createElement('span')
 				cellSpan.innerHTML = studentData[currStudentIndex].applicationData[i].applicationName;
 				cellSpan.classList = "title text-semibold";
 				cell1.appendChild(cellSpan);
 				
-				var cellSpan = document.createElement('span')
+				var cellSpan = document.createElement('span');
+				cellSpan.id = i.toString() + '_cellSpan';
+				
+				var divSpan = document.createElement('div');
+				divSpan.id = i.toString() + '_divSpan';
+				
 				cellSpan.style = "width:8px; height:8px; padding: 6px;";
+				divSpan.style = "display:inline; padding: 10%;";
 				
 				if(studentData[currStudentIndex].applicationData[i].hasAccess === true){
 					cellSpan.classList = "btn btn-circle btn-success";	
+					divSpan.innerHTML = "Active";
 				}
 				else{
-					cellSpan.classList = "media-img btn btn-circle btn-danger";			
+					cellSpan.classList = "media-img btn btn-circle btn-danger";	
+					divSpan.innerHTML = "Inactive";					
 				}
 				
 				cell2.appendChild(cellSpan);
+				cell2.appendChild(divSpan);
+				
+				var cellLabel = document.createElement('label');
+				cellLabel.classList = "switch";
+				
+				var cellInput = document.createElement('input');
+				cellInput.setAttribute("type", "checkbox");
+				cellInput.id = i.toString() + '_checkbox';
+				
+				var cellSpan = document.createElement('span');
+				cellSpan.classList = "slider round";
+				
+				if(studentData[currStudentIndex].applicationData[i].hasAccess === true){
+					cellInput.checked = true;
+				}
+				else {
+					cellInput.checked = false;				
+				}
+				
+				cellInput.addEventListener('change', (event) => {
+				  if (event.target.checked) {
+					giveAccessClicked(event.target.id.split('_')[0]);
+				  } else {
+					revokeAccessClicked(event.target.id.split('_')[0]);
+				  }
+				});
+				
+				cellLabel.appendChild(cellInput);
+				cellLabel.appendChild(cellSpan);
+				
+				cell3.appendChild(cellLabel);			
 			}
 		  },
 		  error: function(xhr){
@@ -201,10 +232,9 @@ function populateProfessorName(professorName){
 	
 }
 
-function giveAccessClicked(){
-	var userId = document.getElementById("studentDropdown").value; 
-		
-	var applicationId = document.getElementById("applicationDropdown").value;
+function giveAccessClicked(applicationValue){
+	var userId = window.localStorage.getItem('userid'); 	
+	var applicationId = studentData[currStudentIndex].applicationData[applicationValue].applicationId;
 	
 	$.ajax({
 	  url: IPAddr + '/user/' + userId + '/grant/' + applicationId,
@@ -212,10 +242,13 @@ function giveAccessClicked(){
 	  data: oauth_token,
 	  crossDomain: true,
 	  success: function() {
-		studentData[currStudentIndex].applicationData[getApplicationIndexfromApplicationId(applicationId)].hasAccess = true;
-		toggleButtons();
+		studentData[currStudentIndex].applicationData[getApplicationIndexfromApplicationId(applicationId)].hasAccess = true;		
 		
-		updateStatusTable();
+		var cellSpan = document.getElementById(applicationValue.toString() + '_cellSpan');
+		var divSpan = document.getElementById(applicationValue.toString() + '_divSpan');
+		
+		cellSpan.classList = "btn btn-circle btn-success";	
+		divSpan.innerHTML = "Active";
 	  },
 	  error: function(xhr){
         console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
@@ -223,19 +256,22 @@ function giveAccessClicked(){
 	});
 }
 
-function revokeAccessClicked(){
-	var userId = document.getElementById("studentDropdown").value; 
-	var applicationId = document.getElementById("applicationDropdown").value;
-
+function revokeAccessClicked(applicationValue){
+	var userId = window.localStorage.getItem('userid');
+	var applicationId = studentData[currStudentIndex].applicationData[applicationValue].applicationId;
+	
 	$.ajax({
 	  url: IPAddr + '/user/' + userId + '/revoke/' + applicationId,
 	  type: 'DELETE',
 	  data: oauth_token,
 	  success: function() {
-		studentData[currStudentIndex].applicationData[getApplicationIndexfromApplicationId(applicationId)].hasAccess = false;
-		toggleButtons();
+		studentData[currStudentIndex].applicationData[getApplicationIndexfromApplicationId(applicationId)].hasAccess = false;	
 		
-		updateStatusTable();
+		var cellSpan = document.getElementById(applicationValue.toString() + '_cellSpan');
+		var divSpan = document.getElementById(applicationValue.toString() + '_divSpan');
+		
+		cellSpan.classList = "media-img btn btn-circle btn-danger";	
+		divSpan.innerHTML = "Inactive";					
 	  },
 	  error: function(xhr){
         console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
