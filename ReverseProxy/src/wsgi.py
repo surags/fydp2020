@@ -17,4 +17,4 @@ app.auth = BottleOAuth2(app)
 app.auth.initialize(oauth2.LegacyApplicationServer(OAuth2_PasswordValidator()))
 
 if __name__ == '__main__':
-    bottle.run(host='127.0.0.1', port=8000)
+    bottle.run(host='127.0.0.1', port=8000, server=bottle.GeventServer)

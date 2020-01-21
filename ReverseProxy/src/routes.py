@@ -13,6 +13,7 @@ router = router.factory.get_router()
 authentication_helper = authentication_helper.Factory().get_authentication_helper()
 user_helper = user_helper.Factory().get_user_helper()
 container_helper = container_helper.ContainerHelper()
+broadcast = None
 
 
 # A test call to determine if the API is working
@@ -73,6 +74,48 @@ def get_screen_snapshot(user_id):
     buffer_image = container_helper.get_screenshot(user_id)
     response.set_header('Content-type', 'image/jpeg')
     return buffer_image.read()
+
+
+# Broadcast teacher session
+# addr: IP Address of VNC Server
+# port: VNC Server Port number
+@put('/broadcast/<addr>/<port>')
+@app.auth.verify_request(scopes=['teacherStreamingOS'])
+def broadcast_session(addr, port):
+    broadcast = addr + ":" + port
+    response.status = 200
+    return response
+
+
+# Stop broadcast of the teacher session
+# class_id: Class to broadcast session to
+@put('/broadcast_stop')
+@app.auth.verify_request(scopes=['teacherStreamingOS'])
+def broadcast_session():
+    broadcast = None
+    response.status = 200
+    return response
+
+
+# Subscribe to Broadcast Event Stream
+@get('/subscribe')
+@app.auth.verify_request(scopes=['studentTeacherStreamingOS'])
+def subscribe():
+    response.content_type  = 'text/event-stream'
+    response.cache_control = 'no-cache'
+
+    # Set client-side auto-reconnect timeout, ms.
+    yield 'retry: 100\n\n'
+
+    # Keep client subscribed indefinitely
+    while True:
+        # Poll broadcast string
+        if broadcast is not None:
+            yield "data: {}\n\n".format(broadcast)
+        else
+            yield "data: \n\n"
+        sleep(10)
+
 
 # Get info about a user
 # username: The unique username for the user
