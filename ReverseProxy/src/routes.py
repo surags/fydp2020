@@ -148,7 +148,7 @@ def application_list():
 @app.auth.verify_request(scopes=['teacherStreamingOS'])
 def session_list():
     response.body = user_helper.session_list()
-    response.status = 418
+    response.status = 200
     return response
 
 
