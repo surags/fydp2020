@@ -1,6 +1,6 @@
 /*
  * noVNC base CSS
- * Copyright (C) 2018 The noVNC Authors
+ * Copyright (C) 2019 The noVNC Authors
  * noVNC is licensed under the MPL 2.0 (see LICENSE.txt)
  * This file is licensed under the 2-Clause BSD license (see LICENSE.txt).
  */
@@ -631,6 +631,16 @@ select:active {
   width: 100px;
 }
 
+/* Version */
+
+.noVNC_version_wrapper {
+  font-size: small;
+}
+
+.noVNC_version {
+  margin-left: 1rem;
+}
+
 /* Connection Controls */
 :root:not(.noVNC_connected) #noVNC_disconnect_button {
   display: none;
@@ -780,19 +790,23 @@ select:active {
  * ----------------------------------------
  */
 
-#noVNC_password_dlg {
+#noVNC_credentials_dlg {
   position: relative;
 
   transform: translateY(-50px);
 }
-#noVNC_password_dlg.noVNC_open {
+#noVNC_credentials_dlg.noVNC_open {
   transform: translateY(0);
 }
-#noVNC_password_dlg ul {
+#noVNC_credentials_dlg ul {
   list-style: none;
   margin: 0px;
   padding: 0px;
 }
+.noVNC_hidden {
+  display: none;
+}
+
 
 /* ----------------------------------------
  * Main Area

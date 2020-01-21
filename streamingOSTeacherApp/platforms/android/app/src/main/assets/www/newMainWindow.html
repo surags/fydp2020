@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>StreamingOS: Low Cost Education System</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+    <!-- Fonts -->
+    <link rel="stylesheet" type="text/css" href="fonts/line-icons.css">
+    <!-- Main Style -->
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+    <!-- Responsive Style -->
+    <link rel="stylesheet" type="text/css" href="css/responsive.css">
+
+  </head>
+
+  <body>
+    <div class="app header-default side-nav-dark">
+      <div class="layout">
+        <!-- Header START -->
+        <div class="header navbar">
+          <div class="header-container">
+            <ul class="nav-left">
+              <li>
+                <a class="sidenav-fold-toggler" href="javascript:void(0);">
+                  <i class="lni-menu"></i>
+                </a>
+                <a class="sidenav-expand-toggler" href="javascript:void(0);">
+                  <i class="lni-menu"></i>
+                </a>
+              </li>
+            </ul>
+			<div class="nav-logo">
+              <img style = "border-radius: 50%;" src="img/user.png" alt=""></img>	
+			  <div id = "professorNameDiv" style= "font-size:17px;font-family:Serif;text-align:center; padding:0.5%;white-space:pre-wrap; float: right; margin-inline-end: 25%;">{professorName}&#10;{profession}</div>	  
+            </div>
+			<div id = "schoolNameDiv" style= "font-size:28px;font-family:Serif;text-align:center;width:50%; padding:1%;"class="nav-logo">{schoolName}</div>			
+          </div>
+        </div>
+        <!-- Header END -->
+
+        <!-- Side Nav START -->
+        <div class="side-nav expand-lg">
+          <div class="side-nav-inner">
+            <ul class="side-nav-menu">
+              <li class="side-nav-header">				
+                <span style = "font-size: 17px; font-weight: bolder;">Dashboard</span>
+              </li>
+              <li class="nav-item dropdown">
+                <a href="newMainWindow.html" class="dropdown-toggle">
+				  <div class = "title media-img btn btn-circle btn-danger" style = "width: 6px; height: 6px; margin-left: 7px;"></div>
+				  <span style = "padding-left: 9%;">Home</span>
+                </a>
+                <a href="#" class="dropdown-toggle">
+				  <div class = "title media-img btn btn-circle btn-danger" style = "width: 6px; height: 6px; margin-left: 7px;"></div>
+				  <span style = "padding-left: 9%;">Permissions</span>
+                </a>
+                <a href="students.html" class="dropdown-toggle">
+				  <div class = "title media-img btn btn-circle btn-danger" style = "width: 6px; height: 6px; margin-left: 7px;"></div>
+				  <span style = "padding-left: 9%;">Students</span>
+                </a>
+                <a href="settings.html" class="dropdown-toggle">
+				  <div class = "title media-img btn btn-circle btn-danger" style = "width: 6px; height: 6px; margin-left: 7px;"></div>
+				  <span style = "padding-left: 9%;">Settings</span>
+                </a>
+                <a href="#" class="dropdown-toggle">
+				  <div class = "title media-img btn btn-circle btn-danger" style = "width: 6px; height: 6px; margin-left: 7px;"></div>
+				  <span style = "padding-left: 9%;">Help</span>
+                </a>
+                <a href="#" class="dropdown-toggle">
+				  <div class = "title media-img btn btn-circle btn-danger" style = "width: 6px; height: 6px; margin-left: 7px;"></div>
+				  <span style = "padding-left: 9%;">Logout</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <!-- Side Nav END -->
+
+        <!-- Page Container START -->
+        <div class="page-container">
+          <!-- Content Wrapper START -->
+          <div class="main-content">
+            <div class="container-fluid">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="card">
+                    <div class="card-header">
+                      <h4 class="card-title">App Permissions</h4>
+                    </div>
+					<div class="table">
+					  <table id = "applicationStatusTable" class="table table-sm">
+						<thead>		 
+							<td class="text-dark text-semibold">App Name</td>
+							<td class="text-dark text-semibold">Permission Status</td>
+							<td class="text-dark text-semibold">Option</td>   								
+						</thead>
+					  </table>
+					</div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="card">
+                    <div class="card-header border-bottom">
+                      <h4 class="card-title">Students</h4>
+                    </div>
+                    <div class="card-body">   
+					  <table id = "studentsTable" class="table row-clickable table-sm table-hover">
+					  
+					  </table>					
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="card">
+                    <div class="card-header">
+                      <h4 class="card-title">Permission Statistics</h4>
+                    </div>
+					<div class="table">
+					  <table id = "statisticsTable" class="table table-sm">
+						<thead>		 
+							<td class="text-dark text-semibold">App Name</td>
+							<td class="text-dark text-semibold">Total Inactive Permissions</td>
+							<td class="text-dark text-semibold">Total Active Permissions</td>   								
+						</thead>
+					  </table>
+					</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Content Wrapper END -->
+
+          <!-- Footer START -->
+		  
+          <!-- Footer END -->
+        </div>
+        <!-- Page Container END -->
+      </div>
+    </div>
+
+     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="js/jquery-min.js"></script>
+    <script src="js/popper.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/jquery.app.js"></script>
+    <script src="js/main.js"></script>
+
+  </body>
+</html>

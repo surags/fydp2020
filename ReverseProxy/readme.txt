@@ -47,4 +47,6 @@ docker rm rp
 docker logs rp -f --tail 20
 // To view the logs of rp for the last 20 lines
 
-//Test commit, please ignore this line
+//To de-Azure, go to
+1. router.py and change line 24 to         if uwsgi.opt["is_azure"].decode("utf-8") == "False":
+2. start.sh to                             sudo uwsgi --http-socket :9090 --plugin python3 --wsgi-file src/wsgi.py --threads 7 --set is_azure=False --set db_hostname=db --set db_port=3306 --set db_user=root --set db_password=supersecret --master --enable-threads

@@ -1,6 +1,6 @@
 /*
  * noVNC: HTML5 VNC client
- * Copyright (C) 2018 The noVNC Authors
+ * Copyright (C) 2019 The noVNC Authors
  * Licensed under MPL 2.0 (see LICENSE.txt)
  *
  * See README.md for usage and integration instructions.
@@ -52,7 +52,7 @@ export default class RFB extends EventTargetMixin {
         this._rfb_credentials = options.credentials || {};
         this._shared = 'shared' in options ? !!options.shared : true;
         this._repeaterID = options.repeaterID || '';
-        this._showDotCursor = options.showDotCursor || false;
+        this._wsProtocols = options.wsProtocols || [];
 
         // Internal state
         this._rfb_connection_state = '';
@@ -172,7 +172,6 @@ export default class RFB extends EventTargetMixin {
             throw exc;
         }
         this._display.onflush = this._onFlush.bind(this);
-        this._display.clear();
 
         this._keyboard = new Keyboard(this._canvas);
         this._keyboard.onkeyevent = this._handleKeyEvent.bind(this);
@@ -246,6 +245,12 @@ export default class RFB extends EventTargetMixin {
         this._clipViewport = false;
         this._scaleViewport = false;
         this._resizeSession = false;
+
+        this._showDotCursor = false;
+        if (options.showDotCursor !== undefined) {
+            Log.Warn("Specifying showDotCursor as a RFB constructor argument is deprecated");
+            this._showDotCursor = options.showDotCursor;
+        }
     }
 
     // ===== PROPERTIES =====
@@ -397,7 +402,7 @@ export default class RFB extends EventTargetMixin {
 
         try {
             // WebSocket.onopen transitions to the RFB init states
-            this._sock.open(this._url, ['binary']);
+            this._sock.open(this._url, this._wsProtocols);
         } catch (e) {
             if (e.name === 'SyntaxError') {
                 this._fail("Invalid host or port (" + e + ")");
@@ -457,6 +462,13 @@ export default class RFB extends EventTargetMixin {
         }
 
         this.focus();
+    }
+
+    _setDesktopName(name) {
+        this._fb_name = name;
+        this.dispatchEvent(new CustomEvent(
+            "desktopname",
+            { detail: { name: this._fb_name } }));
     }
 
     _windowResize(event) {
@@ -928,9 +940,9 @@ export default class RFB extends EventTargetMixin {
 
     // authentication
     _negotiate_xvp_auth() {
-        if (!this._rfb_credentials.username ||
-            !this._rfb_credentials.password ||
-            !this._rfb_credentials.target) {
+        if (this._rfb_credentials.username === undefined ||
+            this._rfb_credentials.password === undefined ||
+            this._rfb_credentials.target === undefined) {
             this.dispatchEvent(new CustomEvent(
                 "credentialsrequired",
                 { detail: { types: ["username", "password", "target"] } }));
@@ -949,7 +961,7 @@ export default class RFB extends EventTargetMixin {
     _negotiate_std_vnc_auth() {
         if (this._sock.rQwait("auth challenge", 16)) { return false; }
 
-        if (!this._rfb_credentials.password) {
+        if (this._rfb_credentials.password === undefined) {
             this.dispatchEvent(new CustomEvent(
                 "credentialsrequired",
                 { detail: { types: ["password"] } }));
@@ -960,6 +972,23 @@ export default class RFB extends EventTargetMixin {
         const challenge = Array.prototype.slice.call(this._sock.rQshiftBytes(16));
         const response = RFB.genDES(this._rfb_credentials.password, challenge);
         this._sock.send(response);
+        this._rfb_init_state = "SecurityResult";
+        return true;
+    }
+
+    _negotiate_tight_unix_auth() {
+        if (this._rfb_credentials.username === undefined ||
+            this._rfb_credentials.password === undefined) {
+            this.dispatchEvent(new CustomEvent(
+                "credentialsrequired",
+                { detail: { types: ["username", "password"] } }));
+            return false;
+        }
+
+        this._sock.send([0, 0, 0, this._rfb_credentials.username.length]);
+        this._sock.send([0, 0, 0, this._rfb_credentials.password.length]);
+        this._sock.send_string(this._rfb_credentials.username);
+        this._sock.send_string(this._rfb_credentials.password);
         this._rfb_init_state = "SecurityResult";
         return true;
     }
@@ -1031,7 +1060,8 @@ export default class RFB extends EventTargetMixin {
 
         const clientSupportedTypes = {
             'STDVNOAUTH__': 1,
-            'STDVVNCAUTH_': 2
+            'STDVVNCAUTH_': 2,
+            'TGHTULGNAUTH': 129
         };
 
         const serverSupportedTypes = [];
@@ -1055,6 +1085,9 @@ export default class RFB extends EventTargetMixin {
                         return true;
                     case 'STDVVNCAUTH_': // VNC auth
                         this._rfb_auth_scheme = 2;
+                        return this._init_msg();
+                    case 'TGHTULGNAUTH': // UNIX auth
+                        this._rfb_auth_scheme = 129;
                         return this._init_msg();
                     default:
                         return this._fail("Unsupported tiny auth scheme " +
@@ -1084,6 +1117,9 @@ export default class RFB extends EventTargetMixin {
 
             case 16:  // TightVNC Security Type
                 return this._negotiate_tight_auth();
+
+            case 129:  // TightVNC UNIX Security Type
+                return this._negotiate_tight_unix_auth();
 
             default:
                 return this._fail("Unsupported auth scheme (scheme: " +
@@ -1143,7 +1179,8 @@ export default class RFB extends EventTargetMixin {
         /* Connection name/title */
         const name_length = this._sock.rQshift32();
         if (this._sock.rQwait('server init name', name_length, 24)) { return false; }
-        this._fb_name = decodeUTF8(this._sock.rQshiftStr(name_length));
+        let name = this._sock.rQshiftStr(name_length);
+        name = decodeUTF8(name, true);
 
         if (this._rfb_tightvnc) {
             if (this._sock.rQwait('TightVNC extended server init header', 8, 24 + name_length)) { return false; }
@@ -1182,23 +1219,8 @@ export default class RFB extends EventTargetMixin {
                   ", green_shift: " + green_shift +
                   ", blue_shift: " + blue_shift);
 
-        if (big_endian !== 0) {
-            Log.Warn("Server native endian is not little endian");
-        }
-
-        if (red_shift !== 16) {
-            Log.Warn("Server native red-shift is not 16");
-        }
-
-        if (blue_shift !== 0) {
-            Log.Warn("Server native blue-shift is not 0");
-        }
-
         // we're past the point where we could backtrack, so it's safe to call this
-        this.dispatchEvent(new CustomEvent(
-            "desktopname",
-            { detail: { name: this._fb_name } }));
-
+        this._setDesktopName(name);
         this._resize(width, height);
 
         if (!this._viewOnly) { this._keyboard.grab(); }
@@ -1244,8 +1266,10 @@ export default class RFB extends EventTargetMixin {
         encs.push(encodings.pseudoEncodingXvp);
         encs.push(encodings.pseudoEncodingFence);
         encs.push(encodings.pseudoEncodingContinuousUpdates);
+        encs.push(encodings.pseudoEncodingDesktopName);
 
         if (this._fb_depth == 24) {
+            encs.push(encodings.pseudoEncodingVMwareCursor);
             encs.push(encodings.pseudoEncodingCursor);
         }
 
@@ -1495,6 +1519,9 @@ export default class RFB extends EventTargetMixin {
                 this._FBU.rects = 1; // Will be decreased when we return
                 return true;
 
+            case encodings.pseudoEncodingVMwareCursor:
+                return this._handleVMwareCursor();
+
             case encodings.pseudoEncodingCursor:
                 return this._handleCursor();
 
@@ -1510,6 +1537,9 @@ export default class RFB extends EventTargetMixin {
                 }
                 return true;
 
+            case encodings.pseudoEncodingDesktopName:
+                return this._handleDesktopName();
+
             case encodings.pseudoEncodingDesktopSize:
                 this._resize(this._FBU.width, this._FBU.height);
                 return true;
@@ -1520,6 +1550,122 @@ export default class RFB extends EventTargetMixin {
             default:
                 return this._handleDataRect();
         }
+    }
+
+    _handleVMwareCursor() {
+        const hotx = this._FBU.x;  // hotspot-x
+        const hoty = this._FBU.y;  // hotspot-y
+        const w = this._FBU.width;
+        const h = this._FBU.height;
+        if (this._sock.rQwait("VMware cursor encoding", 1)) {
+            return false;
+        }
+
+        const cursor_type = this._sock.rQshift8();
+
+        this._sock.rQshift8(); //Padding
+
+        let rgba;
+        const bytesPerPixel = 4;
+
+        //Classic cursor
+        if (cursor_type == 0) {
+            //Used to filter away unimportant bits.
+            //OR is used for correct conversion in js.
+            const PIXEL_MASK = 0xffffff00 | 0;
+            rgba = new Array(w * h * bytesPerPixel);
+
+            if (this._sock.rQwait("VMware cursor classic encoding",
+                                  (w * h * bytesPerPixel) * 2, 2)) {
+                return false;
+            }
+
+            let and_mask = new Array(w * h);
+            for (let pixel = 0; pixel < (w * h); pixel++) {
+                and_mask[pixel] = this._sock.rQshift32();
+            }
+
+            let xor_mask = new Array(w * h);
+            for (let pixel = 0; pixel < (w * h); pixel++) {
+                xor_mask[pixel] = this._sock.rQshift32();
+            }
+
+            for (let pixel = 0; pixel < (w * h); pixel++) {
+                if (and_mask[pixel] == 0) {
+                    //Fully opaque pixel
+                    let bgr = xor_mask[pixel];
+                    let r   = bgr >> 8  & 0xff;
+                    let g   = bgr >> 16 & 0xff;
+                    let b   = bgr >> 24 & 0xff;
+
+                    rgba[(pixel * bytesPerPixel)     ] = r;    //r
+                    rgba[(pixel * bytesPerPixel) + 1 ] = g;    //g
+                    rgba[(pixel * bytesPerPixel) + 2 ] = b;    //b
+                    rgba[(pixel * bytesPerPixel) + 3 ] = 0xff; //a
+
+                } else if ((and_mask[pixel] & PIXEL_MASK) ==
+                           PIXEL_MASK) {
+                    //Only screen value matters, no mouse colouring
+                    if (xor_mask[pixel] == 0) {
+                        //Transparent pixel
+                        rgba[(pixel * bytesPerPixel)     ] = 0x00;
+                        rgba[(pixel * bytesPerPixel) + 1 ] = 0x00;
+                        rgba[(pixel * bytesPerPixel) + 2 ] = 0x00;
+                        rgba[(pixel * bytesPerPixel) + 3 ] = 0x00;
+
+                    } else if ((xor_mask[pixel] & PIXEL_MASK) ==
+                               PIXEL_MASK) {
+                        //Inverted pixel, not supported in browsers.
+                        //Fully opaque instead.
+                        rgba[(pixel * bytesPerPixel)     ] = 0x00;
+                        rgba[(pixel * bytesPerPixel) + 1 ] = 0x00;
+                        rgba[(pixel * bytesPerPixel) + 2 ] = 0x00;
+                        rgba[(pixel * bytesPerPixel) + 3 ] = 0xff;
+
+                    } else {
+                        //Unhandled xor_mask
+                        rgba[(pixel * bytesPerPixel)     ] = 0x00;
+                        rgba[(pixel * bytesPerPixel) + 1 ] = 0x00;
+                        rgba[(pixel * bytesPerPixel) + 2 ] = 0x00;
+                        rgba[(pixel * bytesPerPixel) + 3 ] = 0xff;
+                    }
+
+                } else {
+                    //Unhandled and_mask
+                    rgba[(pixel * bytesPerPixel)     ] = 0x00;
+                    rgba[(pixel * bytesPerPixel) + 1 ] = 0x00;
+                    rgba[(pixel * bytesPerPixel) + 2 ] = 0x00;
+                    rgba[(pixel * bytesPerPixel) + 3 ] = 0xff;
+                }
+            }
+
+        //Alpha cursor.
+        } else if (cursor_type == 1) {
+            if (this._sock.rQwait("VMware cursor alpha encoding",
+                                  (w * h * 4), 2)) {
+                return false;
+            }
+
+            rgba = new Array(w * h * bytesPerPixel);
+
+            for (let pixel = 0; pixel < (w * h); pixel++) {
+                let data = this._sock.rQshift32();
+
+                rgba[(pixel * 4)     ] = data >> 8 & 0xff;  //r
+                rgba[(pixel * 4) + 1 ] = data >> 16 & 0xff; //g
+                rgba[(pixel * 4) + 2 ] = data >> 24 & 0xff; //b
+                rgba[(pixel * 4) + 3 ] = data & 0xff;       //a
+            }
+
+        } else {
+            Log.Warn("The given cursor type is not supported: "
+                      + cursor_type + " given.");
+            return false;
+        }
+
+        this._updateCursor(rgba, hotx, hoty, w, h);
+
+        return true;
     }
 
     _handleCursor() {
@@ -1555,6 +1701,25 @@ export default class RFB extends EventTargetMixin {
         }
 
         this._updateCursor(rgba, hotx, hoty, w, h);
+
+        return true;
+    }
+
+    _handleDesktopName() {
+        if (this._sock.rQwait("DesktopName", 4)) {
+            return false;
+        }
+
+        let length = this._sock.rQshift32();
+
+        if (this._sock.rQwait("DesktopName", length, 4)) {
+            return false;
+        }
+
+        let name = this._sock.rQshiftStr(length);
+        name = decodeUTF8(name, true);
+
+        this._setDesktopName(name);
 
         return true;
     }
@@ -1710,6 +1875,10 @@ export default class RFB extends EventTargetMixin {
     }
 
     _refreshCursor() {
+        if (this._rfb_connection_state !== "connecting" &&
+            this._rfb_connection_state !== "connected") {
+            return;
+        }
         const image = this._shouldShowDotCursor() ? RFB.cursors.dot : this._cursorImage;
         this._cursor.change(image.rgbaPixels,
                             image.hotx, image.hoty,
