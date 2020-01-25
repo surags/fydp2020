@@ -1,0 +1,4 @@
+Authentication=None
+RfbPort=5901
+IpListenProtocols=TCP
+Encryption=AlwaysOff

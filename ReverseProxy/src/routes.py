@@ -1,4 +1,4 @@
-import requests
+from time import sleep
 
 from src.helper import router
 from src.helper import container_helper
@@ -7,19 +7,34 @@ from src.helper import user_helper
 from src.wsgi import app
 from bottle import response, request
 from bottle import post, get, put, delete
+from src.model import base_model
 
 
 router = router.factory.get_router()
 authentication_helper = authentication_helper.Factory().get_authentication_helper()
 user_helper = user_helper.Factory().get_user_helper()
 container_helper = container_helper.ContainerHelper()
+db = base_model.db
 broadcast = None
+
+
+@app.hook('before_request')
+def connect_db():
+    if db.is_closed():
+        db.connect()
+
+
+@app.hook('after_request')
+def disconnect_db():
+    if not db.is_closed():
+        db.close()
 
 
 # A test call to determine if the API is working
 @get('/test')
 def test_call():
     return [b"This is a test call"]
+
 
 # A test call to determine if the API is working
 @get('/')
@@ -112,7 +127,7 @@ def subscribe():
         # Poll broadcast string
         if broadcast is not None:
             yield "data: {}\n\n".format(broadcast)
-        else
+        else:
             yield "data: \n\n"
         sleep(10)
 
@@ -208,4 +223,4 @@ def auth_user(username, password):
 # school_id: The unique identifier for the school
 @get('/availableVM')
 def available_vm_list():
-    return user_helper.available_vm_list()
+    return container_helper.available_vm_list()

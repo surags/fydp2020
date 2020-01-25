@@ -6,7 +6,6 @@ import requests
 import uwsgi
 from bottle import response
 import subprocess
-from queue import Queue
 from threading import Lock
 
 from src.helper import container_helper
@@ -88,10 +87,12 @@ class Router:
                     response.body = json.dumps({'error': 'No free containers'})
                     response.status = 400
                     return response
+
                 iptables_rules = self.build_iptable_rules_setup(client_ip, container.ip_address, source_port, destination_port)
                 session_helper.session_info_map[user_id] = session_info.SessionInfo(client_ip,
                                                                           source_port, container.ip_address,
-                                                                          destination_port)
+                                                                          destination_port,
+                                                                          os_type)
                 process = subprocess.Popen(iptables_rules, stdout=subprocess.PIPE, shell=True)
                 process.communicate()[0].strip()
                 data['source_port'] = source_port
@@ -100,7 +101,12 @@ class Router:
                                                 args=(container.ip_address,))
                 health_check.start()
             else:
-                data['source_port'] = session_helper.session_info_map[user_id].source_port
+                if session_helper.session_info_map[user_id].os_type != os_type:
+                    container_helper.cleanup_user_session(user_id)
+                    self.delete_iptable_rules(user_id)
+                    return self.setup_routes(user_id, client_ip, os_type, width, height)
+                else:
+                    data['source_port'] = session_helper.session_info_map[user_id].source_port
             response.body = json.dumps({'routes': data})
             response.status = 200
         except Exception as e:
@@ -140,8 +146,9 @@ class Router:
                 health_response_json = health_response.json()
                 print(health_response_json)
                 if health_response_json['is_free'] and health_response_json['user_id'] and session_helper.session_info_map[health_response_json['user_id']]:
-                    container_helper.cleanup_user_session(health_response_json['user_id'])
-                    self.delete_iptable_rules(health_response_json['user_id'])
+                    if session_helper.session_info_map[health_response_json['user_id']].destination_ip == os_container_ip:
+                        container_helper.cleanup_user_session(health_response_json['user_id'])
+                        self.delete_iptable_rules(health_response_json['user_id'])
                     break
                 elif health_response_json['is_free'] and not health_response_json['user_id']:
                     break

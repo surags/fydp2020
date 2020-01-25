@@ -26,6 +26,7 @@ class ApplicationPermissionHelper:
             .join(ApplicationPermission, JOIN.LEFT_OUTER, on=join_condition).objects()
 
         for permissions_info in application_permissions_info:
+            print(permissions_info)
             if permissions_info.user_id:
                 self.add_permission(permissions_info.application_id)
             else:

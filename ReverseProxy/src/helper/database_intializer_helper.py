@@ -1,4 +1,3 @@
-from src.model.base_model import BaseModel
 from src.model.application import Application
 from src.model.application_permissions import ApplicationPermission
 from src.model.device import Device
@@ -10,15 +9,6 @@ from src.model.teacher import Teacher
 from src.model.user_type import UserType
 from src.model.users import Users
 import peewee
-
-db = peewee.MySQLDatabase(
-    "streamingOS",
-    host="db",
-    port=3306,
-    user="root",
-    passwd="supersecret"
-)
-
 
 class DatabaseInitializer:
     def __init__(self):

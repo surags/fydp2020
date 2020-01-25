@@ -1,4 +1,4 @@
-from src.helper.database_intializer_helper import db
+from src.model.base_model import db
 from src.model.application import Application
 from src.model.application_permissions import ApplicationPermission
 from src.model.os_container import OSContainer
