@@ -65,8 +65,9 @@ class OAuth2_PasswordValidator(oauth2.RequestValidator):
             request.user = info["user"]
             request.scopes = info["scopes"]
 
-            scopes = oauth2.rfc6749.utils.scope_to_list(request.scopes)
+            scopes = info['scopes']
             for scope in scopes_required:
                 if scope not in scopes:
                     return False
-        return True
+            return True
+        return False

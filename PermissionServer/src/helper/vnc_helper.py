@@ -1,8 +1,13 @@
 import os
+import signal
 import subprocess
 from time import sleep
 
+import psutil as psutil
 import uwsgi
+
+from pathlib import Path
+
 
 
 class VNCHelper:
@@ -14,11 +19,30 @@ class VNCHelper:
         if uwsgi.opt["is_ubuntu"].decode("utf-8") == "True":
             subprocess.Popen("vncserver -kill :1", stdout=subprocess.PIPE, shell=True)
         else:
-            subprocess.Popen("winvnc.exe -stopservice", stdout=subprocess.PIPE, shell=True)
+            subprocess.Popen("/mnt/c/'Program Files'/RealVNC/'VNC Server'/vncserver.exe -service -stop", stdout=subprocess.PIPE, shell=True)
 
     def start_vnc_server(self, width, height):
         if uwsgi.opt["is_ubuntu"].decode("utf-8") == "True":
             subprocess.Popen("sudo -u fydp-root vncserver -geometry {0}x{1}".format(width, height),
                              stdout=subprocess.PIPE, shell=True)
         else:
-            subprocess.Popen("winvnc.exe -startservice", stdout=subprocess.PIPE, shell=True)
+            subprocess.Popen("/mnt/c/'Program Files'/RealVNC/'VNC Server'/vncserver.exe -service -start", stdout=subprocess.PIPE, shell=True)
+
+
+    def getProcessPIDs(self, process_name):
+        '''
+        Check if there is any running process(es) that contains the given name processName and returns its PID(s),
+        '''
+        pids = []
+        #Iterate over the all the running process
+        for proc in psutil.process_iter():
+            try:
+                # Check if process name contains the given name string.
+                #print(proc.cmdline())
+                if process_name.lower() in ''.join(proc.cmdline()).lower():
+                    print("Exists: {0}".format(proc.pid))
+                    pids.append(proc.pid)
+            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                print("ERROR")
+                pass
+        return pids

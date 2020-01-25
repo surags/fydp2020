@@ -1,7 +1,12 @@
+import json
 from io import BytesIO
-from src.helper import session_helper
+
+import peewee
 import requests
 
+from bottle import response
+from src.helper import session_helper
+from src.model.os_container import OSContainer
 
 session_helper = session_helper.factory.get_session_helper()
 
@@ -19,3 +24,14 @@ class ContainerHelper:
         user_session = session_helper.get_session_for_user(user_id)
         url = 'http://{0}:9090/user/remove'.format(user_session.destination_ip)
         requests.post(url)
+
+    def available_vm_list(self):
+        availablevm = (OSContainer.select(OSContainer.os_type.alias('os_type'), peewee.fn.COUNT('*').alias('count')).where(
+            (OSContainer.is_free == True) & (OSContainer.is_running == True)).group_by(OSContainer.os_type).dicts())
+
+        # for row in result_count:
+        #     availablevm[row['os_type']] = row['count']
+
+        response.body = json.dumps(list(availablevm))
+        response.status = 200
+        return response

@@ -12,12 +12,26 @@ from src.helper import thread_helper
 from src.helper import vnc_helper
 from src.manager import os_container_info_manager
 from src.manager import user_info_manager
+from src.model import base_model
 
 permission_helper = application_permission_helper.factory.get_application_permissions_helper()
 thread_helper = thread_helper.factory.get_thread_helper()
 container_info_manager = os_container_info_manager.factory.get_os_container_info_manager()
 user_info_manager = user_info_manager.factory.get_user_info_manager()
 vnc_helper = vnc_helper.VNCHelper()
+db = base_model.db
+
+
+@app.hook('before_request')
+def connect_db():
+    if db.is_closed():
+        db.connect()
+
+
+@app.hook('after_request')
+def disconnect_db():
+    if not db.is_closed():
+        db.close()
 
 
 @get('/')

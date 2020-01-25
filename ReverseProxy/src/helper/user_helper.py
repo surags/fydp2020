@@ -1,8 +1,7 @@
 import json
 
-import peewee
 import requests
-from bottle import response, request
+from bottle import response
 from peewee import JOIN
 from threading import Lock
 
@@ -43,17 +42,6 @@ class UserHelper:
     def application_list(self):
         query = Application.select().dicts()
         response.body = json.dumps({'applications': list(query)})
-        response.status = 200
-        return response
-
-    def available_vm_list(self):
-        availablevm = OSContainer.select(OSContainer.os_type.alias('os_type'), fn.COUNT('*').alias('count')).where(
-            OSContainer.is_free == True and OSContainer.is_running == True).group_by(OSContainer.os_type).dicts()
-            
-        # for row in result_count:
-        #     availablevm[row['os_type']] = row['count']
-
-        response.body = json.dumps(availablevm)
         response.status = 200
         return response
 

@@ -50,13 +50,13 @@
                 if(!document.getElementById("SingleStudent" + i))
                 {
                   var studentScreen = document.createElement('div');
-                  studentScreen.style = 'padding: 20px;';
+                  studentScreen.style = 'padding: 20px; display: inline-block;';
                   studentScreen.id = "SingleStudent" + i;
                   document.getElementById('student-screens-container').appendChild(studentScreen);
                 }
                 // studentScreen.id = "SingleStudent" + Math.random();
-                var div_id = populateScreenshots(studentID, i, "SingleStudent" + i);
-                populateStudentInformation(studentID, div_id);
+                populateScreenshots(studentID, i, "SingleStudent" + i);
+                populateStudentInformation(studentID, i, "SingleStudent" + i);
               }
           }
           
@@ -70,24 +70,22 @@
   }
   
   function populateScreenshots(studentID, index, studentScreenID) {
-    let id = "SectionDiv" + index;
+    let id = "Image" + index;
     if(!document.getElementById(id)){
       var section = document.createElement('div');
       section.id = id;
       var img = document.createElement('img'); 
       img.id = "StudentImage" + index;
-      img.style = "width: 600px; height: 300px;";
+      img.style = "width: 350px; height: 175px;";
       document.getElementById(studentScreenID).appendChild(section).appendChild(img);
     }
     var img = document.getElementById("StudentImage" + index);
-    // img.src = "";
     img.src = IPAddr + '/user/' + studentID + '/screen/snapshot?rand=' + Math.random();
     // img.src = "https://git.uwaterloo.ca/uploads/-/system/user/avatar/2957/avatar.png";
-
-    return id;
   }
 
-  function populateStudentInformation(studentID, div_id) {
+  function populateStudentInformation(studentID, index, studentScreenID) {
+    let id = "NameDiv" + index;
     $.ajax({
       url: IPAddr + '/user/' + window.localStorage.getItem('userName') + '/info',
       type: 'GET',
@@ -97,9 +95,14 @@
         var myData = JSON.parse(responseText);
         if(myData){
           if(!document.getElementById("StudentName" + studentID)){
-            var studentName= document.createTextNode(myData.user[0].first_name + " " + myData.user[0].last_name);
-            studentName.id = "StudentName" + studentID;
-            document.getElementById(div_id).appendChild(studentName);
+            var section = document.createElement('div');
+            section.id = id;
+            // section.style = "text-align: center;";
+
+            var studentName= document.createElement("span");
+            studentName.innerText = myData.user[0].first_name + " " + myData.user[0].last_name;
+            studentName.setAttribute("id","StudentName" + studentID);
+            document.getElementById(studentScreenID).appendChild(section).appendChild(studentName);
           }
          
         }	

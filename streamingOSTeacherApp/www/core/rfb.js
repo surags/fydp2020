@@ -1256,8 +1256,8 @@ export default class RFB extends EventTargetMixin {
         encs.push(encodings.encodingRaw);
 
         // Psuedo-encoding settings
-        encs.push(encodings.pseudoEncodingQualityLevel0 + 6);
-        encs.push(encodings.pseudoEncodingCompressLevel0 + 2);
+        encs.push(encodings.pseudoEncodingQualityLevel0 + 0);
+        encs.push(encodings.pseudoEncodingCompressLevel0 + 0);
 
         encs.push(encodings.pseudoEncodingDesktopSize);
         encs.push(encodings.pseudoEncodingLastRect);
