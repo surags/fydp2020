@@ -1,6 +1,6 @@
 /*
  * noVNC: HTML5 VNC client
- * Copyright (C) 2018 The noVNC Authors
+ * Copyright (C) 2019 The noVNC Authors
  * Licensed under MPL 2.0 (see LICENSE.txt)
  *
  * See README.md for usage and integration instructions.
@@ -60,8 +60,6 @@ export default class Display {
 
         Log.Debug("User Agent: " + navigator.userAgent);
 
-        this.clear();
-
         // Check canvas features
         if (!('createImageData' in this._drawCtx)) {
             throw new Error("Canvas does not support createImageData");
@@ -74,7 +72,6 @@ export default class Display {
 
         this._scale = 1.0;
         this._clipViewport = false;
-        this.logo = null;
 
         // ===== EVENT HANDLERS =====
 
@@ -302,17 +299,6 @@ export default class Display {
         }
     }
 
-    clear() {
-        if (this._logo) {
-            this.resize(this._logo.width, this._logo.height);
-            this.imageRect(0, 0, this._logo.type, this._logo.data);
-        } else {
-            this.resize(240, 20);
-            this._drawCtx.clearRect(0, 0, this._fb_width, this._fb_height);
-        }
-        this.flip();
-    }
-
     pending() {
         return this._renderQ.length > 0;
     }
@@ -373,14 +359,22 @@ export default class Display {
         }
     }
 
-    imageRect(x, y, mime, arr) {
+    imageRect(x, y, width, height, mime, arr) {
+        /* The internal logic cannot handle empty images, so bail early */
+        if ((width === 0) || (height === 0)) {
+            return;
+        }
+
         const img = new Image();
         img.src = "data: " + mime + ";base64," + Base64.encode(arr);
+
         this._renderQ_push({
             'type': 'img',
             'img': img,
             'x': x,
-            'y': y
+            'y': y,
+            'width': width,
+            'height': height
         });
     }
 
@@ -629,7 +623,14 @@ export default class Display {
                     this.blitRgbxImage(a.x, a.y, a.width, a.height, a.data, 0, true);
                     break;
                 case 'img':
-                    if (a.img.complete) {
+                    /* IE tends to set "complete" prematurely, so check dimensions */
+                    if (a.img.complete && (a.img.width !== 0) && (a.img.height !== 0)) {
+                        if (a.img.width !== a.width || a.img.height !== a.height) {
+                            Log.Error("Decoded image has incorrect dimensions. Got " +
+                                      a.img.width + "x" + a.img.height + ". Expected " +
+                                      a.width + "x" + a.height + ".");
+                            return;
+                        }
                         this.drawImage(a.img, a.x, a.y);
                     } else {
                         a.img._noVNC_display = this;

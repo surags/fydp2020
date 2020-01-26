@@ -31,7 +31,7 @@ def connect_db():
 @app.hook('after_request')
 def disconnect_db():
     if not db.is_closed():
-        db.close()
+        db.manual_close()
 
 
 @get('/')

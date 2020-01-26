@@ -80,7 +80,6 @@
       document.getElementById(studentScreenID).appendChild(section).appendChild(img);
     }
     var img = document.getElementById("StudentImage" + index);
-    // img.src = "";
     img.src = IPAddr + '/user/' + studentID + '/screen/snapshot?rand=' + Math.random();
     // img.src = "https://git.uwaterloo.ca/uploads/-/system/user/avatar/2957/avatar.png";
   }

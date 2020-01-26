@@ -1,6 +1,6 @@
 /*
  * Websock: high-performance binary WebSockets
- * Copyright (C) 2018 The noVNC Authors
+ * Copyright (C) 2019 The noVNC Authors
  * Licensed under MPL 2.0 (see LICENSE.txt)
  *
  * Websock is similar to the standard WebSocket object but with extra
@@ -17,6 +17,8 @@ import * as Log from './util/logging.js';
 // this has performance issues in some versions Chromium, and
 // doesn't gain a tremendous amount of performance increase in Firefox
 // at the moment.  It may be valuable to turn it on in the future.
+// Also copyWithin() for TypedArrays is not supported in IE 11 or
+// Safari 13 (at the moment we want to support Safari 11).
 const ENABLE_COPYWITHIN = false;
 const MAX_RQ_GROW_SIZE = 40 * 1024 * 1024;  // 40 MiB
 
@@ -27,7 +29,6 @@ export default class Websock {
         this._rQi = 0;           // Receive queue index
         this._rQlen = 0;         // Next write position in the receive queue
         this._rQbufferSize = 1024 * 1024 * 4; // Receive queue buffer size (4 MiB)
-        this._rQmax = this._rQbufferSize / 8;
         // called in init: this._rQ = new Uint8Array(this._rQbufferSize);
         this._rQ = null; // Receive queue
 
@@ -225,16 +226,21 @@ export default class Websock {
         return new Uint8Array(this._sQ.buffer, 0, this._sQlen);
     }
 
+    // We want to move all the unread data to the start of the queue,
+    // e.g. compacting.
+    // The function also expands the receive que if needed, and for
+    // performance reasons we combine these two actions to avoid
+    // unneccessary copying.
     _expand_compact_rQ(min_fit) {
-        const resizeNeeded = min_fit || this.rQlen > this._rQbufferSize / 2;
+        // if we're using less than 1/8th of the buffer even with the incoming bytes, compact in place
+        // instead of resizing
+        const required_buffer_size =  (this._rQlen - this._rQi + min_fit) * 8;
+        const resizeNeeded = this._rQbufferSize < required_buffer_size;
+
         if (resizeNeeded) {
-            if (!min_fit) {
-                // just double the size if we need to do compaction
-                this._rQbufferSize *= 2;
-            } else {
-                // otherwise, make sure we satisy rQlen - rQi + min_fit < rQbufferSize / 8
-                this._rQbufferSize = (this.rQlen + min_fit) * 8;
-            }
+            // Make sure we always *at least* double the buffer size, and have at least space for 8x
+            // the current amount of data
+            this._rQbufferSize = Math.max(this._rQbufferSize * 2, required_buffer_size);
         }
 
         // we don't want to grow unboundedly
@@ -247,14 +253,13 @@ export default class Websock {
 
         if (resizeNeeded) {
             const old_rQbuffer = this._rQ.buffer;
-            this._rQmax = this._rQbufferSize / 8;
             this._rQ = new Uint8Array(this._rQbufferSize);
-            this._rQ.set(new Uint8Array(old_rQbuffer, this._rQi));
+            this._rQ.set(new Uint8Array(old_rQbuffer, this._rQi, this._rQlen - this._rQi));
         } else {
             if (ENABLE_COPYWITHIN) {
-                this._rQ.copyWithin(0, this._rQi);
+                this._rQ.copyWithin(0, this._rQi, this._rQlen);
             } else {
-                this._rQ.set(new Uint8Array(this._rQ.buffer, this._rQi));
+                this._rQ.set(new Uint8Array(this._rQ.buffer, this._rQi, this._rQlen - this._rQi));
             }
         }
 
@@ -262,8 +267,8 @@ export default class Websock {
         this._rQi = 0;
     }
 
+    // push arraybuffer values onto the end of the receive que
     _decode_message(data) {
-        // push arraybuffer values onto the end
         const u8 = new Uint8Array(data);
         if (u8.length > this._rQbufferSize - this._rQlen) {
             this._expand_compact_rQ(u8.length);
@@ -276,12 +281,11 @@ export default class Websock {
         this._decode_message(e.data);
         if (this.rQlen > 0) {
             this._eventHandlers.message();
-            // Compact the receive queue
             if (this._rQlen == this._rQi) {
+                // All data has now been processed, this means we
+                // can reset the receive queue.
                 this._rQlen = 0;
                 this._rQi = 0;
-            } else if (this._rQlen > this._rQmax) {
-                this._expand_compact_rQ();
             }
         } else {
             Log.Debug("Ignoring empty message");
