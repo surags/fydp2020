@@ -4,6 +4,9 @@
         <param name="android-package" value="org.apache.cordova.whitelist.WhitelistPlugin" />
         <param name="onload" value="true" />
     </feature>
+    <feature name="Keyboard">
+        <param name="android-package" onload="true" value="org.apache.cordova.labs.keyboard.Keyboard" />
+    </feature>
     <name>streamingOSLoginApp</name>
     <description>
         A sample Apache Cordova application that responds to the deviceready event.

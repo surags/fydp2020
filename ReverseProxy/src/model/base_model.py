@@ -11,8 +11,8 @@ db = PooledMySQLDatabase(
     port=int(uwsgi.opt["db_port"].decode("utf-8")),
     user=uwsgi.opt["db_user"].decode("utf-8"),
     passwd=uwsgi.opt["db_password"].decode("utf-8"),
-    max_connections=32,
-    stale_timeout=300
+    max_connections=20,
+    stale_timeout=300  #5 mins
 )
 
 class BaseModel(peewee.Model):

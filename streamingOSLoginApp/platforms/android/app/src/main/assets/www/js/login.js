@@ -15,13 +15,13 @@
 }(jQuery));
 
 function noVNCConnect(port) {
-	var hostName = '13.92.140.22'
+	var hostName = '40.117.173.75'
 	window.location.href = `vnc_lite.html?host=${hostName}&port=${port}&scale=true`;
 }
 
 
 function loginFunction() {
-	var IPAddr = 'http://13.92.140.22:9090';
+	var IPAddr = 'http://40.117.173.75:9090';
 	var clientIpAddress = '129.97.124.75';
 
 	// var IPAddr = 'http://rp:9090'; //Vidit Changes
