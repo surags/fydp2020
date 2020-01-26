@@ -3,8 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>StreamingOS: Low Cost Education System</title>
-
+    <title>StreamingOS: Low Cost Education System</title>	
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
     <!-- Fonts -->
@@ -33,8 +32,8 @@
               </li>
             </ul>
 			<ul class="nav-right">
-			  <input type="hidden" id = "hack">
-			  <button onClick = "keyboardPressed()" style="font-size: -webkit-xxx-large;" class="lni-keyboard"></button>
+			  <input id = "keyboardText" type="text" style = "background: transparent; border: none; color: white; outline: none" autofocus />
+			  <button onClick = keyboardPressed() id = "keyboardButton" style="font-size: -webkit-xxx-large;" class="lni-keyboard"></button>
 			</ul>
           </div>
         </div>
@@ -96,13 +95,144 @@
         <!-- Page Container END -->
       </div>
     </div>
-	
+    <!-- Promise polyfill for IE11 -->
+    <script src="vendor/promise.js"></script>
+
+    <!-- ES2015/ES6 modules polyfill -->
+    <script type="module">
+        window._noVNC_has_module_support = false;
+    </script>
+    <script>
+        window.addEventListener("load", function() {
+            console.log("HELLOO")
+            if (window._noVNC_has_module_support) return;
+
+            const loader = document.createElement("script");
+            loader.src = "vendor/browser-es-module-loader/dist/" +
+                "browser-es-module-loader.js";
+            document.head.appendChild(loader);
+        });
+    </script>
+
+    <!-- actual script modules -->
+    <script type="module" crossorigin="anonymous">
+        // RFB holds the API to connect and communicate with a VNC server
+        import RFB from './core/rfb.js';
+
+        let rfb;
+        let desktopName;
+
+        // When this function is called we have
+        // successfully connected to a server
+        function connectedToServer(e) {
+            status("Connected to " + desktopName);
+        }
+
+        // This function is called when we are disconnected
+        function disconnectedFromServer(e) {
+            if (e.detail.clean) {
+                status("Disconnected");
+            } else {
+                status("Something went wrong, connection is closed");
+            }
+        }
+
+        // When this function is called, the server requires
+        // credentials to authenticate
+        function credentialsAreRequired(e) {
+            const password = '@FYDPVnc';
+            console.log(password);
+            rfb.sendCredentials({ password: password });
+        }
+
+        // When this function is called we have received
+        // a desktop name from the server
+        function updateDesktopName(e) {
+            desktopName = e.detail.name;
+        }
+
+        // Since most operating systems will catch Ctrl+Alt+Del
+        // before they get a chance to be intercepted by the browser,
+        // we provide a way to emulate this key sequence.
+        function sendCtrlAltDel() {
+            rfb.sendCtrlAltDel();
+            return false;
+        }
+
+        // Show a status text in the top bar
+        function status(text) {
+            document.getElementById('status').textContent = text;
+        }
+
+        // This function extracts the value of one variable from the
+        // query string. If the variable isn't defined in the URL
+        // it returns the default value instead.
+        function readQueryVariable(name, defaultValue) {
+            // A URL with a query parameter can look like this:
+            // https://www.example.com?myqueryparam=myvalue
+            //
+            // Note that we use location.href instead of location.search
+            // because Firefox < 53 has a bug w.r.t location.search
+            const re = new RegExp('.*[?&]' + name + '=([^&#]*)'),
+                  match = document.location.href.match(re);
+            if (typeof defaultValue === 'undefined') { defaultValue = null; }
+
+            if (match) {
+                // We have to decode the URL since want the cleartext value
+                return decodeURIComponent(match[1]);
+            }
+
+            return defaultValue;
+        }
+
+        document.getElementById('sendCtrlAltDelButton')
+            .onclick = sendCtrlAltDel;
+
+        // Read parameters specified in the URL query string
+        // By default, use the host and port of server that served this file
+        const host = readQueryVariable('host', window.location.hostname);
+        let port = readQueryVariable('port', window.location.port);
+        const password = readQueryVariable('password', '@FYDPVnc');
+        const path = readQueryVariable('path', 'websockify');
+
+        // | | |         | | |
+        // | | | Connect | | |
+        // v v v         v v v
+
+        status("Connecting");
+
+        // Build the websocket URL used to connect
+        let url;
+        if (window.location.protocol === "https:") {
+            url = 'wss';
+        } else {
+            url = 'ws';
+        }
+        url += '://' + host;
+        if(port) {
+            url += ':' + port;
+        }
+        url += '/' + path;
+        console.log("Testing")
+        // Creating a new RFB object will start a new connection
+        rfb = new RFB(document.getElementById('screen'), url,
+                      { credentials: { password: password } });
+
+        // Add listeners to important events from the RFB module
+        rfb.addEventListener("connect",  connectedToServer);
+        rfb.addEventListener("disconnect", disconnectedFromServer);
+        rfb.addEventListener("credentialsrequired", credentialsAreRequired);
+        rfb.addEventListener("desktopname", updateDesktopName);
+
+        // Set parameters that can be changed on an active connection
+        rfb.viewOnly = readQueryVariable('view_only', false);
+        rfb.scaleViewport = readQueryVariable('scale', false);
+	</script>
 	<!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="js/jquery-min.js"></script>
     <script src="js/popper.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/jquery.app.js"></script>
-	<script type="text/javascript" src="cordova.js"></script>
-	<script src="js/vnc_lite.js"></script>	
+	<script src="js/vnc_lite.js"></script>
   </body>
 </html>
