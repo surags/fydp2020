@@ -12,6 +12,7 @@ from src.helper import container_helper
 from src.helper import session_helper
 from src.model import os_container
 from src.model import session_info
+from src.model.users import Users
 
 session_helper = session_helper.factory.get_session_helper()
 container_helper = container_helper.ContainerHelper()
@@ -89,10 +90,12 @@ class Router:
                     return response
 
                 iptables_rules = self.build_iptable_rules_setup(client_ip, container.ip_address, source_port, destination_port)
+                query = Users.select(Users.first_name, Users.last_name).where(Users.user_id == user_id)
+                print("Name: " + query.first_name + query.last_name)
                 session_helper.session_info_map[user_id] = session_info.SessionInfo(client_ip,
                                                                           source_port, container.ip_address,
-                                                                          destination_port,
-                                                                          os_type)
+                                                                          destination_port, os_type, query.first_name,
+                                                                                    query.last_name)
                 process = subprocess.Popen(iptables_rules, stdout=subprocess.PIPE, shell=True)
                 process.communicate()[0].strip()
                 data['source_port'] = source_port

@@ -1,7 +1,13 @@
 
 (function($) {
     $(window).on('load', function() {
-        
+      $(window).on('ready', () => {
+        mainWindow = new BrowserWindow({
+            webPreferences: {
+                nodeIntegration: true
+            }
+        });
+      });
       /* Page Loader active
       ========================================================*/
       $('#preloader').fadeOut();
@@ -80,7 +86,23 @@
       document.getElementById(studentScreenID).appendChild(section).appendChild(img);
     }
     var img = document.getElementById("StudentImage" + index);
-    img.src = IPAddr + '/user/' + studentID + '/screen/snapshot?rand=' + Math.random();
+    // img.src = IPAddr + '/user/' + studentID + '/screen/snapshot?rand=' + Math.random();
+
+    $.ajax({
+      url: IPAddr + '/user/' + studentID + '/screen/snapshot',
+      type: 'GET',
+      crossDomain: true,
+      data:oauth_token,
+      success: function(responseText) {
+        img.src = 'data:image/jpeg;base64,' + _arrayBufferToBase64(responseText);
+      
+      },
+      error: function(xhr){
+        console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
+        alert('Invalid username and password combination');
+      }
+    });	    
+
     // img.src = "https://git.uwaterloo.ca/uploads/-/system/user/avatar/2957/avatar.png";
   }
 
@@ -180,3 +202,13 @@
       
       populateStatusTable();
   }
+
+  function _arrayBufferToBase64( buffer ) {
+    var binary = '';
+    var bytes = new Uint8Array( buffer );
+    var len = bytes.byteLength;
+    for (var i = 0; i < len; i++) {
+        binary += String.fromCharCode( bytes[ i ] );
+    }
+    return window.btoa( binary );
+}

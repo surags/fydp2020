@@ -1,4 +1,3 @@
-import json
 from queue import Queue
 from threading import Lock
 
@@ -25,7 +24,14 @@ class SessionHelper:
         return self.session_info_map[user_id]
 
     def get_all_sessions_that_exist(self):
-        return json.dumps({'users_with_sessions': list(self.session_info_map.keys())})
+        userIds = list(self.session_info_map.keys())
+        response = '{"users_with_sessions": '
+        for key in userIds:
+            response += '{"userID":' + key + ',' + '"first_name": ' + self.session_info_map[key].first_name + ',' \
+                        + '"last_name":' + self.session_info_map[key].last_name + '}'
+        response += '}'
+        return response
+
 
 class Factory:
     session_helper = None
