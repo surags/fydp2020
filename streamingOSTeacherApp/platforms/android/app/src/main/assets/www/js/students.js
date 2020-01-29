@@ -1,7 +1,13 @@
 
 (function($) {
     $(window).on('load', function() {
-        
+      $(window).on('ready', () => {
+        mainWindow = new BrowserWindow({
+            webPreferences: {
+                nodeIntegration: true
+            }
+        });
+      });
       /* Page Loader active
       ========================================================*/
       $('#preloader').fadeOut();
@@ -46,7 +52,9 @@
           var myData = JSON.parse(responseText);
           if(myData) {
               for(var i = 0; i < myData.users_with_sessions.length; i++){	
-                var studentID = parseInt(myData.users_with_sessions[i]);
+                var studentID = parseInt(myData.users_with_sessions[i].user_id);
+                var firstName = myData.users_with_sessions[i].first_name;
+                var lastName = myData.users_with_sessions[i].lastName;
                 if(!document.getElementById("SingleStudent" + i))
                 {
                   var studentScreen = document.createElement('div');
@@ -56,7 +64,7 @@
                 }
                 // studentScreen.id = "SingleStudent" + Math.random();
                 populateScreenshots(studentID, i, "SingleStudent" + i);
-                populateStudentInformation(studentID, i, "SingleStudent" + i);
+                populateStudentInformation(studentID, firstName, lastName, i, "SingleStudent" + i);
               }
           }
           
@@ -80,39 +88,37 @@
       document.getElementById(studentScreenID).appendChild(section).appendChild(img);
     }
     var img = document.getElementById("StudentImage" + index);
-    img.src = IPAddr + '/user/' + studentID + '/screen/snapshot?rand=' + Math.random();
-    // img.src = "https://git.uwaterloo.ca/uploads/-/system/user/avatar/2957/avatar.png";
-  }
+    // img.src = IPAddr + '/user/' + studentID + '/screen/snapshot?rand=' + Math.random();
 
-  function populateStudentInformation(studentID, index, studentScreenID) {
-    let id = "NameDiv" + index;
     $.ajax({
-      url: IPAddr + '/user/' + window.localStorage.getItem('userName') + '/info',
+      url: IPAddr + '/user/' + studentID + '/screen/snapshot',
       type: 'GET',
       crossDomain: true,
       data:oauth_token,
       success: function(responseText) {
-        var myData = JSON.parse(responseText);
-        if(myData){
-          if(!document.getElementById("StudentName" + studentID)){
-            var section = document.createElement('div');
-            section.id = id;
-            // section.style = "text-align: center;";
-
-            var studentName= document.createElement("span");
-            studentName.innerText = myData.user[0].first_name + " " + myData.user[0].last_name;
-            studentName.setAttribute("id","StudentName" + studentID);
-            document.getElementById(studentScreenID).appendChild(section).appendChild(studentName);
-          }
-         
-        }	
+        img.src = 'data:image/jpeg;base64,' + _arrayBufferToBase64(responseText);
+      
       },
       error: function(xhr){
         console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
         alert('Invalid username and password combination');
       }
-    });	 
-   
+    });	    
+
+    // img.src = "https://git.uwaterloo.ca/uploads/-/system/user/avatar/2957/avatar.png";
+  }
+
+  function populateStudentInformation(studentID, firstName, lastName, index, studentScreenID) {
+    let id = "NameDiv" + index;
+    if(!document.getElementById("StudentName" + studentID)){
+      var section = document.createElement('div');
+      section.id = id;
+
+      var studentName= document.createElement("span");
+      studentName.innerText = firstName + " " + lastName;
+      studentName.setAttribute("id","StudentName" + studentID);
+      document.getElementById(studentScreenID).appendChild(section).appendChild(studentName);
+    }
 
   }
 
@@ -180,3 +186,13 @@
       
       populateStatusTable();
   }
+
+  function _arrayBufferToBase64( buffer ) {
+    var binary = '';
+    var bytes = new Uint8Array( buffer );
+    var len = bytes.byteLength;
+    for (var i = 0; i < len; i++) {
+        binary += String.fromCharCode( bytes[ i ] );
+    }
+    return window.btoa( binary );
+}
