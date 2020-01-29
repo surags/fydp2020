@@ -32,7 +32,8 @@
               </li>
             </ul>
 			<ul class="nav-right">
-			  <input id = "keyboardText" type="text" style = "background: transparent; border: none; color: white; outline: none" autofocus />
+			   <div id="status" style = "text-align: center">Loading</div>
+ 			   <div id="sendCtrlAltDelButton" style = "position: fixed; top: 0px; right: 0px; border: 1px outset; padding: 5px 5px 4px 5px; cursor: pointer;">Send CtrlAltDel</div>
 			  <button onClick = keyboardPressed() id = "keyboardButton" style="font-size: -webkit-xxx-large;" class="lni-keyboard"></button>
 			</ul>
           </div>
@@ -80,10 +81,8 @@
 		<div class="page-container">
           <!-- Content Wrapper START -->
           <div class="main-content">
-            <div class="container-fluid">
-				<div id="screen">
-					<!-- This is where the remote screen will appear -->
-				</div>
+			<div type="search" id="screen" style = "flex: 1; overflow: hidden; width: 1366px; height: 660px;">
+				<!-- This is where the remote screen will appear -->
 			</div>
           </div>
           <!-- Content Wrapper END -->
@@ -232,6 +231,7 @@
     <script src="js/jquery-min.js"></script>
     <script src="js/popper.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
+	<script src="cordova.js"></script>	
     <script src="js/jquery.app.js"></script>
 	<script src="js/vnc_lite.js"></script>
   </body>

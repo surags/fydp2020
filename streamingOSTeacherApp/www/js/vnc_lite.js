@@ -12,7 +12,7 @@
 
 function keyboardPressed() {
 	try {
-		document.getElementById('keyboardText').focus();
+		window.Keyboard.show();
 	}
 	catch(err) {
 		alert(err);
