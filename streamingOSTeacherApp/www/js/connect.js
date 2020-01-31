@@ -9,7 +9,7 @@
 
 		$('[data-toggle="popover"]').popover();
 
-		// availableVM();
+		availableVM();
 
 	});
 
@@ -62,31 +62,31 @@ function connectVM(var1) {
 }
 
 
-// function availableVM(){
+function availableVM(){
 
-//   $.ajax({
-//     url: IPAddr + '/availableVM',
-//     type: 'GET',
-//     crossDomain: true,
-//     data:oauth_token,
-//     success: function(responseText) {
-// 			var myData = JSON.parse(responseText);
-// 			if(myData){
-// 				for(var i = 0; i < myData.length; i++){
-// 					if(myData[i].os_type == 'Linux'){
-// 						document.getElementById("linuxCount").innerHTML = myData[i].count;
-// 					}
-// 					else if(myData[i].os_type == 'Windows') {
-// 						document.getElementById("windowsCount").innerHTML = myData[i].count;
-// 					}
-// 				}
-// 			}
-// 		},
-//     error: function(xhr){
-//     console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
-//     alert('Invalid reqest for available VMs');
-//     }
-//   });
-// }
+  $.ajax({
+    url: IPAddr + '/availableVM',
+    type: 'GET',
+    crossDomain: true,
+    data:oauth_token,
+    success: function(responseText) {
+			var myData = JSON.parse(responseText);
+			if(myData){
+				for(var i = 0; i < myData.length; i++){
+					if(myData[i].os_type == 'Linux'){
+						document.getElementById("linuxCount").innerHTML = myData[i].count;
+					}
+					else if(myData[i].os_type == 'Windows') {
+						document.getElementById("windowsCount").innerHTML = myData[i].count;
+					}
+				}
+			}
+		},
+    error: function(xhr){
+    console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
+    alert('Invalid reqest for available VMs');
+    }
+  });
+}
 
 setInterval(availableVM, 5000);
