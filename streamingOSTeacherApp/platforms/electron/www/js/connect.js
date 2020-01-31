@@ -9,6 +9,10 @@
 
 		$('[data-toggle="popover"]').popover();
 
+		$("#footer").load("footer.html");
+		$("#header").load("header.html");
+		$("#navBar").load("navBar.html");
+
 		availableVM();
 
 	});
