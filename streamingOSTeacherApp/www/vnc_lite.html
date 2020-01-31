@@ -1,121 +1,73 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>StreamingOS: Low Cost Education System</title>	
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
-    <!-- Fonts -->
-    <link rel="stylesheet" type="text/css" href="fonts/line-icons.css">
-	<link rel="stylesheet" type="text/css" href="css/icons.css">
-    <!-- Main Style -->
-    <link rel="stylesheet" type="text/css" href="css/main.css">
-    <!-- Responsive Style -->
-    <link rel="stylesheet" type="text/css" href="css/responsive.css">
 
-  </head>
-  <body>
-    <div class="app header-default side-nav-dark">
-      <div class="layout">
-        <!-- Header START -->
-        <div class="header navbar">
-          <div class="header-container">
-            <ul class="nav-left">
-              <li>
-                <a class="sidenav-fold-toggler" href="javascript:void(0);">
-                  <i class="lni-menu"></i>
-                </a>
-                <a class="sidenav-expand-toggler" href="javascript:void(0);">
-                  <i class="lni-menu"></i>
-                </a>
-              </li>
-            </ul>
-			<ul class="nav-right">
-			   <div id="status" style = "text-align: center">Loading</div>
- 			   <div id="sendCtrlAltDelButton" style = "border: 2px outset; cursor: pointer; float: left;">Send CtrlAltDel</div>
-			  <button onClick = keyboardPressed() id = "keyboardButton" style="font-size: x-large; float: right; margin-left:11px;" class="lni-keyboard"></button>
-			</ul>
-          </div>
-        </div>
-        <!-- Header END -->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>StreamingOS: Low Cost Education System</title>
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+  <!-- Fonts -->
+  <link rel="stylesheet" type="text/css" href="fonts/line-icons.css">
+  <link rel="stylesheet" type="text/css" href="css/icons.css">
+  <!-- Main Style -->
+  <link rel="stylesheet" type="text/css" href="css/main.css">
+  <!-- Responsive Style -->
+  <link rel="stylesheet" type="text/css" href="css/responsive.css">
 
-        <!-- Side Nav START -->
-        <div class="side-nav expand-lg">
-          <div class="side-nav-inner">
-            <ul class="side-nav-menu">
-              <li class="side-nav-header">				
-                <span style = "font-size: 17px; font-weight: bolder;">Dashboard</span>
-              </li>
-              <li class="nav-item dropdown">
-                <a href="newMainWindow.html" class="dropdown-toggle">
-				  <div class = "title media-img btn btn-circle btn-danger" style = "width: 6px; height: 6px; margin-left: 7px;"></div>
-				  <span style = "padding-left: 9%;">Home</span>
-                </a>
-                <a href="#" class="dropdown-toggle">
-				  <div class = "title media-img btn btn-circle btn-danger" style = "width: 6px; height: 6px; margin-left: 7px;"></div>
-				  <span style = "padding-left: 9%;">Permissions</span>
-                </a>
-                <a href="students.html" class="dropdown-toggle">
-				  <div class = "title media-img btn btn-circle btn-danger" style = "width: 6px; height: 6px; margin-left: 7px;"></div>
-				  <span style = "padding-left: 9%;">Students</span>
-                </a>
-                <a href="connect.html" class="dropdown-toggle">
-				  <div class = "title media-img btn btn-circle btn-danger" style = "width: 6px; height: 6px; margin-left: 7px;"></div>
-				  <span style = "padding-left: 9%;">Connect</span>
-                </a>
-                <a href="#" class="dropdown-toggle">
-				  <div class = "title media-img btn btn-circle btn-danger" style = "width: 6px; height: 6px; margin-left: 7px;"></div>
-				  <span style = "padding-left: 9%;">Help</span>
-                </a>
-                <a href="javascript:logout();" class="dropdown-toggle">
-				  <div class = "title media-img btn btn-circle btn-danger" style = "width: 6px; height: 6px; margin-left: 7px;"></div>
-				  <span style = "padding-left: 9%;">Logout</span>
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
-        <!-- Side Nav END -->
-		<!-- Page Container START -->
-		<div class="page-container">
-          <!-- Content Wrapper START -->
-          <div class="main-content">
-			<div id="screen" style = "overflow:hidden; width: 1024px; height: 600px;">
-				<!-- This is where the remote screen will appear -->
-			</div>
-          </div>
-          <!-- Content Wrapper END -->
+</head>
 
-          <!-- Footer START -->
-		  
-          <!-- Footer END -->
+<body>
+  <div class="app header-default side-nav-dark">
+    <div class="layout">
+      <div class="app header-default side-nav-dark">
+        <div class="layout">
+          <div id="header"></div>
+          <div id="navBar"></div>
+          <!-- Page Container START -->
+          <div class="page-container">
+            <!-- Content Wrapper START -->
+            <div class="main-content">
+              <div id="screen" style="overflow:hidden; width: 1024px; height: 600px;">
+                <!-- This is where the remote screen will appear -->
+              </div>
+            </div>
+            <!-- Content Wrapper END -->
+
+            <!-- Footer START -->
+
+            <!-- Footer END -->
+          </div>
+          <!-- Page Container END -->
         </div>
-        <!-- Page Container END -->
       </div>
+      <!-- Footer START -->
+      <div id="footer"></div>
+      <!-- Footer END -->
     </div>
-    <!-- Promise polyfill for IE11 -->
-    <script src="vendor/promise.js"></script>
+  </div>
+  <!-- Promise polyfill for IE11 -->
+  <script src="vendor/promise.js"></script>
 
-    <!-- ES2015/ES6 modules polyfill -->
-    <script type="module">
-        window._noVNC_has_module_support = false;
+  <!-- ES2015/ES6 modules polyfill -->
+  <script type="module">
+    window._noVNC_has_module_support = false;
     </script>
-    <script>
-        window.addEventListener("load", function() {
-            console.log("HELLOO")
-            if (window._noVNC_has_module_support) return;
+  <script>
+    window.addEventListener("load", function () {
+      console.log("HELLOO")
+      if (window._noVNC_has_module_support) return;
 
-            const loader = document.createElement("script");
-            loader.src = "vendor/browser-es-module-loader/dist/" +
-                "browser-es-module-loader.js";
-            document.head.appendChild(loader);
-        });
-    </script>
+      const loader = document.createElement("script");
+      loader.src = "vendor/browser-es-module-loader/dist/" +
+        "browser-es-module-loader.js";
+      document.head.appendChild(loader);
+    });
+  </script>
 
-    <!-- actual script modules -->
-    <script type="module" crossorigin="anonymous">
-        // RFB holds the API to connect and communicate with a VNC server
+  <!-- actual script modules -->
+  <script type="module" crossorigin="anonymous">
+    // RFB holds the API to connect and communicate with a VNC server
         import RFB from './core/rfb.js';
 
         let rfb;
@@ -227,13 +179,14 @@
         rfb.viewOnly = readQueryVariable('view_only', false);
         rfb.scaleViewport = readQueryVariable('scale', false);
 	</script>
-	<!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="js/jquery-min.js"></script>
-    <script src="js/popper.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-	<script src="cordova.js"></script>	
-    <script src="js/jquery.app.js"></script>
-	<script src="js/sharedCode.js"></script>
-	<script src="js/vnc_lite.js"></script>
-  </body>
+  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  <script src="js/jquery-min.js"></script>
+  <script src="js/popper.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="cordova.js"></script>
+  <script src="js/jquery.app.js"></script>
+  <script src="js/sharedCode.js"></script>
+  <script src="js/vnc_lite.js"></script>
+</body>
+
 </html>
