@@ -26,11 +26,6 @@
   //var IPAddr = 'http://rp:9090'; //Vidit Changes
   
   var oauth_token = window.localStorage.getItem('oauth_token');
-      
-  function studentNameChange(){
-      currStudentIndex = getStudentIndexfromUserId();
-      updateStatusTable();
-  }
   
   function applicationNameChange(){
       toggleButtons();
@@ -121,16 +116,6 @@
   }
 
   
-  function populateSchoolName(schoolName){
-      document.getElementById("schoolNameDiv").innerHTML = document.getElementById("schoolNameDiv").innerHTML.replace("{schoolName}",schoolName.toUpperCase());
-      
-  }
-  
-  
-  function populateProfessorName(professorName){
-      document.getElementById("professorNameDiv").innerHTML = document.getElementById("professorNameDiv").innerHTML.replace("{professorName}",professorName);
-      
-  }
   
   
   function getStudentIndexfromUserId(){
@@ -156,41 +141,3 @@
       
       return myStr;
   }
-  
-  function populateOtherLogisticalData(){
-      $.ajax({
-            url: IPAddr + '/user/' + window.localStorage.getItem('userName') + '/info',
-            type: 'GET',
-            crossDomain: true,
-            data:oauth_token,
-            success: function(responseText) {
-              var myData = JSON.parse(responseText);
-              if(myData){
-                  populateSchoolName(myData.user[0].school_name);
-                  populateProfessorName(myData.user[0].first_name + " " + myData.user[0].last_name);
-              }	
-            },
-            error: function(xhr){
-              console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
-              alert('Invalid username and password combination');
-            }
-      });	
-  }
-      
-  function updateStatusTable(){
-      while(document.getElementById("statusTable").rows.length > 1) {
-              document.getElementById("statusTable").deleteRow(1);
-      }
-      
-      populateStatusTable();
-  }
-
-  function _arrayBufferToBase64( buffer ) {
-    var binary = '';
-    var bytes = new Uint8Array( buffer );
-    var len = bytes.byteLength;
-    for (var i = 0; i < len; i++) {
-        binary += String.fromCharCode( bytes[ i ] );
-    }
-    return window.btoa( binary );
-}

@@ -25,6 +25,7 @@ class AuthenticationHelper:
             new_user.last_name = query.last_name
             new_user.user_type = query.user_type
             new_user.email = query.email
+            new_user.profession = query.profession
             new_user.save()
             if query.user_type.lower() == "teacher":
                 new_teacher = Teacher()
