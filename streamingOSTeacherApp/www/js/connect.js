@@ -15,11 +15,6 @@
 
 }(jQuery));
 
-
-var OSData = [];
-var currAvailableWindowsVMs = 0;
-var currAvailableLinuxVMs = 0;
-
 var IPAddr = 'http://40.117.173.75:9090';
 
 //var IPAddr = 'http://rp:9090'; //Vidit Changes
@@ -63,6 +58,8 @@ function connectVM(var1) {
 
 
 function availableVM(){
+	document.getElementById("linuxCount").innerHTML = 0;
+	document.getElementById("windowsCount").innerHTML = 0;
 
   $.ajax({
     url: IPAddr + '/availableVM',

@@ -1,44 +1,55 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>StreamingOS: Low Cost Education System</title>
-    <script src="jquery.js"></script>
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
-    <!-- Fonts -->
-    <link rel="stylesheet" type="text/css" href="fonts/line-icons.css">
-    <!-- Main Style -->
-    <link rel="stylesheet" type="text/css" href="css/main.css">
-    <!-- Responsive Style -->
-    <link rel="stylesheet" type="text/css" href="css/responsive.css">
-    <!-- Main Style -->
-    <link rel="stylesheet" type="text/css" href="css/connect.css">
-    <link rel="import" href="newMainWindow.html">
-  </head>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>StreamingOS: Low Cost Education System</title>
+  <script src="jquery.js"></script>
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+  <!-- Fonts -->
+  <link rel="stylesheet" type="text/css" href="fonts/line-icons.css">
+  <!-- Main Style -->
+  <link rel="stylesheet" type="text/css" href="css/main.css">
+  <!-- Responsive Style -->
+  <link rel="stylesheet" type="text/css" href="css/responsive.css">
+  <!-- Main Style -->
+  <link rel="stylesheet" type="text/css" href="css/connect.css">
+</head>
 
 <body>
-    <div id="availableVMContainer">
-      <div id="linux">
-      <button type="button home-button" id="linuxVM" onclick="connectVM('Linux')">
-        <img class="linux" src="img/os/linux-logo-by-Vexels.svg" alt="Linux"/>
-      </button>
-        <h4 class="card-title">Available: <span id="linuxCount"></span></h4>
+  <div class="app header-default side-nav-dark">
+    <div class="layout">
+      <div id="header"></div>
+      <div id="navBar"></div>
+      <div id="availableVMContainer">
+        <div id="linux">
+          <button type="button home-button" id="linuxVM" onclick="connectVM('Linux')">
+            <img class="linux" src="img/os/linux-logo-by-Vexels.svg" alt="Linux" />
+          </button>
+          <h4 class="card-title">Available: <span id="linuxCount"></span></h4>
+        </div>
+        <div id="windows" style="margin-left: 90px;">
+          <button type="button contact-button" id="windowsVM" onclick="connectVM('Windows')">
+            <img class="windows" src="img/os/Windows_darkblue_2012.svg" alt="Windows" />
+          </button>
+          <h4 class="card-title">Available: <span id="windowsCount"></span></h4>
+        </div>
       </div>
-      <div id="windows"  style="margin-left: 90px;">
-      <button type="button contact-button" id="windowsVM" onclick="connectVM('Windows')">
-        <img class="windows" src="img/os/Windows_darkblue_2012.svg" alt="Windows" />
-      </button>
-      <h4 class="card-title">Available: <span id="windowsCount"></span></h4>
+      <!-- Footer START -->
+      <div id="footer"></div>
+      <!-- Footer END -->
     </div>
-    </div>
-</body>
-</html>
+  </div>
 
- <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-<script src="js/jquery-min.js"></script>
-<script src="js/popper.min.js"></script>
-<script src="js/bootstrap.min.js"></script>
-<script src="js/jquery.app.js"></script>
-<script src="js/connect.js"></script>
+  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  <script src="js/jquery-min.js"></script>
+  <script src="js/popper.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/jquery.app.js"></script>
+  <script src="js/connect.js"></script>
+
+</body>
+
+</html>
