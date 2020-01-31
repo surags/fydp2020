@@ -21,7 +21,7 @@ class Router:
 
     def __init__(self):
         self.reverse_proxy_ip = ""
-        if not bool(uwsgi.opt["is_azure"].decode("utf-8")):
+        if uwsgi.opt["is_azure"].decode("utf-8") == "False":
             process = subprocess.Popen("grep \"$HOSTNAME\" /etc/hosts|awk '{print $1}'", stdout=subprocess.PIPE, shell=True)
             self.reverse_proxy_ip = process.communicate()[0].strip().decode('utf-8')
         else:
