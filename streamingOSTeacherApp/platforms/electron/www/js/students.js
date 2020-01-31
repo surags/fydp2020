@@ -51,7 +51,8 @@
               var firstName = myData.users_with_sessions[i].first_name;
               var lastName = myData.users_with_sessions[i].last_name;
               var studentInfoContainerID = "SingleStudent" + studentID;
-              if(!document.getElementById(studentInfoContainerID)) { // Add a new container
+              // Add a new container if one with this student ID doesn't exist
+              if(!document.getElementById(studentInfoContainerID)) { 
                 var studentScreen = document.createElement('div');
                 studentScreen.style = 'padding: 20px; display: inline-block;';
                 studentScreen.id = studentInfoContainerID;
@@ -62,7 +63,9 @@
               populateStudentInformation(studentID, firstName, lastName, studentInfoContainerID);
             }
 
-            for(var studentKey in dictionary){
+            // Search through all students believed to be active, and verify if they still are
+            // If not, remove them
+            for(var studentKey in dictionary) { 
               var isStillActive = false;
               for(var i = 0; i < myData.users_with_sessions.length; i++){	
                 if (myData.users_with_sessions[i].userID == studentKey) {
@@ -71,7 +74,7 @@
                 }  
               }
 
-              if (!isStillActive) {
+              if (!isStillActive) { // Actually remove the div
                 var studentDiv = dictionary[studentKey];
                 document.getElementById(studentDiv.id).outerHTML = "";
                 delete dictionary[studentKey];

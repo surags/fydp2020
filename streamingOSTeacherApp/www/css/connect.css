@@ -10,14 +10,13 @@
 }
 
 #availableVMContainer button{
-  width:180px; 
-  height:70px;
-  border-radius: 25px;
+  width:180px;
+  border-radius: 40%;
   background-color: white;
 }
 
 #windows button img {
-  width:150px; 
+  width:150px;
   height:60px;
   margin-left: 15px;
   border-radius: 10px;
@@ -25,25 +24,28 @@
 
 
 #linux button img {
-    height: 70px;
+    height: 95px;
     border-radius: 10px;
 }
 
 #linuxVM {
-  width: 180px;
-  height: 80px;
+  /* width: 180px; */
+  /* height: 80px; */
   background-color:  white;
   border-radius: 20px;
   display: inline-block;
   vertical-align: middle;
-  text-align: center;  
+  text-align: center;
 }
 
 #windowsVM {
-  width: 180px;
-  height: 80px;
+  /* width: 180px; */
+  height: 100px;
   background-color:  white;
   border-radius: 20px;
+  display: inline-block;
+  vertical-align: middle;
+  text-align: center;
 }
 
 button #linuxVM img {
@@ -53,7 +55,7 @@ button #linuxVM img {
   border-radius: 20px;
   display: inline-block;
   vertical-align: middle;
-  text-align: center;  
+  text-align: center;
 }
 
 button #windowsVM img {
