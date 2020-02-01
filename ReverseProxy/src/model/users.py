@@ -14,3 +14,4 @@ class Users(BaseModel):
     first_name = peewee.CharField()
     last_name = peewee.CharField()
     email = peewee.CharField(unique=True)
+    profession = peewee.CharField()

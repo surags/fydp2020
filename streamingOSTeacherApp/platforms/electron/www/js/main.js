@@ -14,7 +14,7 @@
 	$("#navBar").load("navBar.html");
 	$("#header").load("header.html");
 
-	populateOtherLogisticalData();
+	// populateOtherLogisticalData();
 	populateStudentList();
   });
 
@@ -231,18 +231,18 @@ function toggleButtons(){
 	}
 }
 
-function populateSchoolName(schoolName){
-	document.getElementById("schoolNameDiv").innerHTML = document.getElementById("schoolNameDiv").innerHTML.replace("{schoolName}",schoolName.toUpperCase());
-	window.localStorage.setItem('schoolNameDiv', schoolName.toUpperCase());
+// function populateSchoolName(schoolName){
+// 	document.getElementById("schoolNameDiv").innerHTML = document.getElementById("schoolNameDiv").innerHTML.replace("{schoolName}",schoolName.toUpperCase());
+// 	window.localStorage.setItem('schoolNameDiv', schoolName.toUpperCase());
 
-}
+// }
 
 
-function populateProfessorName(professorName){
-	document.getElementById("professorNameDiv").innerHTML = document.getElementById("professorNameDiv").innerHTML.replace("{professorName}",professorName);
-	window.localStorage.setItem('professorNameDiv', professorName);
+// function populateProfessorName(professorName){
+// 	document.getElementById("professorNameDiv").innerHTML = document.getElementById("professorNameDiv").innerHTML.replace("{professorName}",professorName);
+// 	window.localStorage.setItem('professorNameDiv', professorName);
 
-}
+// }
 
 function giveAccessClicked(applicationValue){
 	var userId = window.localStorage.getItem('userid');
@@ -326,25 +326,25 @@ function returnSuccessString(isGrant){
 	return myStr;
 }
 
-function populateOtherLogisticalData(){
-	$.ajax({
-		  url: IPAddr + '/user/' + window.localStorage.getItem('userName') + '/info',
-		  type: 'GET',
-		  crossDomain: true,
-		  data:oauth_token,
-		  success: function(responseText) {
-			var myData = JSON.parse(responseText);
-			if(myData){
-				populateSchoolName(myData.user[0].school_name);
-				populateProfessorName(myData.user[0].first_name + " " + myData.user[0].last_name);
-			}
-		  },
-		  error: function(xhr){
-			console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
-			alert('Invalid username and password combination');
-		  }
-	});
-}
+// function populateOtherLogisticalData(){
+// 	$.ajax({
+// 		  url: IPAddr + '/user/' + window.localStorage.getItem('userName') + '/info',
+// 		  type: 'GET',
+// 		  crossDomain: true,
+// 		  data:oauth_token,
+// 		  success: function(responseText) {
+// 			var myData = JSON.parse(responseText);
+// 			if(myData){
+// 				populateSchoolName(myData.user[0].school_name);
+// 				populateProfessorName(myData.user[0].first_name + " " + myData.user[0].last_name);
+// 			}
+// 		  },
+// 		  error: function(xhr){
+// 			console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
+// 			alert('Invalid username and password combination');
+// 		  }
+// 	});
+// }
 
 function updateStatusTable(){
 	while(document.getElementById("statusTable").rows.length > 1) {
