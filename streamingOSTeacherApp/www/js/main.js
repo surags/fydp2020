@@ -61,7 +61,7 @@ function populateStudentList(){
 			//option.value = studentData[i].studentId ;
 			var row = studentsTable.insertRow();
 			var cell = row.insertCell(0);
-			cell.innerHTML = studentData[j].studentName;
+			cell.innerHTML = studentData[i].studentName;
 		}
 
 		window.localStorage.setItem('userid', studentData[0].studentId);
@@ -131,13 +131,13 @@ function populateStatusTable(){
 			var applicationStatusTable = document.getElementById("applicationStatusTable");
 			var offset = 1;
 			for(var i = 0; i < studentData[currStudentIndex].applicationData.length; i++){
-				var row = applicationStatusTable.insertRow(offset + k);
+				var row = applicationStatusTable.insertRow(offset + i);
 				var cell1 = row.insertCell(0);
 				var cell2 = row.insertCell(1);
 				var cell3 = row.insertCell(2);
 
 				var cellImg = document.createElement('img');
-				cellImg.src = "img/applicationLogos/" + studentData[currStudentIndex].applicationData[k].applicationId + ".png";
+				cellImg.src = "img/applicationLogos/" + studentData[currStudentIndex].applicationData[i].applicationId + ".png";
 				cellImg.style = "width:15%; margin-right: 2px;";
 
 				var cellSpan = document.createElement('span')
