@@ -14,10 +14,15 @@
     <div class="nav-logo">
       <img style="border-radius: 50%;" src="img/user.png" alt=""></img>
       <div id="professorNameDiv"
-        style="font-size:17px;font-family:Serif;text-align:center; padding:0.5%;white-space:pre-wrap; float: right; margin-inline-end: 25%;">
-        {professorName}&#10;{profession}</div>
+        style="font-size:17px;font-family:Serif;text-align:center; padding:0.5%;white-space:pre-wrap; float: right; margin-inline-end: 25%;">{professorName}&#10;{profession}</div>
     </div>
     <div id="schoolNameDiv" style="font-size:28px;font-family:Serif;text-align:center;width:50%; padding:1%;" class="nav-logo">{schoolName}</div>
+	<ul id = "rightNavForVNC_lite" class="nav-right" style="visibility: hidden;">
+      <div id="status" style = "text-align: center">Loading</div>
+	  <div id="sendCtrlAltDelButton" style = "border: 2px outset; cursor: pointer; float: left;">Send CtrlAltDel</div>
+	  <button onClick = keyboardPressed() id = "keyboardButton" style="font-size: x-large; float: right; margin-left:11px;" class="lni-keyboard"></button>
+	</ul>
   </div>
+
 </div>
 <!-- Header END -->

@@ -1,7 +1,4 @@
-
-
 function logout(){
-	console.log(sessionStorage.getItem("IPAddr"));
 	$.ajax({
 	  url: sessionStorage.getItem("IPAddr") + '/routes/delete/' + window.localStorage.getItem('userid'),
 	  type: 'GET',
