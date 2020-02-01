@@ -1,19 +1,20 @@
 (function($) {
   $(window).on('load', function() {
-  	
+
     /* Page Loader active
     ========================================================*/
     $('#preloader').fadeOut();
 
     $('[data-toggle="tooltip"]').tooltip()
 
-	$('[data-toggle="popover"]').popover() 
+	$('[data-toggle="popover"]').popover()
 
-  });      
+  });
 
 }(jQuery));
 
 var IPAddr = 'http://40.117.173.75:9090';
+sessionStorage.setItem("IPAddr", "http://40.117.173.75:9090");
 //var IPAddr = 'http://rp:9090'; //Vidit Changes
 
 function login(){
@@ -21,13 +22,13 @@ function login(){
 		var userName = document.getElementById("inputUserId").value;
 		var pwd = document.getElementById("inputPassword").value;
 		myParams = {
-			client_id: "teacher", 
-			grant_type:"password", 
-			username: userName, 
-			password: pwd, 
+			client_id: "teacher",
+			grant_type:"password",
+			username: userName,
+			password: pwd,
 			scope:"teacherStreamingOS studentTeacherStreamingOS"
 		};
-		
+
 		$.ajax({
 		  url: IPAddr + '/token',
 		  type: 'POST',
@@ -35,8 +36,8 @@ function login(){
 		  data:myParams,
 		  success: function(response) {
 			  window.localStorage.setItem('userName', userName);
-			  window.localStorage.setItem('oauth_token', response);		
-			  window.location.href = "newMainWindow.html";
+			  window.localStorage.setItem('oauth_token', response);
+			  window.location.href = "home.html";
 		  },
 		  error: function(xhr){
 			console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
@@ -45,6 +46,6 @@ function login(){
 		});
 	}
 	else{
-		
+
 	}
 }

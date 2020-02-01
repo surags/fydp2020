@@ -1,42 +1,46 @@
 
 (function($) {
     $(window).on('load', function() {
-        
+
       /* Page Loader active
       ========================================================*/
       $('#preloader').fadeOut();
-  
-      $('[data-toggle="tooltip"]').tooltip()
-  
-      $('[data-toggle="popover"]').popover()
+
+      $('[data-toggle="tooltip"]').tooltip();
+
+      $('[data-toggle="popover"]').popover();
+      $("#footer").load("footer.html");
+      $("#navBar").load("navBar.html");
+      $("#header").load("header.html");
+
       populateOtherLogisticalData();
       getSessionInformation();
       setInterval(getSessionInformation, 5000);
-    });      
-  
+    });
+
   }(jQuery));
-  
+
   var applicationList = [];
   var applicationId = [];
   var studentData = [];
   var currStudentIndex = 0;
   var dictionary = {};
-  
+
   var IPAddr = 'http://40.117.173.75:9090';
   //var IPAddr = 'http://rp:9090'; //Vidit Changes
-  
+
   var oauth_token = window.localStorage.getItem('oauth_token');
-      
+
   function studentNameChange(){
       currStudentIndex = getStudentIndexfromUserId();
       updateStatusTable();
   }
-  
+
   function applicationNameChange(){
       toggleButtons();
   }
-  
-  async function getSessionInformation(){  		
+
+  async function getSessionInformation(){
     $.ajax({
         url: IPAddr + '/sessions',
         // Sample output: {"users_with_sessions": ["6"]}
@@ -46,13 +50,13 @@
         success: function(responseText) {
           var myData = JSON.parse(responseText);
           if(myData) {
-              for(var i = 0; i < myData.users_with_sessions.length; i++){	
+              for(var i = 0; i < myData.users_with_sessions.length; i++){
               var studentID = parseInt(myData.users_with_sessions[i].userID);
               var firstName = myData.users_with_sessions[i].first_name;
               var lastName = myData.users_with_sessions[i].last_name;
               var studentInfoContainerID = "SingleStudent" + studentID;
               // Add a new container if one with this student ID doesn't exist
-              if(!document.getElementById(studentInfoContainerID)) { 
+              if(!document.getElementById(studentInfoContainerID)) {
                 var studentScreen = document.createElement('div');
                 studentScreen.style = 'padding: 20px; display: inline-block;';
                 studentScreen.id = studentInfoContainerID;
@@ -65,13 +69,13 @@
 
             // Search through all students believed to be active, and verify if they still are
             // If not, remove them
-            for(var studentKey in dictionary) { 
+            for(var studentKey in dictionary) {
               var isStillActive = false;
-              for(var i = 0; i < myData.users_with_sessions.length; i++){	
+              for(var i = 0; i < myData.users_with_sessions.length; i++){
                 if (myData.users_with_sessions[i].userID == studentKey) {
                   isStillActive = true;
                   break;
-                }  
+                }
               }
 
               if (!isStillActive) { // Actually remove the div
@@ -81,7 +85,7 @@
               }
             }
           }
-          
+
         },
         error: function(xhr){
           console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
@@ -90,13 +94,13 @@
       });
 
   }
-  
+
   function populateScreenshots(studentID, studentScreenID) {
     let id = "Image" + studentID;
     if(!document.getElementById(id)){
       var section = document.createElement('div');
       section.id = id;
-      var img = document.createElement('img'); 
+      var img = document.createElement('img');
       img.id = "StudentImage" + studentID;
       img.style = "width: 350px; height: 175px;";
       document.getElementById(studentScreenID).appendChild(section).appendChild(img);
@@ -120,19 +124,19 @@
     }
   }
 
-  
+
   function populateSchoolName(schoolName){
       document.getElementById("schoolNameDiv").innerHTML = document.getElementById("schoolNameDiv").innerHTML.replace("{schoolName}",schoolName.toUpperCase());
-      
+
   }
-  
-  
+
+
   function populateProfessorName(professorName){
       document.getElementById("professorNameDiv").innerHTML = document.getElementById("professorNameDiv").innerHTML.replace("{professorName}",professorName);
-      
+
   }
-  
-  
+
+
   function getStudentIndexfromUserId(){
       index = 0;
       for(var i = 0; i < studentData.length; i++){
@@ -140,23 +144,23 @@
               index = i;
           }
       }
-      
+
       return index;
   }
-  
 
-  
+
+
   function returnSuccessString(isGrant){
       var myStr = "Successfully revoked application access.";
-      
+
       if(isGrant){
           myStr = myStr.replace("revoked","granted");
           return myStr;
       }
-      
+
       return myStr;
   }
-  
+
   function populateOtherLogisticalData(){
       $.ajax({
             url: IPAddr + '/user/' + window.localStorage.getItem('userName') + '/info',
@@ -168,20 +172,20 @@
               if(myData){
                   populateSchoolName(myData.user[0].school_name);
                   populateProfessorName(myData.user[0].first_name + " " + myData.user[0].last_name);
-              }	
+              }
             },
             error: function(xhr){
               console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
               alert('Invalid username and password combination');
             }
-      });	
+      });
   }
-      
+
   function updateStatusTable(){
       while(document.getElementById("statusTable").rows.length > 1) {
               document.getElementById("statusTable").deleteRow(1);
       }
-      
+
       populateStatusTable();
   }
 

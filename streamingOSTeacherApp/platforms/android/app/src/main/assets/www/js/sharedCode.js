@@ -1,9 +1,6 @@
-
-
 function logout(){
-	console.log(sessionStorage.getItem("IPAddr"));
 	$.ajax({
-	  url: sessionStorage.getItem("IPAddr") + '/routes/delete/' + window.localStorage.getItem('userid'),
+	  url: IPAddr + '/routes/delete/' + window.localStorage.getItem('userid'),
 	  type: 'GET',
 	  crossDomain: true,
 	  data: window.localStorage.getItem('oauth_token'),
@@ -14,5 +11,5 @@ function logout(){
 	  error: function(xhr){
 		console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
 	  }
-	});
+	});	
 }
