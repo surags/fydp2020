@@ -1,20 +1,19 @@
-// (function($) {
-//   $(window).on('load', function() {
-  	
+(function($) {
+  $(window).on('load', function() {  	
     /* Page Loader active
     ========================================================*/
-//     $('#preloader').fadeOut();
+    $('#preloader').fadeOut();
 
-//     $('[data-toggle="tooltip"]').tooltip()
+    $('[data-toggle="tooltip"]').tooltip()
 
-// 	$('[data-toggle="popover"]').popover();
-//   });      
-// }(jQuery));
+	$('[data-toggle="popover"]').popover();	
+  });      
+}(jQuery));
 
 function keyboardPressed() {
 	try {
-        Keyboard.show();
-    }
+		window.Keyboard.show();
+	}
 	catch(err) {
 		alert(err);
 	}

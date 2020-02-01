@@ -11,10 +11,10 @@
 	$('[data-toggle="popover"]').popover();
 
 	$("#footer").load("footer.html");
-	$("#header").load("header.html");
 	$("#navBar").load("navBar.html");
+	$("#header").load("header.html");
 
-	populateOtherLogisticalData();
+	// populateOtherLogisticalData();
 	populateStudentList();
   });
 
@@ -57,7 +57,7 @@ function populateStudentList(){
 		}
 		var studentsTable = document.getElementById("studentsTable");
 
-		for(var j = 0; j < studentData.length; j++){
+		for(var i = 0; i < studentData.length; i++){
 			//option.value = studentData[i].studentId ;
 			var row = studentsTable.insertRow();
 			var cell = row.insertCell(0);
@@ -130,7 +130,7 @@ function populateStatusTable(){
 
 			var applicationStatusTable = document.getElementById("applicationStatusTable");
 			var offset = 1;
-			for(var k = 0; k < studentData[currStudentIndex].applicationData.length; k++){
+			for(var i = 0; i < studentData[currStudentIndex].applicationData.length; i++){
 				var row = applicationStatusTable.insertRow(offset + k);
 				var cell1 = row.insertCell(0);
 				var cell2 = row.insertCell(1);
@@ -140,22 +140,22 @@ function populateStatusTable(){
 				cellImg.src = "img/applicationLogos/" + studentData[currStudentIndex].applicationData[k].applicationId + ".png";
 				cellImg.style = "width:15%; margin-right: 2px;";
 
-				var cellSpan1 = document.createElement('span');
-				cellSpan1.innerHTML = studentData[currStudentIndex].applicationData[k].applicationName;
-				cellSpan1.classList = "title text-semibold";
+				var cellSpan = document.createElement('span')
+				cellSpan.innerHTML = studentData[currStudentIndex].applicationData[i].applicationName;
+				cellSpan.classList = "title text-semibold";
 				cell1.appendChild(cellImg);
-				cell1.appendChild(cellSpan1);
+				cell1.appendChild(cellSpan);
 
 				var cellSpan = document.createElement('span');
-				cellSpan.id = k.toString() + '_cellSpan';
+				cellSpan.id = i.toString() + '_cellSpan';
 
 				var divSpan = document.createElement('div');
-				divSpan.id = k.toString() + '_divSpan';
+				divSpan.id = i.toString() + '_divSpan';
 
 				cellSpan.style = "width:8px; height:8px; padding: 6px;";
 				divSpan.style = "display:inline; padding: 10%;";
 
-				if(studentData[currStudentIndex].applicationData[k].hasAccess === true){
+				if(studentData[currStudentIndex].applicationData[i].hasAccess === true){
 					cellSpan.classList = "btn btn-circle btn-success";
 					divSpan.innerHTML = "Active";
 				}
@@ -172,12 +172,12 @@ function populateStatusTable(){
 
 				var cellInput = document.createElement('input');
 				cellInput.setAttribute("type", "checkbox");
-				cellInput.id = k.toString() + '_checkbox';
+				cellInput.id = i.toString() + '_checkbox';
 
-				var cellSpan2 = document.createElement('span');
-				cellSpan2.classList = "slider round";
+				var cellSpan = document.createElement('span');
+				cellSpan.classList = "slider round";
 
-				if(studentData[currStudentIndex].applicationData[k].hasAccess === true){
+				if(studentData[currStudentIndex].applicationData[i].hasAccess === true){
 					cellInput.checked = true;
 				}
 				else {
@@ -207,8 +207,8 @@ function populateStatusTable(){
 
 function toggleButtons(){
 	index = getApplicationIndexfromApplicationId(document.getElementById("applicationDropdown").value);
-	var giveAccessButton ;
-	var revokeAccessButton ;
+	var giveAccessButton;
+	var revokeAccessButton;
 
 	if(studentData[currStudentIndex].applicationData[index].hasAccess === true){
 		// If the student already has access to the app, give option to revoke it and disable give access button
@@ -233,16 +233,18 @@ function toggleButtons(){
 	}
 }
 
-function populateSchoolName(schoolName){
-	document.getElementById("schoolNameDiv").innerHTML = document.getElementById("schoolNameDiv").innerHTML.replace("{schoolName}",schoolName.toUpperCase());
+// function populateSchoolName(schoolName){
+// 	document.getElementById("schoolNameDiv").innerHTML = document.getElementById("schoolNameDiv").innerHTML.replace("{schoolName}",schoolName.toUpperCase());
+// 	window.localStorage.setItem('schoolNameDiv', schoolName.toUpperCase());
 
-}
+// }
 
 
-function populateProfessorName(professorName){
-	document.getElementById("professorNameDiv").innerHTML = document.getElementById("professorNameDiv").innerHTML.replace("{professorName}",professorName);
+// function populateProfessorName(professorName){
+// 	document.getElementById("professorNameDiv").innerHTML = document.getElementById("professorNameDiv").innerHTML.replace("{professorName}",professorName);
+// 	window.localStorage.setItem('professorNameDiv', professorName);
 
-}
+// }
 
 function giveAccessClicked(applicationValue){
 	var userId = window.localStorage.getItem('userid');
@@ -326,25 +328,25 @@ function returnSuccessString(isGrant){
 	return myStr;
 }
 
-function populateOtherLogisticalData(){
-	$.ajax({
-		  url: IPAddr + '/user/' + window.localStorage.getItem('userName') + '/info',
-		  type: 'GET',
-		  crossDomain: true,
-		  data:oauth_token,
-		  success: function(responseText) {
-			var myData = JSON.parse(responseText);
-			if(myData){
-				populateSchoolName(myData.user[0].school_name);
-				populateProfessorName(myData.user[0].first_name + " " + myData.user[0].last_name);
-			}
-		  },
-		  error: function(xhr){
-			console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
-			alert('Invalid username and password combination');
-		  }
-	});
-}
+// function populateOtherLogisticalData(){
+// 	$.ajax({
+// 		  url: IPAddr + '/user/' + window.localStorage.getItem('userName') + '/info',
+// 		  type: 'GET',
+// 		  crossDomain: true,
+// 		  data:oauth_token,
+// 		  success: function(responseText) {
+// 			var myData = JSON.parse(responseText);
+// 			if(myData){
+// 				populateSchoolName(myData.user[0].school_name);
+// 				populateProfessorName(myData.user[0].first_name + " " + myData.user[0].last_name);
+// 			}
+// 		  },
+// 		  error: function(xhr){
+// 			console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
+// 			alert('Invalid username and password combination');
+// 		  }
+// 	});
+// }
 
 function updateStatusTable(){
 	while(document.getElementById("statusTable").rows.length > 1) {

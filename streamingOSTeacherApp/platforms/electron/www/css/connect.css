@@ -3,9 +3,8 @@
     text-align: center;
     position: fixed; /* or absolute */
     top: 40%;
-    left: 35%;
+    left: 40%;
     display: flex;
-    background-color: white;
     border-radius: 25px;
 }
 

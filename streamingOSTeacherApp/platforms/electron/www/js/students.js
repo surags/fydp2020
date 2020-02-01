@@ -9,12 +9,10 @@
       $('[data-toggle="tooltip"]').tooltip();
 
       $('[data-toggle="popover"]').popover();
-
       $("#footer").load("footer.html");
-      $("#header").load("header.html");
       $("#navBar").load("navBar.html");
+      $("#header").load("header.html");
 
-      populateOtherLogisticalData();
       getSessionInformation();
       setInterval(getSessionInformation, 5000);
     });
@@ -31,7 +29,12 @@
   //var IPAddr = 'http://rp:9090'; //Vidit Changes
 
   var oauth_token = window.localStorage.getItem('oauth_token');
-  
+
+  function studentNameChange(){
+      currStudentIndex = getStudentIndexfromUserId();
+      updateStatusTable();
+  }
+
   function applicationNameChange(){
       toggleButtons();
   }
@@ -120,9 +123,6 @@
     }
   }
 
-  
-  
-  
   function getStudentIndexfromUserId(){
       index = 0;
       for(var i = 0; i < studentData.length; i++){

@@ -8,10 +8,9 @@
 		$('[data-toggle="tooltip"]').tooltip();
 
 		$('[data-toggle="popover"]').popover();
-
 		$("#footer").load("footer.html");
-		$("#header").load("header.html");
 		$("#navBar").load("navBar.html");
+		$("#header").load("header.html");
 
 		availableVM();
 
@@ -62,9 +61,8 @@ function connectVM(var1) {
 
 
 function availableVM(){
-	document.getElementById("linuxCount").innerHTML = 0;
+	document.getElementById("linuxCount").innerHTML = 0 ;
 	document.getElementById("windowsCount").innerHTML = 0;
-
   $.ajax({
     url: IPAddr + '/availableVM',
     type: 'GET',
@@ -90,4 +88,4 @@ function availableVM(){
   });
 }
 
-setInterval(availableVM, 5000);
+setInterval(availableVM, 10000);

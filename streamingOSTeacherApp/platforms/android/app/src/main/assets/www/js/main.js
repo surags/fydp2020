@@ -8,7 +8,10 @@
 
     $('[data-toggle="tooltip"]').tooltip()
 
-	$('[data-toggle="popover"]').popover()
+	$('[data-toggle="popover"]').popover();
+	
+	$("#footer").load("footer.html"); 
+	
 	populateOtherLogisticalData();
 	populateStudentList();
   });      
@@ -130,10 +133,15 @@ function populateStatusTable(){
 				var cell1 = row.insertCell(0);
 				var cell2 = row.insertCell(1);
 				var cell3 = row.insertCell(2);
+								
+				var cellImg = document.createElement('img');
+				cellImg.src = "img/applicationLogos/" + studentData[currStudentIndex].applicationData[i].applicationId + ".png";
+				cellImg.style = "width:15%; margin-right: 2px;";
 				
 				var cellSpan = document.createElement('span')
 				cellSpan.innerHTML = studentData[currStudentIndex].applicationData[i].applicationName;
 				cellSpan.classList = "title text-semibold";
+				cell1.appendChild(cellImg);
 				cell1.appendChild(cellSpan);
 				
 				var cellSpan = document.createElement('span');

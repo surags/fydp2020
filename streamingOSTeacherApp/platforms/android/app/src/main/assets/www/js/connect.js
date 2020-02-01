@@ -8,13 +8,15 @@
 		$('[data-toggle="tooltip"]').tooltip();
 
 		$('[data-toggle="popover"]').popover();
-		
-		availableVM();
+
+		// availableVM();
 
 	});
 
 }(jQuery));
 
+
+var OSData = [];
 var currAvailableWindowsVMs = 0;
 var currAvailableLinuxVMs = 0;
 
@@ -44,25 +46,11 @@ function connectVM(var1) {
 		success: function (response) {
 			// Go to the logout page
 			//window.location.href = "logout.html";
-			console.log("logout code")
+			console.log("logout code");
 			var obj = JSON.parse(response);
 			console.log(obj.routes.source_port);
 			console.log(obj);
-			noVNCConnect(obj.routes.source_port)
-			
-			// Call vnc endpoint on localhost:3000
-			// $.ajax({
-			// 	url: 'http://localhost:3000/vnc?host=' + IPVNC + '&port=' + response,
-			// 	type: 'GET',
-			// 	crossDomain: true,
-			// 	success: function (response) {
-			// 		console.log(`VNC call reponse: ${response}`);
-			// 	},
-			// 	error: function (xhr) {
-			// 		console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
-			// 		alert('Invalid VNC call');
-			// 	}
-			// });
+			noVNCConnect(obj.routes.source_port);
 			console.log(response);
 		},
 		error: function (xhr) {
@@ -74,29 +62,31 @@ function connectVM(var1) {
 }
 
 
-function availableVM(){
-	
-  $.ajax({
-    url: IPAddr + '/availableVM',
-    type: 'GET',
-    crossDomain: true,
-    data:oauth_token,
-    success: function(responseText) {
-    var myData = JSON.parse(responseText);
-    if(myData){
-			currAvailableLinuxVMs = myData.Linux;
-			currAvailableWindowsVMs = myData.Windows;	
-		}
-		
-		document.getElementById("linuxCount").innerHTML = currAvailableLinuxVMs;
-		document.getElementById("windowsCount").innerHTML = currAvailableWindowsVMs;
-  
-    },
-    error: function(xhr){
-    console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
-    alert('Invalid reqest for available VMs');
-    }
-  });
-}
+// function availableVM(){
+
+//   $.ajax({
+//     url: IPAddr + '/availableVM',
+//     type: 'GET',
+//     crossDomain: true,
+//     data:oauth_token,
+//     success: function(responseText) {
+// 			var myData = JSON.parse(responseText);
+// 			if(myData){
+// 				for(var i = 0; i < myData.length; i++){
+// 					if(myData[i].os_type == 'Linux'){
+// 						document.getElementById("linuxCount").innerHTML = myData[i].count;
+// 					}
+// 					else if(myData[i].os_type == 'Windows') {
+// 						document.getElementById("windowsCount").innerHTML = myData[i].count;
+// 					}
+// 				}
+// 			}
+// 		},
+//     error: function(xhr){
+//     console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
+//     alert('Invalid reqest for available VMs');
+//     }
+//   });
+// }
 
 setInterval(availableVM, 5000);

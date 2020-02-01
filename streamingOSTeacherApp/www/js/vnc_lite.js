@@ -10,6 +10,10 @@
 		$("#navBar").load("navBar.html");
 
 	$('[data-toggle="popover"]').popover();
+
+	$("#footer").load("footer.html");
+	$("#navBar").load("navBar.html");
+	$("#header").load("header.html");
   });
 }(jQuery));
 
