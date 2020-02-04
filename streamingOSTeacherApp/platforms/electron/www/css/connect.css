@@ -1,15 +1,16 @@
 
 #availableVMContainer{
     text-align: center;
-    position: fixed; /* or absolute */
+    position: absolute;
     top: 40%;
-    left: 40%;
+    left: 30%;
     display: flex;
     border-radius: 25px;
 }
 
 #availableVMContainer button{
   width:180px;
+  height:115px;
   border-radius: 40%;
   background-color: white;
 }
@@ -17,13 +18,12 @@
 #windows button img {
   width:150px;
   height:60px;
-  margin-left: 15px;
   border-radius: 10px;
 }
 
 
 #linux button img {
-    height: 95px;
+    height: 110px;
     border-radius: 10px;
 }
 
