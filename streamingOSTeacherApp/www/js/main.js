@@ -61,6 +61,7 @@ function populateStudentList(){
 			//option.value = studentData[i].studentId ;
 			var row = studentsTable.insertRow();
 			var cell = row.insertCell(0);
+			cell.style = "padding-left: 5%";
 			cell.innerHTML = studentData[i].studentName;
 		}
 
