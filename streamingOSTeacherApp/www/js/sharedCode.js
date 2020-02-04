@@ -17,10 +17,11 @@ function logout(){
 	  data: window.localStorage.getItem('oauth_token'),
 	  success: function(response) {
 		  console.log("Logged out");
-		  window.location.href = "logout.html";
+		  window.location.href = "login.html";
 	  },
 	  error: function(xhr){
 		console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
+		window.location.href = "login.html";
 	  }
 	});
 }

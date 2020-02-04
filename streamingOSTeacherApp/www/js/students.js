@@ -66,6 +66,15 @@
               populateStudentInformation(studentID, firstName, lastName, studentInfoContainerID);
             }
 
+            if (myData.users_with_sessions.length <= 0 && document.getElementById("NoStudents") == null) {
+              var noStudentsText = document.createElement("span");
+              noStudentsText.innerText = "No Students are currently connected to streamingOS";
+              noStudentsText.setAttribute("id","NoStudents");
+              document.getElementById("student-screens-container").appendChild(noStudentsText);
+            } else if (myData.users_with_sessions.length > 0 && document.getElementById("NoStudents") != null) {
+              document.getElementById("NoStudents").outerHTML = "";
+            }
+
             // Search through all students believed to be active, and verify if they still are
             // If not, remove them
             for(var studentKey in dictionary) {
@@ -88,7 +97,7 @@
         },
         error: function(xhr){
           console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
-          alert('Retrieving session information failed, REEEE');
+          alert('Retrieving student session information failed');
         }
       });
 
