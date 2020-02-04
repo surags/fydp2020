@@ -10,21 +10,20 @@
 
 #availableVMContainer button{
   width:180px;
-  height:115px;
-  border-radius: 40%;
-  background-color: white;
+  height:110px;
+  border-radius: 45%;
+  background-color: whitesmoke;
+  border: 1px solid black;
 }
 
 #windows button img {
-  width:150px;
-  height:60px;
-  border-radius: 10px;
+  width:145px;
+  height:50px;
 }
 
 
 #linux button img {
-    height: 110px;
-    border-radius: 10px;
+    height: 100%;
 }
 
 #linuxVM {
