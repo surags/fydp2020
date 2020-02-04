@@ -9,12 +9,14 @@ from bottle import response
 from src.model.student import Student
 from src.model.teacher import Teacher
 from src.model.users import Users
+from src.model.base_model import db
 
 
 class AuthenticationHelper:
     def __init__(self):
         pass
 
+    @db.connection_context()
     def create_new_user(self, username, password, query):
         try:
             new_user = Users()
@@ -51,6 +53,7 @@ class AuthenticationHelper:
             response.status = 500
         return response
 
+    @db.connection_context()
     def validate_user(self, username, password):
         try:
             user = Users.select().where(Users.user_name == username)
@@ -67,6 +70,7 @@ class AuthenticationHelper:
             print(str(f))
             return False
 
+    @db.connection_context()
     def delete_user(self, user_id):
         try:
             user = Users.get(Users.user_id == user_id)

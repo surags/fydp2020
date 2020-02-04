@@ -10,6 +10,7 @@ from src.model.application import Application
 from src.model.application_permissions import ApplicationPermission
 from src.helper import response_format_helper
 from src.model.users import Users
+from src.model.base_model import db
 from src.helper import session_helper
 
 session_helper = session_helper.factory.get_session_helper()
@@ -19,6 +20,7 @@ class UserHelper:
     def __init__(self):
         pass
 
+    @db.connection_context()
     def user_info(self, username):
         try:
             join_condition = Users.school_id == School.school_id
@@ -32,6 +34,7 @@ class UserHelper:
             response.status = 400
         return response
 
+    @db.connection_context()
     def student_list(self, school_id):
         query = Users.select(Users.user_id, Users.user_name, Users.first_name, Users.last_name).where(
             Users.user_type == "Student" and Users.school_id == school_id).dicts()
@@ -39,15 +42,19 @@ class UserHelper:
         response.status = 200
         return response
 
+    @db.connection_context()
     def application_list(self):
         query = Application.select().dicts()
         response.body = json.dumps({'applications': list(query)})
         response.status = 200
         return response
 
+    @db.connection_context()
     def session_list(self):
         return session_helper.get_all_sessions_that_exist()
 
+    @db.connection_context()
+    @db.connection_context()
     def permitted_apps(self, user_id):
         join_condition = ApplicationPermission.application_id == Application.application_id
         query = ApplicationPermission.select(Application.application_id, Application.application_name).join(Application,
@@ -58,6 +65,7 @@ class UserHelper:
         response.status = 200
         return response
 
+    @db.connection_context()
     def give_access(self, user_id, application_id):
         # If this query doesn't return empty, than this permission is already in the DB
         query = ApplicationPermission.select().where(ApplicationPermission.user_id == user_id,
@@ -86,6 +94,7 @@ class UserHelper:
             response.body += '"error_container": "Could not add permission to container"}'
         return response
 
+    @db.connection_context()
     def revoke_access(self, user_id, application_id):
         try:
             perm = ApplicationPermission.get(

@@ -13,6 +13,7 @@ from src.helper import session_helper
 from src.model import os_container
 from src.model import session_info
 from src.model.users import Users
+from src.model.base_model import db
 
 session_helper = session_helper.factory.get_session_helper()
 container_helper = container_helper.ContainerHelper()
@@ -29,19 +30,23 @@ class Router:
                 "http://169.254.169.254/metadata/instance/network/interface/0/ipv4/ipAddress/0/privateIpAddress?api-version=2017-04-02&format=text",
                 headers={"Metadata": "true"}).content.decode('utf-8')
 
+    @db.connection_context()
     def set_container_busy(self, container):
         (os_container.OSContainer
          .set_by_id(container.ip_address, {'is_free': False}))
 
+    @db.connection_context()
     def set_container_free(self, ip_address):
         (os_container.OSContainer
          .set_by_id(ip_address, {'is_free': True}))
 
     #This is done to set the container as unavailable. Mainly when the container is not running
+    @db.connection_context()
     def set_container_unavailable(self, ip_address):
         (os_container.OSContainer
          .set_by_id(ip_address, {'is_running': False}))
 
+    @db.connection_context()
     def get_free_container(self, os_type):
         try:
             print(os_type)
@@ -91,11 +96,12 @@ class Router:
 
                 iptables_rules = self.build_iptable_rules_setup(client_ip, container.ip_address, source_port, destination_port)
                 query = Users.select(Users.first_name, Users.last_name).where(Users.user_id == user_id)
-                print("Name: " + query.first_name + query.last_name)
+                result = query[0]
+                print("Name: " + result.first_name + result.last_name)
                 session_helper.session_info_map[user_id] = session_info.SessionInfo(client_ip,
                                                                           source_port, container.ip_address,
-                                                                          destination_port, os_type, query.first_name,
-                                                                                    query.last_name)
+                                                                          destination_port, os_type, result.first_name,
+                                                                                    result.last_name)
                 process = subprocess.Popen(iptables_rules, stdout=subprocess.PIPE, shell=True)
                 process.communicate()[0].strip()
                 data['source_port'] = source_port

@@ -25,11 +25,15 @@ class SessionHelper:
 
     def get_all_sessions_that_exist(self):
         userIds = list(self.session_info_map.keys())
-        response = '{"users_with_sessions": '
-        for key in userIds:
-            response += '{"userID":' + key + ',' + '"first_name": ' + self.session_info_map[key].first_name + ',' \
-                        + '"last_name":' + self.session_info_map[key].last_name + '}'
-        response += '}'
+        response = '{"users_with_sessions": ['
+        for idx, key in enumerate(userIds):
+            if idx == len(userIds) - 1:
+                response += '{"userID":' + key + ',' + '"first_name": "' + self.session_info_map[key].first_name + '",' \
+                            + '"last_name": "' + self.session_info_map[key].last_name + '"}'
+            else:
+                response += '{"userID":' + key + ',' + '"first_name": "' + self.session_info_map[key].first_name + '",' \
+                            + '"last_name": "' + self.session_info_map[key].last_name + '"},'
+        response += ']}'
         return response
 
 

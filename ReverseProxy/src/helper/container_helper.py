@@ -7,7 +7,7 @@ import requests
 from bottle import response
 from src.helper import session_helper
 from src.model.os_container import OSContainer
-
+from src.model.base_model import db
 session_helper = session_helper.factory.get_session_helper()
 
 
@@ -25,6 +25,7 @@ class ContainerHelper:
         url = 'http://{0}:9090/user/remove'.format(user_session.destination_ip)
         requests.post(url)
 
+    @db.connection_context()
     def available_vm_list(self):
         availablevm = (OSContainer.select(OSContainer.os_type.alias('os_type'), peewee.fn.COUNT('*').alias('count')).where(
             (OSContainer.is_free == True) & (OSContainer.is_running == True)).group_by(OSContainer.os_type).dicts())

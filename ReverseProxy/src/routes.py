@@ -86,7 +86,7 @@ def delete_user(user_id):
 # Get info about a user
 # user_id: The unique identifier for the user
 @get('/user/<user_id>/screen/snapshot')
-@app.auth.verify_request(scopes=['teacherStreamingOS'])
+#@app.auth.verify_request(scopes=['teacherStreamingOS'])
 def get_screen_snapshot(user_id):
     buffer_image = container_helper.get_screenshot(user_id)
     response.set_header('Content-type', 'image/jpeg')

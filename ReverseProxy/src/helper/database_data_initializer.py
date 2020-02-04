@@ -11,6 +11,7 @@ class DatabaseDataInitializer:
     def __init__(self):
         self.write_data()
 
+    @db.connection_context()
     def write_data(self):
         try:
             data2 = [(1, 'Student'), (2, 'Teacher')]
