@@ -24,6 +24,8 @@
   var studentData = [];
   var currStudentIndex = 0;
   var dictionary = {};
+  var startDate = new Date();
+  var endDate;
 
   var IPAddr = 'http://40.117.173.75:9090';
   //var IPAddr = 'http://rp:9090'; //Vidit Changes
@@ -116,6 +118,15 @@
     var img = document.getElementById("StudentImage" + studentID);
     img.src = IPAddr + '/user/' + studentID + '/screen/snapshot?rand=' + Math.random();
 
+    // Test image update time
+    /*endDate = new Date();
+    var seconds = (endDate.getTime() - startDate.getTime()) / 1000;
+    var testTime = document.createElement("span");
+    testTime.innerText = "Difference in s: " + seconds;
+    
+    testTime.setAttribute("id","StudentName" + studentID);
+    document.getElementById(studentScreenID).appendChild(testTime);
+    startDate = endDate; */
     // img.src = "https://git.uwaterloo.ca/uploads/-/system/user/avatar/2957/avatar.png";
   }
 
