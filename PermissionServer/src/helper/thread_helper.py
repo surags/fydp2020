@@ -37,7 +37,7 @@ class ThreadHelper:
                 process = subprocess.run("netstat -an | grep \"ESTABLISHED\" | grep \":5901\"",
                                            stdout=subprocess.PIPE, shell=True)
             else:
-                process = subprocess.run('cmd.exe /c netstat -an | grep "ESTABLISHED" | grep ":6080"',
+                process = subprocess.run('cmd.exe /c netstat -an | grep "ESTABLISHED" | grep ":3389"',
                                            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, shell=True)
             print("Value: {0}".format(process.stdout))
             sys.stdout.flush()

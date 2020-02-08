@@ -18,12 +18,14 @@ from src.model.base_model import db
 session_helper = session_helper.factory.get_session_helper()
 container_helper = container_helper.ContainerHelper()
 
+
 class Router:
 
     def __init__(self):
         self.reverse_proxy_ip = ""
         if uwsgi.opt["is_azure"].decode("utf-8") == "False":
-            process = subprocess.Popen("grep \"$HOSTNAME\" /etc/hosts|awk '{print $1}'", stdout=subprocess.PIPE, shell=True)
+            process = subprocess.Popen("grep \"$HOSTNAME\" /etc/hosts|awk '{print $1}'", stdout=subprocess.PIPE,
+                                       shell=True)
             self.reverse_proxy_ip = process.communicate()[0].strip().decode('utf-8')
         else:
             self.reverse_proxy_ip = requests.get(
@@ -40,7 +42,7 @@ class Router:
         (os_container.OSContainer
          .set_by_id(ip_address, {'is_free': True}))
 
-    #This is done to set the container as unavailable. Mainly when the container is not running
+    # This is done to set the container as unavailable. Mainly when the container is not running
     @db.connection_context()
     def set_container_unavailable(self, ip_address):
         (os_container.OSContainer
@@ -52,7 +54,7 @@ class Router:
             print(os_type)
             container_info = (os_container.OSContainer.select().where(
                 (os_container.OSContainer.is_free == True) & (os_container.OSContainer.is_running == True) & (
-                            os_container.OSContainer.os_type == os_type)))
+                        os_container.OSContainer.os_type == os_type)))
             print("Found results")
             print(container_info[0])
             self.set_container_busy(container_info[0])
@@ -87,24 +89,29 @@ class Router:
             data = {}
             if user_id not in session_helper.session_info_map:
                 source_port = session_helper.get_free_port()
-                destination_port = "6080"
+                destination_port = "8080"
                 container = self.get_free_container(os_type)
                 if (container is None):
                     response.body = json.dumps({'error': 'No free containers'})
                     response.status = 400
                     return response
 
-                iptables_rules = self.build_iptable_rules_setup(client_ip, container.ip_address, source_port, destination_port)
+                iptables_rules = self.build_iptable_rules_setup(client_ip, container.ip_address, source_port,
+                                                                destination_port)
                 query = Users.select(Users.first_name, Users.last_name).where(Users.user_id == user_id)
                 result = query[0]
                 print("Name: " + result.first_name + result.last_name)
                 session_helper.session_info_map[user_id] = session_info.SessionInfo(client_ip,
-                                                                          source_port, container.ip_address,
-                                                                          destination_port, os_type, result.first_name,
+                                                                                    source_port, container.ip_address,
+                                                                                    destination_port,
+                                                                                    container.guacamole_stream_id,
+                                                                                    container.guacamole_view_only_id,
+                                                                                    os_type, result.first_name,
                                                                                     result.last_name)
                 process = subprocess.Popen(iptables_rules, stdout=subprocess.PIPE, shell=True)
                 process.communicate()[0].strip()
                 data['source_port'] = source_port
+                data['guacamole_id'] = container.guacamole_stream_id
                 self.setup_user_in_container(user_id, container.ip_address, width, height)
                 health_check = threading.Thread(name='os_container_health_check', target=self.os_container_health_check,
                                                 args=(container.ip_address,))
@@ -116,6 +123,7 @@ class Router:
                     return self.setup_routes(user_id, client_ip, os_type, width, height)
                 else:
                     data['source_port'] = session_helper.session_info_map[user_id].source_port
+                    data['guacamole_id'] = session_helper.session_info_map[user_id].guacamole_stream_id
             response.body = json.dumps({'routes': data})
             response.status = 200
         except Exception as e:
@@ -149,19 +157,21 @@ class Router:
             health_response = requests.get(url)
             if health_response.status_code != 200:
                 self.set_container_unavailable(os_container_ip)
-                #TODO: Delete routes for user connected to that failed container
+                # TODO: Delete routes for user connected to that failed container
                 break
             else:
                 health_response_json = health_response.json()
                 print(health_response_json)
-                if health_response_json['is_free'] and health_response_json['user_id'] and session_helper.session_info_map[health_response_json['user_id']]:
-                    if session_helper.session_info_map[health_response_json['user_id']].destination_ip == os_container_ip:
+                if health_response_json['is_free'] and health_response_json['user_id'] and \
+                        session_helper.session_info_map[health_response_json['user_id']]:
+                    if session_helper.session_info_map[
+                        health_response_json['user_id']].destination_ip == os_container_ip:
                         container_helper.cleanup_user_session(health_response_json['user_id'])
                         self.delete_iptable_rules(health_response_json['user_id'])
                     break
                 elif health_response_json['is_free'] and not health_response_json['user_id']:
                     break
-            #Make thread sleep for 30 seconds
+            # Make thread sleep for 30 seconds
             sleep(30)
 
 

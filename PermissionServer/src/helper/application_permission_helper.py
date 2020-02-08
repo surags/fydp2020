@@ -7,6 +7,7 @@ from threading import Lock
 from peewee import JOIN
 from src.model.application import Application
 from src.model.application_permissions import ApplicationPermission
+from src.model.base_model import db
 from src.manager import os_container_info_manager
 from src.manager import user_info_manager
 from src.helper import thread_helper
@@ -20,6 +21,7 @@ class ApplicationPermissionHelper:
     def __init__(self):
         pass
 
+    @db.connection_context()
     def remove_permissions(self):
         join_condition = Application.application_id == ApplicationPermission.application_id and ApplicationPermission.user_id == user_info_manager.user_id
         application_permissions_info = Application.select(Application, ApplicationPermission)\
@@ -44,6 +46,7 @@ class ApplicationPermissionHelper:
         vnc_check_thread.start()
         print("Setup user")
 
+    @db.connection_context()
     def add_permission(self, application_id):
         application_info = Application.get(Application.application_id == application_id)
         if uwsgi.opt["is_ubuntu"].decode("utf-8") == "True":
@@ -54,6 +57,7 @@ class ApplicationPermissionHelper:
             subprocess.Popen("cd /mnt/c && cmd.exe /c REGEDIT /s {0} && rm {1}".format(file_name, file_name), stdout=subprocess.PIPE,
                             shell=True)
 
+    @db.connection_context()
     def remove_permission(self, application_id):
         application_info = Application.get(Application.application_id == application_id)
         if uwsgi.opt["is_ubuntu"].decode("utf-8") == "True":

@@ -1,9 +1,6 @@
 import json
 import os
 
-import bottle
-
-from src.wsgi import app
 from bottle import response
 from bottle import post, get, put
 from bottle import static_file
@@ -20,19 +17,6 @@ container_info_manager = os_container_info_manager.factory.get_os_container_info
 user_info_manager = user_info_manager.factory.get_user_info_manager()
 vnc_helper = vnc_helper.VNCHelper()
 db = base_model.db
-
-
-@app.hook('before_request')
-def connect_db():
-    if db.is_closed():
-        db.connect()
-
-
-@app.hook('after_request')
-def disconnect_db():
-    if not db.is_closed():
-        db.manual_close()
-
 
 @get('/')
 def listing_handler():

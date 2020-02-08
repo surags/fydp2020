@@ -11,7 +11,6 @@ from src.model.teacher import Teacher
 from src.model.users import Users
 from src.model.base_model import db
 
-
 class AuthenticationHelper:
     def __init__(self):
         pass

@@ -3,6 +3,8 @@ import requests
 import uwsgi as uwsgi
 
 from threading import Lock
+
+from src.model.base_model import db
 from src.model.os_container import OSContainer
 
 
@@ -17,6 +19,7 @@ class OSContainerInfoManager:
         self.is_running = True
         self.is_free = True
 
+    @db.connection_context()
     def initialize_container_ip_address(self):
         if not bool(uwsgi.opt["is_azure"].decode("utf-8")):
             process = subprocess.Popen("grep \"$HOSTNAME\" /etc/hosts|awk '{print $1}'", stdout=subprocess.PIPE, shell=True)
@@ -28,6 +31,7 @@ class OSContainerInfoManager:
         self.setup_os_container_info_in_db(ip_address)
         return ip_address
 
+    @db.connection_context()
     def setup_os_container_info_in_db(self, os_container_ip):
         try:
             container = OSContainer()

@@ -17,21 +17,6 @@ container_helper = container_helper.ContainerHelper()
 db = base_model.db
 broadcast = None
 
-
-@app.hook('before_request')
-def connect_db():
-    if db.is_closed():
-        print("Opening")
-        db.connect()
-
-
-@app.hook('after_request')
-def disconnect_db():
-    if not db.is_closed():
-        print("Closing")
-        db.manual_close()
-
-
 # A test call to determine if the API is working
 @get('/test')
 def test_call():

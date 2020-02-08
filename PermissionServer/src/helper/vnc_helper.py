@@ -1,12 +1,7 @@
-import os
-import signal
 import subprocess
-from time import sleep
-
 import psutil as psutil
 import uwsgi
 
-from pathlib import Path
 
 
 
@@ -19,14 +14,14 @@ class VNCHelper:
         if uwsgi.opt["is_ubuntu"].decode("utf-8") == "True":
             subprocess.Popen("vncserver -kill :1", stdout=subprocess.PIPE, shell=True)
         else:
-            subprocess.Popen("/mnt/c/'Program Files'/RealVNC/'VNC Server'/vncserver.exe -service -stop", stdout=subprocess.PIPE, shell=True)
+            subprocess.Popen("echo yes | cmd.exe /c rwinsta rdp-tcp", stdout=subprocess.PIPE, shell=True)
 
     def start_vnc_server(self, width, height):
         if uwsgi.opt["is_ubuntu"].decode("utf-8") == "True":
             subprocess.Popen("sudo -u fydp-root vncserver -geometry {0}x{1}".format(width, height),
                              stdout=subprocess.PIPE, shell=True)
-        else:
-            subprocess.Popen("/mnt/c/'Program Files'/RealVNC/'VNC Server'/vncserver.exe -service -start", stdout=subprocess.PIPE, shell=True)
+        # else:
+        #     subprocess.Popen("/mnt/c/'Program Files'/RealVNC/'VNC Server'/vncserver.exe -service -start", stdout=subprocess.PIPE, shell=True)
 
 
     def getProcessPIDs(self, process_name):
@@ -38,7 +33,6 @@ class VNCHelper:
         for proc in psutil.process_iter():
             try:
                 # Check if process name contains the given name string.
-                #print(proc.cmdline())
                 if process_name.lower() in ''.join(proc.cmdline()).lower():
                     print("Exists: {0}".format(proc.pid))
                     pids.append(proc.pid)
