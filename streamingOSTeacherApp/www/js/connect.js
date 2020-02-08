@@ -26,11 +26,16 @@ var oauth_token = window.localStorage.getItem('oauth_token');
 var userId = window.localStorage.getItem('userid');
 
 
-function noVNCConnect(port) {
-	var hostName = '40.117.173.75';
-	window.location.href = `vnc_lite.html?host=${hostName}&port=${port}&scale=true`;
-}
+// function noVNCConnect(port) {
+// 	var hostName = '40.117.173.75';
+// 	window.location.href = `vnc_lite.html?host=${hostName}&port=${port}&scale=true`;
+// }
 
+function guacamoleConnect(port, guacamole_id) {
+	var hostName = '40.117.173.75';
+	console.log()
+	window.location.href= `http://${hostName}:${port}/guacamole/#/client/${guacamole_id}`
+}
 
 // var1 - OS Type [ Linux or Windows ]
 function connectVM(var1) {
@@ -44,12 +49,8 @@ function connectVM(var1) {
 		success: function (response) {
 			// Go to the logout page
 			//window.location.href = "logout.html";
-			console.log("logout code");
 			var obj = JSON.parse(response);
-			console.log(obj.routes.source_port);
-			console.log(obj);
-			noVNCConnect(obj.routes.source_port);
-			console.log(response);
+			guacamoleConnect(obj.routes.source_port, obj.routes.guacamole_id);
 		},
 		error: function (xhr) {
 			console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);

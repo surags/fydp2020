@@ -24,9 +24,14 @@ class ThreadHelper:
     def snapshot_with_repeating_interval(self):
         while self.enabled:
             print("Runn snapshot")
-            subprocess.Popen(
-                "vncsnapshot -passwd ~/.vnc/passwd -quality 50 :1 {0}/snapshots/snapshot.jpg".format(project_root),
-                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True)
+            if uwsgi.opt["is_ubuntu"].decode("utf-8") == "True":
+                subprocess.Popen(
+                    "vncsnapshot -passwd ~/.vnc/passwd -quality 50 :1 {0}/snapshots/snapshot.jpg".format(project_root),
+                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True)
+            else:
+                subprocess.Popen(
+                    "nircmd.exe savescreenshot \"c:\snapshot.jpg\" && mv /mnt/c/snapshot.jpg {0}/snapshots/snapshot.jpg".format(project_root),
+                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True)
             sleep(5)
 
     def check_vnc_connection_with_repeating_interval(self):
