@@ -36,7 +36,7 @@ class ThreadHelper:
 
     def check_vnc_connection_with_repeating_interval(self):
         while self.enabled:
-            sleep(10)
+            sleep(20)
             print("Runn connection check")
             if uwsgi.opt["is_ubuntu"].decode("utf-8") == "True":
                 process = subprocess.run("netstat -an | grep \"ESTABLISHED\" | grep \":5901\"",
