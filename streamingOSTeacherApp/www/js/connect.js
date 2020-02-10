@@ -31,18 +31,29 @@ var userId = window.localStorage.getItem('userid');
 // 	window.location.href = `vnc_lite.html?host=${hostName}&port=${port}&scale=true`;
 // }
 
-function guacamoleConnect(port, guacamole_id) {
+function guacamoleConnect(port, guacamole_id, vm_type) {
+    var username = ""
+    var password = ""
 	var hostName = '40.117.173.75';
-	console.log()
-	window.location.href= `http://${hostName}:${port}/guacamole/#/client/${guacamole_id}`
+
+    if (vm_type == 'Linux') {
+        username = "root"
+        password = "password"
+    }
+    else {
+        username = "fydp-root"
+        password = "@FYDPWindowsServer2020"
+    }
+
+	window.location.href= `http://${hostName}:${port}/guacamole/#/client/${guacamole_id}/?username=${username}&password=${password}`
 }
 
 // var1 - OS Type [ Linux or Windows ]
-function connectVM(var1) {
+function connectVM(vm_type) {
 	var clientIpAddress = '129.97.124.75';
 	// var IPAddr = 'http://rp:9090'; //Vidit Changes
 	$.ajax({
-		url: `${IPAddr}/routes/setup/${userId}/${clientIpAddress}/${var1}/1024/600`,
+		url: `${IPAddr}/routes/setup/${userId}/${clientIpAddress}/${vm_type}/1024/600`,
 		type: 'GET',
 		data: oauth_token,
 		crossDomain: true,
@@ -50,14 +61,13 @@ function connectVM(var1) {
 			// Go to the logout page
 			//window.location.href = "logout.html";
 			var obj = JSON.parse(response);
-			guacamoleConnect(obj.routes.source_port, obj.routes.guacamole_id);
+			guacamoleConnect(obj.routes.source_port, obj.routes.guacamole_id, vm_type);
 		},
 		error: function (xhr) {
 			console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
 			alert('Invalid username and password combination');
 		}
 	});
-
 }
 
 
