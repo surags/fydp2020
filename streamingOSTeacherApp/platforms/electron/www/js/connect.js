@@ -26,30 +26,42 @@ var oauth_token = window.localStorage.getItem('oauth_token');
 var userId = window.localStorage.getItem('userid');
 
 
-function noVNCConnect(port) {
+// function noVNCConnect(port) {
+// 	var hostName = '40.117.173.75';
+// 	window.location.href = `vnc_lite.html?host=${hostName}&port=${port}&scale=true`;
+// }
+
+function guacamoleConnect(port, guacamole_id, vm_type) {
+    var username = ""
+    var password = ""
 	var hostName = '40.117.173.75';
-	window.location.href = `vnc_lite.html?host=${hostName}&port=${port}&scale=true`;
+
+    if (vm_type == 'Linux') {
+        username = "root"
+        password = "password"
+    }
+    else {
+        username = "fydp-root"
+        password = "@FYDPWindowsServer2020"
+    }
+
+	window.location.href= `http://${hostName}:${port}/guacamole/#/client/${guacamole_id}/?username=${username}&password=${password}`
 }
 
-
 // var1 - OS Type [ Linux or Windows ]
-function connectVM(var1) {
+function connectVM(vm_type) {
 	var clientIpAddress = '129.97.124.75';
 	// var IPAddr = 'http://rp:9090'; //Vidit Changes
 	$.ajax({
-		url: `${IPAddr}/routes/setup/${userId}/${clientIpAddress}/${var1}/1024/600`,
+		url: `${IPAddr}/routes/setup/${userId}/${clientIpAddress}/${vm_type}/1024/600`,
 		type: 'GET',
 		data: oauth_token,
 		crossDomain: true,
 		success: function (response) {
 			// Go to the logout page
 			//window.location.href = "logout.html";
-			console.log("logout code");
 			var obj = JSON.parse(response);
-			console.log(obj.routes.source_port);
-			console.log(obj);
-			noVNCConnect(obj.routes.source_port);
-			console.log(response);
+			guacamoleConnect(obj.routes.source_port, obj.routes.guacamole_id, vm_type);
 		},
 		error: function (xhr) {
 			console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
