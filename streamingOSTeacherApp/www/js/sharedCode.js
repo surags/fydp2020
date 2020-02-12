@@ -3,11 +3,36 @@
 
 		/* Page Loader active
 		========================================================*/
-
+		$("#footer").load("footer.html");
+		$("#navBar").load("navBar.html");
+		$("#header").load("header.html");
+			
 		populateOtherLogisticalData();
 	});
 
 }(jQuery));
+
+function sideNavClose(){
+	document.getElementById("sideNavToggler").classList.remove("side-nav-expand");
+}
+
+function home(){
+	sideNavClose();
+	document.getElementById("footer").style = "z-index:1; position: absolute; bottom: 0;";
+	document.getElementById("actualContentIframe").src = "home.html";
+}
+
+function students(){
+	sideNavClose();
+	document.getElementById("footer").style = "z-index:1; position: absolute; bottom: 0;"
+	document.getElementById("actualContentIframe").src = "students.html";
+}
+
+function connect(){
+	sideNavClose();
+	document.getElementById("footer").style = "z-index:-1;";
+	document.getElementById("actualContentIframe").src = "connect.html";
+}
 
 function logout(){
 	$.ajax({

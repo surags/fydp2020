@@ -37,7 +37,7 @@ function login(){
 		  success: function(response) {
 			  window.localStorage.setItem('userName', userName);
 			  window.localStorage.setItem('oauth_token', response);
-			  window.location.href = "home.html";
+			  window.location.href = "master.html";
 		  },
 		  error: function(xhr){
 			console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
