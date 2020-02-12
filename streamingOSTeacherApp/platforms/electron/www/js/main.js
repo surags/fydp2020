@@ -23,7 +23,8 @@
 var applicationList = [];
 var applicationId = [];
 var studentData = [];
-var currStudentIndex = 0;
+var currStudentFrontEndIndex = 0;
+var currStudentBackEndIndex = 0;
 
 var IPAddr = 'http://40.117.173.75:9090';
 //var IPAddr = 'http://rp:9090'; //Vidit Changes
@@ -31,7 +32,7 @@ var IPAddr = 'http://40.117.173.75:9090';
 var oauth_token = window.localStorage.getItem('oauth_token');
 
 function studentNameChange(){
-	currStudentIndex = getStudentIndexfromUserId();
+	currStudentFrontEndIndex = getStudentIndexfromUserId();
 	updateStatusTable();
 }
 
@@ -61,11 +62,19 @@ function populateStudentList(){
 			//option.value = studentData[i].studentId ;
 			var row = studentsTable.insertRow();
 			var cell = row.insertCell(0);
-			cell.style = "padding-left: 5%";
-			cell.innerHTML = studentData[i].studentName;
+			var a = document.createElement('a');
+			a.style = "padding-left: 5%; height: 52px;"
+			a.id = "tableRowId_" + studentData[i].studentId + "_position_" + i;
+			a.onclick = function(e) {
+				var splitOutput= e.currentTarget.id.split("_");
+				currStudentBackEndIndex = splitOutput[1];
+				populateStatusTable(currStudentBackEndIndex);
+				currStudentFrontEndIndex = splitOutput[3];
+			};
+			a.innerHTML = studentData[i].studentName;
+			cell.appendChild(a);
 		}
-
-		window.localStorage.setItem('userid', studentData[0].studentId);
+		
 		populateApplicationList();
 	  },
 	  error: function(xhr){
@@ -101,7 +110,7 @@ function populateApplicationList(){
 					studentData[i].applicationData = applicationData;
 				}
 			}
-			populateStatusTable();
+			populateStatusTable(window.localStorage.getItem('userid'));
 		  },
 		  error: function(xhr){
 			console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
@@ -110,9 +119,7 @@ function populateApplicationList(){
 	});
 }
 
-function populateStatusTable(){
-	var userId = window.localStorage.getItem('userid');
-
+function populateStatusTable(userId){
 	$.ajax({
 		  url: IPAddr + '/user/' + userId + '/applications',
 		  type: 'GET',
@@ -123,26 +130,32 @@ function populateStatusTable(){
 			if(myData){
 				for(var i = 0; i < myData.applications.length; i++){
 					index = getApplicationIndexfromApplicationId(myData.applications[i].application_id);
-					studentData[currStudentIndex].applicationData[index].hasAccess = true;
+					studentData[currStudentFrontEndIndex].applicationData[index].hasAccess = true;
 				}
 			}
 
 			// toggleButtons();
 
 			var applicationStatusTable = document.getElementById("applicationStatusTable");
+
+			var rowCount = applicationStatusTable.rows.length; 
+			while(--rowCount) {
+				applicationStatusTable.deleteRow(rowCount);
+			}
+			
 			var offset = 1;
-			for(var i = 0; i < studentData[currStudentIndex].applicationData.length; i++){
+			for(var i = 0; i < studentData[currStudentFrontEndIndex].applicationData.length; i++){
 				var row = applicationStatusTable.insertRow(offset + i);
 				var cell1 = row.insertCell(0);
 				var cell2 = row.insertCell(1);
 				var cell3 = row.insertCell(2);
 
 				var cellImg = document.createElement('img');
-				cellImg.src = "img/applicationLogos/" + studentData[currStudentIndex].applicationData[i].applicationId + ".png";
+				cellImg.src = "img/applicationLogos/" + studentData[currStudentFrontEndIndex].applicationData[i].applicationId + ".png";
 				cellImg.style = "width:15%; margin-right: 2px;";
 
 				var cellSpan = document.createElement('span')
-				cellSpan.innerHTML = studentData[currStudentIndex].applicationData[i].applicationName;
+				cellSpan.innerHTML = studentData[currStudentFrontEndIndex].applicationData[i].applicationName;
 				cellSpan.classList = "title text-semibold";
 				cell1.appendChild(cellImg);
 				cell1.appendChild(cellSpan);
@@ -156,7 +169,7 @@ function populateStatusTable(){
 				cellSpan.style = "width:8px; height:8px; padding: 6px;";
 				divSpan.style = "display:inline; padding: 10%;";
 
-				if(studentData[currStudentIndex].applicationData[i].hasAccess === true){
+				if(studentData[currStudentFrontEndIndex].applicationData[i].hasAccess === true){
 					cellSpan.classList = "btn btn-circle btn-success";
 					divSpan.innerHTML = "Active";
 				}
@@ -178,7 +191,7 @@ function populateStatusTable(){
 				var cellSpan = document.createElement('span');
 				cellSpan.classList = "slider round";
 
-				if(studentData[currStudentIndex].applicationData[i].hasAccess === true){
+				if(studentData[currStudentFrontEndIndex].applicationData[i].hasAccess === true){
 					cellInput.checked = true;
 				}
 				else {
@@ -211,7 +224,7 @@ function toggleButtons(){
 	var giveAccessButton;
 	var revokeAccessButton;
 
-	if(studentData[currStudentIndex].applicationData[index].hasAccess === true){
+	if(studentData[currStudentFrontEndIndex].applicationData[index].hasAccess === true){
 		// If the student already has access to the app, give option to revoke it and disable give access button
 		giveAccessButton = document.getElementById("giveAccessButton");
 		giveAccessButton.disabled = true;
@@ -234,30 +247,16 @@ function toggleButtons(){
 	}
 }
 
-// function populateSchoolName(schoolName){
-// 	document.getElementById("schoolNameDiv").innerHTML = document.getElementById("schoolNameDiv").innerHTML.replace("{schoolName}",schoolName.toUpperCase());
-// 	window.localStorage.setItem('schoolNameDiv', schoolName.toUpperCase());
-
-// }
-
-
-// function populateProfessorName(professorName){
-// 	document.getElementById("professorNameDiv").innerHTML = document.getElementById("professorNameDiv").innerHTML.replace("{professorName}",professorName);
-// 	window.localStorage.setItem('professorNameDiv', professorName);
-
-// }
-
 function giveAccessClicked(applicationValue){
-	var userId = window.localStorage.getItem('userid');
-	var applicationId = studentData[currStudentIndex].applicationData[applicationValue].applicationId;
+	var applicationId = studentData[currStudentFrontEndIndex].applicationData[applicationValue].applicationId;
 
 	$.ajax({
-	  url: IPAddr + '/user/' + userId + '/grant/' + applicationId,
+	  url: IPAddr + '/user/' + currStudentBackEndIndex + '/grant/' + applicationId,
 	  type: 'PUT',
 	  data: oauth_token,
 	  crossDomain: true,
 	  success: function() {
-		studentData[currStudentIndex].applicationData[getApplicationIndexfromApplicationId(applicationId)].hasAccess = true;
+		studentData[currStudentFrontEndIndex].applicationData[getApplicationIndexfromApplicationId(applicationId)].hasAccess = true;
 
 		var cellSpan = document.getElementById(applicationValue.toString() + '_cellSpan');
 		var divSpan = document.getElementById(applicationValue.toString() + '_divSpan');
@@ -272,15 +271,14 @@ function giveAccessClicked(applicationValue){
 }
 
 function revokeAccessClicked(applicationValue){
-	var userId = window.localStorage.getItem('userid');
-	var applicationId = studentData[currStudentIndex].applicationData[applicationValue].applicationId;
+	var applicationId = studentData[currStudentFrontEndIndex].applicationData[applicationValue].applicationId;
 
 	$.ajax({
-	  url: IPAddr + '/user/' + userId + '/revoke/' + applicationId,
+	  url: IPAddr + '/user/' + currStudentBackEndIndex + '/revoke/' + applicationId,
 	  type: 'DELETE',
 	  data: oauth_token,
 	  success: function() {
-		studentData[currStudentIndex].applicationData[getApplicationIndexfromApplicationId(applicationId)].hasAccess = false;
+		studentData[currStudentFrontEndIndex].applicationData[getApplicationIndexfromApplicationId(applicationId)].hasAccess = false;
 
 		var cellSpan = document.getElementById(applicationValue.toString() + '_cellSpan');
 		var divSpan = document.getElementById(applicationValue.toString() + '_divSpan');
@@ -294,23 +292,10 @@ function revokeAccessClicked(applicationValue){
 	});
 }
 
-
-function getStudentIndexfromUserId(){
-	index = 0;
-	for(var i = 0; i < studentData.length; i++){
-		if(studentData[i].studentId === parseInt(document.getElementById("studentDropdown").value)){
-			index = i;
-		}
-	}
-
-	return index;
-}
-
-
 function getApplicationIndexfromApplicationId(inpApplicationId){
 	index = 0;
-	for(var i = 0; i < studentData[currStudentIndex].applicationData.length; i++){
-		if(studentData[currStudentIndex].applicationData[i].applicationId === parseInt(inpApplicationId)){
+	for(var i = 0; i < studentData[currStudentFrontEndIndex].applicationData.length; i++){
+		if(studentData[currStudentFrontEndIndex].applicationData[i].applicationId === parseInt(inpApplicationId)){
 			index = i;
 		}
 	}
@@ -328,26 +313,6 @@ function returnSuccessString(isGrant){
 
 	return myStr;
 }
-
-// function populateOtherLogisticalData(){
-// 	$.ajax({
-// 		  url: IPAddr + '/user/' + window.localStorage.getItem('userName') + '/info',
-// 		  type: 'GET',
-// 		  crossDomain: true,
-// 		  data:oauth_token,
-// 		  success: function(responseText) {
-// 			var myData = JSON.parse(responseText);
-// 			if(myData){
-// 				populateSchoolName(myData.user[0].school_name);
-// 				populateProfessorName(myData.user[0].first_name + " " + myData.user[0].last_name);
-// 			}
-// 		  },
-// 		  error: function(xhr){
-// 			console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
-// 			alert('Invalid username and password combination');
-// 		  }
-// 	});
-// }
 
 function updateStatusTable(){
 	while(document.getElementById("statusTable").rows.length > 1) {

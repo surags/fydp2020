@@ -108,12 +108,7 @@
   function populateScreenshots(studentID, studentScreenID) {
     let id = "Image" + studentID;
     if(!document.getElementById(id)){
-      var section = document.createElement('div');
-      section.id = id;
-      var img = document.createElement('img');
-      img.id = "StudentImage" + studentID;
-      img.style = "width: 350px; height: 175px;";
-      document.getElementById(studentScreenID).appendChild(section).appendChild(img);
+      createImageAndOverlayDivs(id,studentID, studentScreenID);
     }
     var img = document.getElementById("StudentImage" + studentID);
     img.src = IPAddr + '/user/' + studentID + '/screen/snapshot?rand=' + Math.random();
@@ -133,6 +128,7 @@
   function populateStudentInformation(studentID, firstName, lastName, studentScreenID) {
     let id = "NameDiv" + studentID;
     if(!document.getElementById("StudentName" + studentID)){
+      // Section is the container for the name element
       var section = document.createElement('div');
       section.id = id;
 
@@ -141,6 +137,62 @@
       studentName.setAttribute("id","StudentName" + studentID);
       document.getElementById(studentScreenID).appendChild(section).appendChild(studentName);
     }
+  }
+
+  /** For a student who just signed in, create HTML elements for the 
+   *  "section", which contains the image itself and the overlay div.
+   *  The overlay div contains the three icons used for overlaying   
+  **/
+  function createImageAndOverlayDivs(id, studentID, studentScreenID) {
+    // Section is the container for only the image and the overlay
+    var section = document.createElement('div');
+    section.style = "position:relative; width: 350px; height: 175px;";
+    section.id = id;
+
+      // Create new image
+      var img = document.createElement('img');
+      img.id = "StudentImage" + studentID;
+      img.style = "position:relative; width: 350px; height: 175px;";
+      img.addEventListener("click", function() {
+        overlay.style = "visibility: visible;";
+        // TODO: Enlarge image
+      });
+      document.getElementById(studentScreenID).appendChild(section).appendChild(img);
+
+      // Create overlay
+      var overlay = document.createElement('div');
+      overlay.id = "Overlay" + studentID;
+      overlay.style = "visibility: hidden;";
+      document.getElementById(section.id).appendChild(overlay);
+
+        // Create X image
+        var closeX = document.createElement('img');
+        closeX.style = "position: absolute; top: 8px; left: 16px; width: 32px; height: 32px;";
+        closeX.src = "img/close.png";
+        closeX.addEventListener("click", function() {
+          overlay.style = "visibility: hidden;";
+          //TODO: Shrink image to normal size
+        });
+        document.getElementById(overlay.id).appendChild(closeX);
+
+        // Create disconnect image
+        var disconnect = document.createElement('img');
+        disconnect.style = "position: absolute; top: 8px; right: 16px; width: 32px; height: 32px;";
+        disconnect.src = "img/disconnect.png";
+        disconnect.addEventListener("click", function() {
+          //TODO: Call destroy routes
+        });
+        document.getElementById(overlay.id).appendChild(disconnect);
+        
+        
+        // Create connect image
+        var streamLink = document.createElement('img');
+        streamLink.style = "position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 64px; height: 64px;";
+        streamLink.src = "img/stream.png";
+        streamLink.addEventListener("click", function() {
+          //TODO: Call broadcast
+        });
+        document.getElementById(overlay.id).appendChild(streamLink);
   }
 
   function getStudentIndexfromUserId(){

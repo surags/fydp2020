@@ -45,10 +45,12 @@ function populateOtherLogisticalData(){
 		  crossDomain: true,
 		  data:window.localStorage.getItem('oauth_token'),
 		  success: function(responseText) {
-			var myData = JSON.parse(responseText);
-			if(myData){
-				populateSchoolName(myData.user[0].school_name);
-				populateProfessorName(myData.user[0].first_name + " " + myData.user[0].last_name, myData.user[0].profession);
+			var userData= JSON.parse(responseText).user[0];
+			
+			if(userData){
+				window.localStorage.setItem('userid', userData.user_id);
+				populateSchoolName(userData.school_name);
+				populateProfessorName(userData.first_name + " " + userData.last_name, userData.profession);
 			}
 		  },
 		  error: function(xhr){

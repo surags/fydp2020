@@ -29,16 +29,16 @@
       <!-- Page Container START -->
       <div class="page-container">
         <!-- Content Wrapper START -->
-        <div class="main-content">
+        <div class="main-content" style="display:flex;">
           <div class="container-fluid">
-            <div class="row">
-              <div class="col-md-6">
+		    <div>
+			  <div class="col-md-6" style="float:left; height: 200px; overflow-y: scroll;">
                 <div class="card">
                   <div class="card-header">
                     <h4 class="card-title">App Permissions</h4>
                   </div>
-                  <div class="table">
-                    <table id="applicationStatusTable" class="table table-sm">
+                  <div class="table table-responsive">
+                    <table id="applicationStatusTable" style = "scroll-behavior: auto;" class="table table-sm">
                       <thead>
                         <td class="text-dark text-semibold">App Name</td>
                         <td class="text-dark text-semibold">Permission Status</td>
@@ -48,30 +48,48 @@
                   </div>
                 </div>
               </div>
-              <div class="col-md-6">
+			  <div class="col-md-6" style="float:right; height: 400px; overflow-y: scroll;">
                 <div class="card">
                   <div class="card-header border-bottom">
                     <h4 class="card-title">Students</h4>
                   </div>
                   <div>
-                    <table id="studentsTable" class="table row-clickable table-sm table-hover">
+                    <table id="studentsTable" style = "scroll-behavior: auto;" class="table table-sm row-clickable table-hover">
                     </table>
                   </div>
                 </div>
               </div>
-            </div>
-            <div class="row">
-              <div class="col-md-6">
+			  <div class="col-md-6" style="float:left; height: 200px; overflow-y: scroll;">
                 <div class="card">
                   <div class="card-header">
                     <h4 class="card-title">Permission Statistics</h4>
                   </div>
-                  <div class="table">
-                    <table id="statisticsTable" class="table table-sm">
+                  <div class="table table-responsive">
+                    <table id="statisticsTable" style = "scroll-behavior: auto;" class="table table-sm">
                       <thead>
                         <td class="text-dark text-semibold">App Name</td>
                         <td class="text-dark text-semibold">Total Inactive Permissions</td>
                         <td class="text-dark text-semibold">Total Active Permissions</td>
+						<tr>
+						  <th scope="row">Mozilla Firefox</th>
+						  <td>20</td>
+						  <td>20</td>
+                        </tr>
+						<tr>
+						  <th scope="row">Microsoft Word</th>
+						  <td>20</td>
+						  <td>20</td>
+                        </tr>
+						<tr>
+						  <th scope="row">Google Chrome</th>
+						  <td>20</td>
+						  <td>20</td>
+                        </tr>
+						<tr>
+						  <th scope="row">Teacher's Portal</th>
+						  <td>20</td>
+						  <td>20</td>
+                        </tr>
                       </thead>
                     </table>
                   </div>
@@ -82,7 +100,7 @@
         </div>
         <!-- Content Wrapper END -->
         <!-- Footer START -->
-        <div id="footer"></div>
+        <div id="footer" style = "z-index: 1;"></div>
         <!-- Footer END -->
       </div>
       <!-- Page Container END -->

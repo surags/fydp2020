@@ -68,7 +68,6 @@ function connectVM(vm_type) {
 			alert('Invalid username and password combination');
 		}
 	});
-
 }
 
 

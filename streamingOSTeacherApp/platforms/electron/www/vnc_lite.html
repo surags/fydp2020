@@ -133,9 +133,13 @@
             return defaultValue;
         }
 
-		document.getElementById("rightNavForVNC_lite").style.visibility = "visible";
-        document.getElementById('sendCtrlAltDelButton')
-            .onclick = sendCtrlAltDel;
+		// Special stuff to be done for this page.
+		document.getElementById("professorInfoDiv").style.visibility = "hidden";
+		document.getElementById("schoolNameDiv").style.visibility = "hidden";
+		document.getElementById("status").style = "visibility: visible; padding-right: 25%;";	
+		
+		document.getElementById("rightNavForVNC_lite").style = "visibility: visible; margin-top: -5%;";
+        document.getElementById('sendCtrlAltDelButton').onclick = sendCtrlAltDel;
 
         // Read parameters specified in the URL query string
         // By default, use the host and port of server that served this file
