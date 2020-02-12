@@ -18,45 +18,31 @@
 </head>
 
 <body>
-  <div class="app header-default side-nav-dark">
-    <div class="layout">
-      <!-- Header START -->
-      <div id="header"></div>
-      <!-- Header END -->
-
-      <!-- Side Nav START -->
-      <div id="navBar"></div>
-
-      <div class="page-container">
-        <!-- Content Wrapper START -->
-        <div class="main-content">
-          <div id="availableVMContainer">
-            <div id="linux">
-              <button type="button home-button" id="linuxVM" onclick="connectVM('Linux')">
-                <img class="linux" src="img/os/linux-logo-by-Vexels.svg" alt="Linux" />
-              </button>
-              <h4 class="card-title">Available: <span id="linuxCount"></span></h4>
-            </div>
-            <div id="windows" style="margin-left: 100px;">
-              <button type="button contact-button" id="windowsVM" onclick="connectVM('Windows')">
-                <img class="windows" src="img/os/Windows_darkblue_2012.svg" alt="Windows" />
-              </button>
-              <h4 class="card-title">Available: <span id="windowsCount"></span></h4>
-            </div>
-          </div>
-        </div>
-        <div id="footer"></div>
-      </div>
-    </div>
+  <div class="page-container">
+	<!-- Content Wrapper START -->
+	<div class="main-content">
+	  <div id="availableVMContainer">
+		<div id="linux">
+		  <button type="button home-button" id="linuxVM" onclick="connectVM('Linux')">
+			<img class="linux" src="img/os/linux-logo-by-Vexels.svg" alt="Linux" />
+		  </button>
+		  <h4 class="card-title">Available: <span id="linuxCount"></span></h4>
+		</div>
+		<div id="windows" style="margin-left: 100px;">
+		  <button type="button contact-button" id="windowsVM" onclick="connectVM('Windows')">
+			<img class="windows" src="img/os/Windows_darkblue_2012.svg" alt="Windows" />
+		  </button>
+		  <h4 class="card-title">Available: <span id="windowsCount"></span></h4>
+		</div>
+	  </div>
+	</div>
   </div>
+
+  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  <script src="js/jquery-min.js"></script>
+  <script src="js/popper.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/jquery.app.js"></script>
+  <script src="js/connect.js"></script>
 </body>
-
 </html>
-
-<!-- jQuery first, then Popper.js, then Bootstrap JS -->
-<script src="js/jquery-min.js"></script>
-<script src="js/popper.min.js"></script>
-<script src="js/bootstrap.min.js"></script>
-<script src="js/jquery.app.js"></script>
-<script src="js/connect.js"></script>
-<script src="js/sharedCode.js"></script>

@@ -75,9 +75,7 @@
               }
 
               if (!isStillActive) { // Actually remove the div
-                var studentDiv = dictionary[studentKey];
-                document.getElementById(studentDiv.id).outerHTML = "";
-                delete dictionary[studentKey];
+                deleteStudentElement(studentKey);
               }
             }
           }
@@ -167,6 +165,19 @@
         disconnect.src = "img/disconnect.png";
         disconnect.addEventListener("click", function() {
           //TODO: Call destroy routes
+          $.ajax({
+            url: IPAddr + '/routes/delete/' + studentID,
+            type: 'GET',
+            crossDomain: true,
+            data:oauth_token,
+            success: function(response) {
+              deleteStudentElement(studentID);
+            },
+            error: function(xhr){
+              console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
+              alert('Error: Failed to retrieve student stream');
+            }
+          });
         });
         document.getElementById(overlay.id).appendChild(disconnect);
         
@@ -176,7 +187,24 @@
         streamLink.style = "position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 64px; height: 64px;";
         streamLink.src = "img/stream.png";
         streamLink.addEventListener("click", function() {
-          //TODO: Call broadcast
+          var clientIpAddress = '129.97.124.75';
+          var teacherID = window.localStorage.getItem('userid');
+          $.ajax({
+            url: IPAddr + '/setup/stream/' + teacherID + '/' + clientIpAddress + '/' + studentID,
+            type: 'GET',
+            crossDomain: true,
+            data:oauth_token,
+            success: function(response) {
+              var obj = JSON.parse(response);
+              guacamoleConnectViewOnly(obj.routes.source_port, obj.routes.guacamole_id, obj.routes.os_type);
+            },
+            error: function(xhr){
+              console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
+              alert('Error: Failed to retrieve student stream');
+            }
+          });
+    
+
         });
         document.getElementById(overlay.id).appendChild(streamLink);
   }
@@ -204,3 +232,26 @@
 
       return myStr;
   }
+
+  function deleteStudentElement(studentID) {
+    var studentDiv = dictionary[studentID];
+    document.getElementById(studentDiv.id).outerHTML = "";
+    delete dictionary[studentID];
+  }
+
+  function guacamoleConnectViewOnly(port, guacamole_id, vm_type) {
+    var username = ""
+    var password = ""
+	  var hostName = '40.117.173.75';
+
+    if (vm_type == 'Linux') {
+        username = "root"
+        password = "password"
+    }
+    else {
+        username = "fydp-root"
+        password = "@FYDPWindowsServer2020"
+    }
+
+	location.href = `http://${hostName}:${port}/guacamole/#/client/${guacamole_id}/?username=${username}&password=${password}`
+}
