@@ -31,7 +31,7 @@ function guacamoleConnect(port, guacamole_id, vm_type) {
         password = "@FYDPWindowsServer2020"
     }
 
-	document.getElementById("actualContentIframe").src = `http://${hostName}:${port}/guacamole/#/client/${guacamole_id}/?username=${username}&password=${password}`
+	location.href = `http://${hostName}:${port}/guacamole/#/client/${guacamole_id}/?username=${username}&password=${password}`
 }
 
 // var1 - OS Type [ Linux or Windows ]
