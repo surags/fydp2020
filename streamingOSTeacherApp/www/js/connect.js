@@ -1,21 +1,7 @@
 (function ($) {
 	$(window).on('load', function () {
-
-		/* Page Loader active
-		========================================================*/
-		$('#preloader').fadeOut();
-
-		$('[data-toggle="tooltip"]').tooltip();
-
-		$('[data-toggle="popover"]').popover();
-		$("#footer").load("footer.html");
-		$("#navBar").load("navBar.html");
-		$("#header").load("header.html");
-
 		availableVM();
-
 	});
-
 }(jQuery));
 
 var IPAddr = 'http://40.117.173.75:9090';
@@ -45,7 +31,7 @@ function guacamoleConnect(port, guacamole_id, vm_type) {
         password = "@FYDPWindowsServer2020"
     }
 
-	window.location.href= `http://${hostName}:${port}/guacamole/#/client/${guacamole_id}/?username=${username}&password=${password}`
+	document.getElementById("actualContentIframe").src = `http://${hostName}:${port}/guacamole/#/client/${guacamole_id}/?username=${username}&password=${password}`
 }
 
 // var1 - OS Type [ Linux or Windows ]

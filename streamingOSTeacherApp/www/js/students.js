@@ -1,23 +1,9 @@
-
 (function($) {
     $(window).on('load', function() {
-
-      /* Page Loader active
-      ========================================================*/
-      $('#preloader').fadeOut();
-
-      $('[data-toggle="tooltip"]').tooltip();
-
-      $('[data-toggle="popover"]').popover();
-      $("#footer").load("footer.html");
-      $("#navBar").load("navBar.html");
-      $("#header").load("header.html");
-
       getSessionInformation();
       setInterval(getSessionInformation, 5000);
     });
-
-  }(jQuery));
+}(jQuery));
 
   var applicationList = [];
   var applicationId = [];

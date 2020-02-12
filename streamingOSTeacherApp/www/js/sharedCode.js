@@ -3,12 +3,26 @@
 
 		/* Page Loader active
 		========================================================*/
-
+		$("#footer").load("footer.html");
+		$("#navBar").load("navBar.html");
+		$("#header").load("header.html");
+			
 		populateOtherLogisticalData();
 	});
 
 }(jQuery));
 
+function home(){
+	document.getElementById("actualContentIframe").src = "home.html";
+}
+
+function students(){
+	document.getElementById("actualContentIframe").src = "students.html";
+}
+
+function connect(){
+	document.getElementById("actualContentIframe").src = "connect.html";
+}
 function logout(){
 	$.ajax({
 	  url: sessionStorage.getItem("IPAddr") + '/routes/delete/' + window.localStorage.getItem('userid'),
