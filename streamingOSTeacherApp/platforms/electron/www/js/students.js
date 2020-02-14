@@ -138,7 +138,7 @@
       img.id = "StudentImage" + studentID;
       img.style = "position:relative; width: 350px; height: 175px;";
       img.addEventListener("click", function() {
-        overlay.style = "visibility: visible;";
+        overlay.style = "visibility: visible; position: absolute; background-color: black; top: 0px; left:0px; opacity:0.5; width: 100%; height: 100%;";
         // TODO: Enlarge image
       });
       document.getElementById(studentScreenID).appendChild(section).appendChild(img);
@@ -151,7 +151,7 @@
 
         // Create X image
         var closeX = document.createElement('img');
-        closeX.style = "position: absolute; top: 8px; left: 16px; width: 32px; height: 32px;";
+        closeX.style = "position: absolute; top: 8px; left: 16px; width: 32px; height: 32px; z-index: 1";
         closeX.src = "img/close.png";
         closeX.addEventListener("click", function() {
           overlay.style = "visibility: hidden;";
@@ -161,7 +161,7 @@
 
         // Create disconnect image
         var disconnect = document.createElement('img');
-        disconnect.style = "position: absolute; top: 8px; right: 16px; width: 32px; height: 32px;";
+        disconnect.style = "position: absolute; top: 8px; right: 16px; width: 32px; height: 32px; z-index: 1";
         disconnect.src = "img/disconnect.png";
         disconnect.addEventListener("click", function() {
           //TODO: Call destroy routes
@@ -184,7 +184,7 @@
         
         // Create connect image
         var streamLink = document.createElement('img');
-        streamLink.style = "position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 64px; height: 64px;";
+        streamLink.style = "position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 64px; height: 64px; z-index: 1";
         streamLink.src = "img/stream.png";
         streamLink.addEventListener("click", function() {
           var clientIpAddress = '129.97.124.75';
