@@ -9,6 +9,8 @@ from bottle import response, request
 from bottle import post, get, put, delete
 from src.model import base_model
 
+import json
+
 
 router = router.factory.get_router()
 authentication_helper = authentication_helper.Factory().get_authentication_helper()
@@ -16,6 +18,7 @@ user_helper = user_helper.Factory().get_user_helper()
 container_helper = container_helper.ContainerHelper()
 db = base_model.db
 broadcast = None
+message = None
 
 # A test call to determine if the API is working
 @get('/test')
@@ -95,7 +98,7 @@ def broadcast_session(user_id):
 # Stop broadcast of the teacher session
 @put('/broadcast/stop')
 @app.auth.verify_request(scopes=['teacherStreamingOS'])
-def broadcast_session():
+def stop_broadcast_session():
     global broadcast
     broadcast = None
     router.health_check(enable=True)
