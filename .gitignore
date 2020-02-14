@@ -10,6 +10,8 @@ TeacherElectronApp/node_modules/
 # Cordova Global
 plugins/
 
+platforms/electron/
+
 # iOS Platform
 platforms/ios/build/
 platforms/ios/www/
@@ -17,6 +19,7 @@ platforms/ios/cordova/console.log
 *.xcuserdatad
 
 # Android Platform
+platforms/android/
 platforms/android/.gradle
 platforms/android/build
 platforms/android/assets/www
