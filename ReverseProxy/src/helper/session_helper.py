@@ -22,6 +22,15 @@ class SessionHelper:
 
     def get_session_for_user(self, user_id):
         return self.session_info_map[user_id]
+    
+    def get_all_destination_ip(self):
+        userIds = list(self.session_info_map.keys())
+        destination_ip = list()
+
+        for key in userIds:
+            destination_ip.append(self.session_info_map[key].destination_ip)
+        
+        return destination_ip
 
     def get_all_sessions_that_exist(self):
         userIds = list(self.session_info_map.keys())

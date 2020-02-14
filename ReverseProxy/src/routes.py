@@ -79,44 +79,99 @@ def get_screen_snapshot(user_id):
 
 
 # Broadcast teacher session
-# addr: IP Address of VNC Server
-# port: VNC Server Port number
-@put('/broadcast/<addr>/<port>')
+# user_id: User ID of the teacher broadcasting
+@put('/broadcast/<user_id>')
 @app.auth.verify_request(scopes=['teacherStreamingOS'])
-def broadcast_session(addr, port):
-    broadcast = addr + ":" + port
+def broadcast_session(user_id):
+    global broadcast
+    # Disable health check cleanup
+    router.health_check(enable=False)
+    container_helper.health_check(enable=False)
+    broadcast = dict()
+    broadcast["broadcast_id"] = user_id
     response.status = 200
-    return response
 
 
 # Stop broadcast of the teacher session
-# class_id: Class to broadcast session to
-@put('/broadcast_stop')
+@put('/broadcast/stop')
 @app.auth.verify_request(scopes=['teacherStreamingOS'])
 def broadcast_session():
+    global broadcast
     broadcast = None
+    router.health_check(enable=True)
+    container_helper.health_check(enable=True)
     response.status = 200
-    return response
+
+
+# Notify students with a message
+@put('/broadcast/message/<data>')
+@app.auth.verify_request(scopes=['teacherStreamingOS'])
+def message_clients(data):
+    global message
+    message = data
+    # TODO Add code to verify send to all connected clients
+    response.status = 200
 
 
 # Subscribe to Broadcast Event Stream
 @get('/subscribe')
 @app.auth.verify_request(scopes=['studentTeacherStreamingOS'])
 def subscribe():
+    global broadcast
     response.content_type  = 'text/event-stream'
     response.cache_control = 'no-cache'
 
     # Set client-side auto-reconnect timeout, ms.
     yield 'retry: 100\n\n'
 
+    event_broadcast = {"eventType": "Broadcast", "broadcast_id": None}
+    event_message = {"eventType": "Message", "data": None}
+
     # Keep client subscribed indefinitely
     while True:
-        # Poll broadcast string
+        events_values = list()
+        events_json = dict()
+
+        # Add broadcast information
         if broadcast is not None:
-            yield "data: {}\n\n".format(broadcast)
-        else:
-            yield "data: \n\n"
-        sleep(10)
+            event_broadcast["broadcast_id"] = broadcast["broadcast_id"]
+            events_values.append(event_broadcast)
+
+        # Add messages
+        if message is not None:
+            event_message["data"] = message
+            events_values.append(event_message)
+
+        # Send events to subscribed clients
+        events_json["events"] = events_values
+        yield "data: {}\n\n".format(json.dumps(events_json))
+
+
+# Setup routes for the user.
+# client_ip: Should be the public ipv4 of the client
+# os_type: Should be either 'Windows' or 'Linux'
+# user_id: The unique identifier for the user
+@get('/setup/stream/<user_id>/<client_ip>/<broadcast_id>')
+@app.auth.verify_request(scopes=['studentTeacherStreamingOS'])
+def setup_stream(user_id, client_ip, broadcast_id):
+    return router.setup_stream_routes(user_id, client_ip, str(broadcast_id))
+
+
+# Stop broadcast streaming and restore user session stream
+@get('/restore/stream/<user_id>/<client_ip>/<source_port>/<broadcast_id>')
+@app.auth.verify_request(scopes=['studentTeacherStreamingOS'])
+def restore_stream(user_id, client_ip, source_port, broadcast_id):
+    # cleanup broadcast routes
+    router.delete_stream_routes(client_ip, source_port, broadcast_id)
+    
+    current_session = router.get_session(user_id)
+    # Check if a current session exists
+    if current_session is not None:
+        # All user data should exist in session helper
+        response.body = json.dumps({'routes': current_session})
+        response.status = 200 
+    else:
+        response.status = 204
 
 
 # Get info about a user

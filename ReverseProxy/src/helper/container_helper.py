@@ -25,6 +25,16 @@ class ContainerHelper:
         url = 'http://{0}:9090/user/remove'.format(user_session.destination_ip)
         requests.post(url)
 
+    def health_check(self, enable):
+        user_sessions = session_helper.get_all_destination_ip()
+        print(user_sessions)
+        for session in user_sessions:
+            if enable is True:
+                url = 'http://{0}:9090/health/enable'.format(session)
+            else:
+                url = 'http://{0}:9090/health/disable'.format(session)
+            requests.post(url)
+
     @db.connection_context()
     def available_vm_list(self):
         availablevm = (OSContainer.select(OSContainer.os_type.alias('os_type'), peewee.fn.COUNT('*').alias('count')).where(
