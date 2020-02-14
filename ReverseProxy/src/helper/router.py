@@ -23,6 +23,7 @@ class Router:
 
     def __init__(self):
         self.reverse_proxy_ip = ""
+        self.health_check = True
         if uwsgi.opt["is_azure"].decode("utf-8") == "False":
             process = subprocess.Popen("grep \"$HOSTNAME\" /etc/hosts|awk '{print $1}'", stdout=subprocess.PIPE,
                                        shell=True)
@@ -47,6 +48,9 @@ class Router:
     def set_container_unavailable(self, ip_address):
         (os_container.OSContainer
          .set_by_id(ip_address, {'is_running': False}))
+
+    def set_health_check(self, enable):
+        self.health_check = enable
 
     @db.connection_context()
     def get_free_container(self, os_type):
@@ -113,9 +117,9 @@ class Router:
                 data['source_port'] = source_port
                 data['guacamole_id'] = container.guacamole_stream_id
                 self.setup_user_in_container(user_id, container.ip_address, width, height)
-                health_check = threading.Thread(name='os_container_health_check', target=self.os_container_health_check,
+                health_check_thread = threading.Thread(name='os_container_health_check', target=self.os_container_health_check,
                                                 args=(container.ip_address,))
-                health_check.start()
+                health_check_thread.start()
             else:
                 if session_helper.session_info_map[user_id].os_type != os_type:
                     container_helper.cleanup_user_session(user_id)
@@ -147,30 +151,99 @@ class Router:
             del session_helper.session_info_map[user_id]
         return json.dumps({'success': 'Deleted routes for user_id ' + str(user_id)})
 
+    # Get the existing user session if one exists
+    def get_session(self, user_id):
+        if user_id in session_helper.session_info_map:
+            current_session = dict()
+            current_session['guacamole_stream_id'] = session_helper.session_info_map[user_id].guacamole_stream_id
+            current_session['source_port'] = session_helper.session_info_map[user_id].source_port
+            return current_session
+        else:
+            return None
+
+    # Setup routes to allow clients to stream broadcast content
+    def setup_stream_routes(self, user_id, client_ip, broadcast_id):
+        try:  
+            # Do not update the session info map to retain the previous connection
+            print("Setup stream routes")
+            data = {}
+            
+            # Query session info map for broadcast session
+            if broadcast_id in session_helper.session_info_map:
+                print("Found session")
+                # Get broadcast container IP
+                container_ip = session_helper.session_info_map[broadcast_id].destination_ip
+                
+                # Get new source_port
+                source_port = session_helper.get_free_port()
+                destination_port = "6080"
+
+                iptables_rules = self.build_iptable_rules_setup(client_ip, container_ip, source_port, destination_port)
+                process = subprocess.Popen(iptables_rules, stdout=subprocess.PIPE, shell=True)
+                process.communicate()[0].strip()
+                print("Built IP tables done")
+
+                data['source_port'] = str(source_port)
+                data['guacamole_id'] = str(session_helper.session_info_map[broadcast_id].guacamole_view_only_id)
+                data['os_type'] = session_helper.session_info_map[broadcast_id].os_type
+
+                print("Broadcasting " + str(container_ip) + ":6080 to " + str(client_ip) + " at :" + str(source_port))
+                response.body = json.dumps({'routes': data})
+                response.status = 200
+            
+            else:
+                response.body = json.dumps({'error': "The broadcast session does not exist"})
+                response.status = 500
+
+        except Exception as e:
+            response.body = json.dumps({'error': str(e)})
+            response.status = 500
+
+        finally:
+            return response
+
+    # Delete the temporarily created stream routes
+    def delete_stream_routes(self, user_id, client_ip, source_port, broadcast_id):
+        json_resp = dict()
+        try:
+            destination_port = "6080"
+            # Get broadcast IP from session_info_map
+            broadcast_ip = session_helper.session_info_map[broadcast_id].destination_ip
+            iptables_rules = self.build_iptable_rules_setup_delete(client_ip, broadcast_ip, source_port, destination_port)
+            process = subprocess.Popen(iptables_rules, stdout=subprocess.PIPE, shell=True)
+            process.communicate()[0].strip()
+            session_helper.add_to_port_queue(session_helper.session_info_map[user_id].source_port)
+            json_resp["success"] = 'Deleted temp routes for user_id ' + str(user_id)
+        except Exception as e:
+            json_resp["error"] = "An unexpected error occured: " + str(e)
+        finally:
+            return json.dumps(json_resp)
+
     def setup_user_in_container(self, user_id, os_container_ip, width, height):
         url = 'http://{0}:9090/user/setup/{1}/{2}/{3}'.format(os_container_ip, user_id, width, height)
         requests.post(url)
 
     def os_container_health_check(self, os_container_ip):
         while True:
-            url = "http://{0}:9090/health/check".format(os_container_ip)
-            health_response = requests.get(url)
-            if health_response.status_code != 200:
-                self.set_container_unavailable(os_container_ip)
-                # TODO: Delete routes for user connected to that failed container
-                break
-            else:
-                health_response_json = health_response.json()
-                print(health_response_json)
-                if health_response_json['is_free'] and health_response_json['user_id'] and \
-                        session_helper.session_info_map[health_response_json['user_id']]:
-                    if session_helper.session_info_map[
-                        health_response_json['user_id']].destination_ip == os_container_ip:
-                        container_helper.cleanup_user_session(health_response_json['user_id'])
-                        self.delete_iptable_rules(health_response_json['user_id'])
+            if self.health_check is True:
+                url = "http://{0}:9090/health/check".format(os_container_ip)
+                health_response = requests.get(url)
+                if health_response.status_code != 200:
+                    self.set_container_unavailable(os_container_ip)
+                    # TODO: Delete routes for user connected to that failed container
                     break
-                elif health_response_json['is_free'] and not health_response_json['user_id']:
-                    break
+                else:
+                    health_response_json = health_response.json()
+                    print(health_response_json)
+                    if health_response_json['is_free'] and health_response_json['user_id'] and \
+                            session_helper.session_info_map[health_response_json['user_id']]:
+                        if session_helper.session_info_map[
+                            health_response_json['user_id']].destination_ip == os_container_ip:
+                            container_helper.cleanup_user_session(health_response_json['user_id'])
+                            self.delete_iptable_rules(health_response_json['user_id'])
+                        break
+                    elif health_response_json['is_free'] and not health_response_json['user_id']:
+                        break
             # Make thread sleep for 30 seconds
             sleep(30)
 
