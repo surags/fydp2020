@@ -42,6 +42,8 @@ function logout(){
 	  data: window.localStorage.getItem('oauth_token'),
 	  success: function(response) {
 		  console.log("Logged out");
+		  // Clear session storage
+		  localStorage.clear();
 		  window.location.href = "login.html";
 	  },
 	  error: function(xhr){
