@@ -184,3 +184,22 @@ function iframeConnect(port, guacamole_id, vm_type) {
   frameElement.src = `http://${hostName}:${port}/guacamole/#/client/${guacamole_id}/?username=${username}&password=${password}`
 	// location.href = `http://${hostName}:${port}/guacamole/#/client/${guacamole_id}/?username=${username}&password=${password}`
 }
+
+function startBroadcast() {
+	var IPAddr = sessionStorage.getItem("IPAddr");
+	var teacherID = window.localStorage.getItem('userid');
+	$.ajax({
+		url: IPAddr + '/broadcast/' + teacherID,
+		type: 'GET',
+		crossDomain: true,
+		data: window.localStorage.getItem('oauth_token'),
+		success: function(response) {
+			// Do nothing
+		},
+		error: function(xhr){
+			console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
+			alert('Error: Failed to start teacher broadcast');
+		}
+		});
+
+}
