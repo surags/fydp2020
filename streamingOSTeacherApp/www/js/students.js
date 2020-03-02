@@ -1,257 +1,257 @@
-(function($) {
-    $(window).on('load', function() {
-      getSessionInformation();
-      setInterval(getSessionInformation, 5000);
-    });
+(function ($) {
+  $(window).on('load', function () {
+    getSessionInformation();
+    setInterval(getSessionInformation, 5000);
+  });
 }(jQuery));
 
-  var applicationList = [];
-  var applicationId = [];
-  var studentData = [];
-  var currStudentIndex = 0;
-  var dictionary = {};
-  var startDate = new Date();
-  var endDate;
+var applicationList = [];
+var applicationId = [];
+var studentData = [];
+var currStudentIndex = 0;
+var dictionary = {};
+var startDate = new Date();
+var endDate;
 
-  var IPAddr = 'http://40.117.173.75:9090';
-  //var IPAddr = 'http://rp:9090'; //Vidit Changes
+var IPAddr = 'http://40.117.173.75:9090';
+//var IPAddr = 'http://rp:9090'; //Vidit Changes
 
-  var oauth_token = window.localStorage.getItem('oauth_token');
+var oauth_token = window.localStorage.getItem('oauth_token');
 
-  function studentNameChange(){
-      currStudentIndex = getStudentIndexfromUserId();
-      updateStatusTable();
-  }
+function studentNameChange() {
+  currStudentIndex = getStudentIndexfromUserId();
+  updateStatusTable();
+}
 
-  function applicationNameChange(){
-      toggleButtons();
-  }
+function applicationNameChange() {
+  toggleButtons();
+}
 
-  async function getSessionInformation(){
-    $.ajax({
-        url: IPAddr + '/sessions',
-        // Sample output: {"users_with_sessions": ["6"]}
-        type: 'GET',
-        crossDomain: true,
-        data:oauth_token,
-        success: function(responseText) {
-          var myData = JSON.parse(responseText);
-          if(myData) {
-              for(var i = 0; i < myData.users_with_sessions.length; i++){
-              var studentID = parseInt(myData.users_with_sessions[i].userID);
-              var firstName = myData.users_with_sessions[i].first_name;
-              var lastName = myData.users_with_sessions[i].last_name;
-              var studentInfoContainerID = "SingleStudent" + studentID;
-              // Add a new container if one with this student ID doesn't exist
-              if(!document.getElementById(studentInfoContainerID)) {
-                var studentScreen = document.createElement('div');
-                studentScreen.style = 'padding: 20px; display: inline-block;';
-                studentScreen.id = studentInfoContainerID;
-                document.getElementById('student-screens-container').appendChild(studentScreen);
-                dictionary[studentID] = studentScreen;
-              }
-              populateScreenshots(studentID, studentInfoContainerID);
-              populateStudentInformation(studentID, firstName, lastName, studentInfoContainerID);
-            }
+async function getSessionInformation() {
+  $.ajax({
+    url: IPAddr + '/sessions',
+    // Sample output: {"users_with_sessions": ["6"]}
+    type: 'GET',
+    crossDomain: true,
+    data: oauth_token,
+    success: function (responseText) {
+      var myData = JSON.parse(responseText);
+      if (myData) {
+        for (var i = 0; i < myData.users_with_sessions.length; i++) {
+          var studentID = parseInt(myData.users_with_sessions[i].userID);
+          var firstName = myData.users_with_sessions[i].first_name;
+          var lastName = myData.users_with_sessions[i].last_name;
+          var studentInfoContainerID = "SingleStudent" + studentID;
+          // Add a new container if one with this student ID doesn't exist
+          if (!document.getElementById(studentInfoContainerID)) {
+            var studentScreen = document.createElement('div');
+            studentScreen.style = 'padding: 20px; display: inline-block;';
+            studentScreen.id = studentInfoContainerID;
+            document.getElementById('student-screens-container').appendChild(studentScreen);
+            dictionary[studentID] = studentScreen;
+          }
+          populateScreenshots(studentID, studentInfoContainerID);
+          populateStudentInformation(studentID, firstName, lastName, studentInfoContainerID);
+        }
 
-            if (myData.users_with_sessions.length <= 0 && document.getElementById("NoStudents") == null) {
-              var noStudentsText = document.createElement("span");
-              noStudentsText.innerText = "No Students are currently connected to streamingOS";
-              noStudentsText.setAttribute("id","NoStudents");
-              document.getElementById("student-screens-container").appendChild(noStudentsText);
-            } else if (myData.users_with_sessions.length > 0 && document.getElementById("NoStudents") != null) {
-              document.getElementById("NoStudents").outerHTML = "";
-            }
+        if (myData.users_with_sessions.length <= 0 && document.getElementById("NoStudents") == null) {
+          var noStudentsText = document.createElement("span");
+          noStudentsText.innerText = "No Students are currently connected to streamingOS";
+          noStudentsText.setAttribute("id", "NoStudents");
+          document.getElementById("student-screens-container").appendChild(noStudentsText);
+        } else if (myData.users_with_sessions.length > 0 && document.getElementById("NoStudents") != null) {
+          document.getElementById("NoStudents").outerHTML = "";
+        }
 
-            // Search through all students believed to be active, and verify if they still are
-            // If not, remove them
-            for(var studentKey in dictionary) {
-              var isStillActive = false;
-              for(var i = 0; i < myData.users_with_sessions.length; i++){
-                if (myData.users_with_sessions[i].userID == studentKey) {
-                  isStillActive = true;
-                  break;
-                }
-              }
-
-              if (!isStillActive) { // Actually remove the div
-                deleteStudentElement(studentKey);
-              }
+        // Search through all students believed to be active, and verify if they still are
+        // If not, remove them
+        for (var studentKey in dictionary) {
+          var isStillActive = false;
+          for (var i = 0; i < myData.users_with_sessions.length; i++) {
+            if (myData.users_with_sessions[i].userID == studentKey) {
+              isStillActive = true;
+              break;
             }
           }
 
-        },
-        error: function(xhr){
-          console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
-          alert('Retrieving student session information failed');
+          if (!isStillActive) { // Actually remove the div
+            deleteStudentElement(studentKey);
+          }
         }
-      });
+      }
 
-  }
-
-  function populateScreenshots(studentID, studentScreenID) {
-    let id = "Image" + studentID;
-    if(!document.getElementById(id)){
-      createImageAndOverlayDivs(id,studentID, studentScreenID);
+    },
+    error: function (xhr) {
+      console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
+      alert('Retrieving student session information failed');
     }
-    var img = document.getElementById("StudentImage" + studentID);
-    img.src = IPAddr + '/user/' + studentID + '/screen/snapshot?rand=' + Math.random();
+  });
 
-    // Test image update time
-    /*endDate = new Date();
-    var seconds = (endDate.getTime() - startDate.getTime()) / 1000;
-    var testTime = document.createElement("span");
-    testTime.innerText = "Difference in s: " + seconds;
-    
-    testTime.setAttribute("id","StudentName" + studentID);
-    document.getElementById(studentScreenID).appendChild(testTime);
-    startDate = endDate; */
-    // img.src = "https://git.uwaterloo.ca/uploads/-/system/user/avatar/2957/avatar.png";
+}
+
+function populateScreenshots(studentID, studentScreenID) {
+  let id = "Image" + studentID;
+  if (!document.getElementById(id)) {
+    createImageAndOverlayDivs(id, studentID, studentScreenID);
   }
+  var img = document.getElementById("StudentImage" + studentID);
+  img.src = IPAddr + '/user/' + studentID + '/screen/snapshot?rand=' + Math.random();
 
-  function populateStudentInformation(studentID, firstName, lastName, studentScreenID) {
-    let id = "NameDiv" + studentID;
-    if(!document.getElementById("StudentName" + studentID)){
-      // Section is the container for the name element
-      var section = document.createElement('div');
-      section.id = id;
+  // Test image update time
+  /*endDate = new Date();
+  var seconds = (endDate.getTime() - startDate.getTime()) / 1000;
+  var testTime = document.createElement("span");
+  testTime.innerText = "Difference in s: " + seconds;
+  
+  testTime.setAttribute("id","StudentName" + studentID);
+  document.getElementById(studentScreenID).appendChild(testTime);
+  startDate = endDate; */
+  // img.src = "https://git.uwaterloo.ca/uploads/-/system/user/avatar/2957/avatar.png";
+}
 
-      var studentName= document.createElement("span");
-      studentName.innerText = firstName + " " + lastName;
-      studentName.setAttribute("id","StudentName" + studentID);
-      document.getElementById(studentScreenID).appendChild(section).appendChild(studentName);
-    }
-  }
-
-  /** For a student who just signed in, create HTML elements for the 
-   *  "section", which contains the image itself and the overlay div.
-   *  The overlay div contains the three icons used for overlaying   
-  **/
-  function createImageAndOverlayDivs(id, studentID, studentScreenID) {
-    // Section is the container for only the image and the overlay
+function populateStudentInformation(studentID, firstName, lastName, studentScreenID) {
+  let id = "NameDiv" + studentID;
+  if (!document.getElementById("StudentName" + studentID)) {
+    // Section is the container for the name element
     var section = document.createElement('div');
-    section.style = "position:relative; width: 350px; height: 175px;";
     section.id = id;
 
-      // Create new image
-      var img = document.createElement('img');
-      img.id = "StudentImage" + studentID;
-      img.style = "position:relative; width: 350px; height: 175px;";
-      img.addEventListener("click", function() {
-        overlay.style = "visibility: visible; position: absolute; background-color: black; top: 0px; left:0px; opacity:0.5; width: 100%; height: 100%;";
-        // TODO: Enlarge image
-      });
-      document.getElementById(studentScreenID).appendChild(section).appendChild(img);
-
-      // Create overlay
-      var overlay = document.createElement('div');
-      overlay.id = "Overlay" + studentID;
-      overlay.style = "visibility: hidden;";
-      document.getElementById(section.id).appendChild(overlay);
-
-        // Create X image
-        var closeX = document.createElement('img');
-        closeX.style = "position: absolute; top: 8px; left: 16px; width: 32px; height: 32px; z-index: 1";
-        closeX.src = "img/close.png";
-        closeX.addEventListener("click", function() {
-          overlay.style = "visibility: hidden;";
-          //TODO: Shrink image to normal size
-        });
-        document.getElementById(overlay.id).appendChild(closeX);
-
-        // Create disconnect image
-        var disconnect = document.createElement('img');
-        disconnect.style = "position: absolute; top: 8px; right: 16px; width: 32px; height: 32px; z-index: 1";
-        disconnect.src = "img/disconnect.png";
-        disconnect.addEventListener("click", function() {
-          //TODO: Call destroy routes
-          $.ajax({
-            url: IPAddr + '/routes/delete/' + studentID,
-            type: 'GET',
-            crossDomain: true,
-            data:oauth_token,
-            success: function(response) {
-              deleteStudentElement(studentID);
-            },
-            error: function(xhr){
-              console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
-              alert('Error: Failed to retrieve student stream');
-            }
-          });
-        });
-        document.getElementById(overlay.id).appendChild(disconnect);
-        
-        
-        // Create connect image
-        var streamLink = document.createElement('img');
-        streamLink.style = "position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 64px; height: 64px; z-index: 1";
-        streamLink.src = "img/stream.png";
-        streamLink.addEventListener("click", function() {
-          var clientIpAddress = '129.97.124.75';
-          var teacherID = window.localStorage.getItem('userid');
-          $.ajax({
-            url: IPAddr + '/setup/stream/' + teacherID + '/' + clientIpAddress + '/' + studentID,
-            type: 'GET',
-            crossDomain: true,
-            data:oauth_token,
-            success: function(response) {
-              var obj = JSON.parse(response);
-              guacamoleConnectViewOnly(obj.routes.source_port, obj.routes.guacamole_id, obj.routes.os_type);
-            },
-            error: function(xhr){
-              console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
-              alert('Error: Failed to retrieve student stream');
-            }
-          });
-    
-
-        });
-        document.getElementById(overlay.id).appendChild(streamLink);
+    var studentName = document.createElement("span");
+    studentName.innerText = firstName + " " + lastName;
+    studentName.setAttribute("id", "StudentName" + studentID);
+    document.getElementById(studentScreenID).appendChild(section).appendChild(studentName);
   }
+}
 
-  function getStudentIndexfromUserId(){
-      index = 0;
-      for(var i = 0; i < studentData.length; i++){
-          if(studentData[i].studentId === parseInt(document.getElementById("studentDropdown").value)){
-              index = i;
-          }
+/** For a student who just signed in, create HTML elements for the 
+ *  "section", which contains the image itself and the overlay div.
+ *  The overlay div contains the three icons used for overlaying   
+**/
+function createImageAndOverlayDivs(id, studentID, studentScreenID) {
+  // Section is the container for only the image and the overlay
+  var section = document.createElement('div');
+  section.style = "position:relative; width: 350px; height: 175px;";
+  section.id = id;
+
+  // Create new image
+  var img = document.createElement('img');
+  img.id = "StudentImage" + studentID;
+  img.style = "position:relative; width: 350px; height: 175px;";
+  img.addEventListener("click", function () {
+    overlay.style = "visibility: visible; position: absolute; background-color: black; top: 0px; left:0px; opacity:0.5; width: 100%; height: 100%;";
+    // TODO: Enlarge image
+  });
+  document.getElementById(studentScreenID).appendChild(section).appendChild(img);
+
+  // Create overlay
+  var overlay = document.createElement('div');
+  overlay.id = "Overlay" + studentID;
+  overlay.style = "visibility: hidden;";
+  document.getElementById(section.id).appendChild(overlay);
+
+  // Create X image
+  var closeX = document.createElement('img');
+  closeX.style = "position: absolute; top: 8px; left: 16px; width: 32px; height: 32px; z-index: 1";
+  closeX.src = "img/close.png";
+  closeX.addEventListener("click", function () {
+    overlay.style = "visibility: hidden;";
+    //TODO: Shrink image to normal size
+  });
+  document.getElementById(overlay.id).appendChild(closeX);
+
+  // Create disconnect image
+  var disconnect = document.createElement('img');
+  disconnect.style = "position: absolute; top: 8px; right: 16px; width: 32px; height: 32px; z-index: 1";
+  disconnect.src = "img/disconnect.png";
+  disconnect.addEventListener("click", function () {
+    //TODO: Call destroy routes
+    $.ajax({
+      url: IPAddr + '/routes/delete/' + studentID,
+      type: 'GET',
+      crossDomain: true,
+      data: oauth_token,
+      success: function (response) {
+        deleteStudentElement(studentID);
+      },
+      error: function (xhr) {
+        console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
+        alert('Error: Failed to retrieve student stream');
       }
+    });
+  });
+  document.getElementById(overlay.id).appendChild(disconnect);
 
-      return index;
-  }
 
-
-
-  function returnSuccessString(isGrant){
-      var myStr = "Successfully revoked application access.";
-
-      if(isGrant){
-          myStr = myStr.replace("revoked","granted");
-          return myStr;
+  // Create connect image
+  var streamLink = document.createElement('img');
+  streamLink.style = "position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 64px; height: 64px; z-index: 1";
+  streamLink.src = "img/stream.png";
+  streamLink.addEventListener("click", function () {
+    var clientIpAddress = '129.97.124.75';
+    var teacherID = window.localStorage.getItem('userid');
+    $.ajax({
+      url: IPAddr + '/setup/stream/' + teacherID + '/' + clientIpAddress + '/' + studentID,
+      type: 'GET',
+      crossDomain: true,
+      data: oauth_token,
+      success: function (response) {
+        var obj = JSON.parse(response);
+        guacamoleConnectViewOnly(obj.routes.source_port, obj.routes.guacamole_id, obj.routes.os_type);
+      },
+      error: function (xhr) {
+        console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
+        alert('Error: Failed to retrieve student stream');
       }
+    });
 
-      return myStr;
+
+  });
+  document.getElementById(overlay.id).appendChild(streamLink);
+}
+
+function getStudentIndexfromUserId() {
+  index = 0;
+  for (var i = 0; i < studentData.length; i++) {
+    if (studentData[i].studentId === parseInt(document.getElementById("studentDropdown").value)) {
+      index = i;
+    }
   }
 
-  function deleteStudentElement(studentID) {
-    var studentDiv = dictionary[studentID];
-    document.getElementById(studentDiv.id).outerHTML = "";
-    delete dictionary[studentID];
+  return index;
+}
+
+
+
+function returnSuccessString(isGrant) {
+  var myStr = "Successfully revoked application access.";
+
+  if (isGrant) {
+    myStr = myStr.replace("revoked", "granted");
+    return myStr;
   }
 
-  function guacamoleConnectViewOnly(port, guacamole_id, vm_type) {
-    var username = ""
-    var password = ""
-	  var hostName = '40.117.173.75';
+  return myStr;
+}
 
-    if (vm_type == 'Linux') {
-        username = "root"
-        password = "password"
-    }
-    else {
-        username = "fydp-root"
-        password = "@FYDPWindowsServer2020"
-    }
+function deleteStudentElement(studentID) {
+  var studentDiv = dictionary[studentID];
+  document.getElementById(studentDiv.id).outerHTML = "";
+  delete dictionary[studentID];
+}
 
-	location.href = `http://${hostName}:${port}/guacamole/#/client/${guacamole_id}/?username=${username}&password=${password}`
+function guacamoleConnectViewOnly(port, guacamole_id, vm_type) {
+  var username = ""
+  var password = ""
+  var hostName = '40.117.173.75';
+
+  if (vm_type == 'Linux') {
+    username = "root"
+    password = "password"
+  }
+  else {
+    username = "fydp-root"
+    password = "@FYDPWindowsServer2020"
+  }
+
+  location.href = `http://${hostName}:${port}/guacamole/#/client/${guacamole_id}/?username=${username}&password=${password}`
 }
