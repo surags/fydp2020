@@ -35,6 +35,18 @@ class UserHelper:
         return response
 
     @db.connection_context()
+    def user_scope(self, username):
+        try:
+            query = Users.select(Users.user_type).where(Users.user_name == username).dicts()
+            response.body = json.dumps({'user': list(query)}, default=response_format_helper.to_serializable)
+            response.status = 200
+        except Exception as e:
+            print(e)
+            response.body = "Error: User does not exist"
+            response.status = 400
+        return response
+
+    @db.connection_context()
     def student_list(self, school_id):
         query = Users.select(Users.user_id, Users.user_name, Users.first_name, Users.last_name).where(
             Users.user_type == "Student" and Users.school_id == school_id).dicts()

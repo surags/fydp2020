@@ -47,11 +47,6 @@ function connectVM(vm_type) {
 			// Go to the logout page
 			//window.location.href = "logout.html";
 			var obj = JSON.parse(response);
-			// var isTeacher = true; // TODO: Get the user scope from local storage 
-			// if (isTeacher) {
-			// 	var broadcastButton = document.getElementById("broadcastButton");
-			// 	broadcastButton.style = "visibility: visible;";
-			// } 
 			guacamoleConnect(obj.routes.source_port, obj.routes.guacamole_id, vm_type);
 		},
 		error: function (xhr) {

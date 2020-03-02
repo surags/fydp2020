@@ -36,6 +36,11 @@ function connect(){
 	sideNavClose();
 	document.getElementById("footer").style = "z-index:-1;";
 	document.getElementById("actualContentIframe").src = "connect.html";
+	var isTeacher = true; // TODO: Get the user scope from local storage 
+	if (isTeacher) {
+		var broadcastButton = document.getElementById("broadcastButton");
+		broadcastButton.style.visibility = 'visible';
+	} 
 }
 
 function logout(){

@@ -185,6 +185,13 @@ def user_info(username):
     return user_helper.user_info(username)
 
 
+# Get info about a user
+# username: The unique username for the user
+@get('/user/<username>/scope')
+def user_scope(username):
+    return user_helper.user_scope(username)
+
+
 # Get a list of all the students in the school specified
 # school_id: The unique identifier for the school
 @get('/school/<school_id>/studentlist')
@@ -267,5 +274,6 @@ def auth_user(username, password):
 # Get a list of all the students in the school specified
 # school_id: The unique identifier for the school
 @get('/availableVM')
+@app.auth.verify_request(scopes=['studentTeacherStreamingOS'])
 def available_vm_list():
     return container_helper.available_vm_list()
