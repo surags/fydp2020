@@ -99,37 +99,45 @@ function populateOtherLogisticalData(){
 function setupEventStream(){
 	access_token = "?" + window.localStorage.getItem('oauth_token');
 	const evtSource = new EventSource(sessionStorage.getItem("IPAddr") + '/subscribe' + access_token);
-	var studentID = window.localStorage.getItem('userid');
 	// Server-Sent Event handler
 	evtSource.onmessage = function(event) {
+		var studentID = window.localStorage.getItem('userid');
 		const eventData = JSON.parse(event.data);
 		var clientIpAddress = '129.97.124.75';
 
 		var broadcastEvent = false;
 		for(var i = 0; i < eventData.events.length; i++) {
 			current_event = eventData.events[i]
-
+			console.log(current_event);
 			if(current_event.eventType == "Message"){
 				// TODO: Do something useful
 			} else if (current_event.eventType == "Broadcast"){
 				// TODO: Get rid of the hardcoded IP address
-				window.localStorage.setItem('broadcast_id', current_event.broadcast_id);
-				$.ajax({
-					url: sessionStorage.getItem("IPAddr") + '/setup/stream/' + current_event.broadcast_id + '/' + clientIpAddress + '/' + studentID,
-					type: 'GET',
-					crossDomain: true,
-					data: window.localStorage.getItem('oauth_token'),
-					success: function(response) {
-            var res = JSON.parse(response);
-            window.localStorage.setItem('broadcast_port', res.routes.port);
-						iframeConnect(res.routes.port, res.routes.guacomole_id, res.routes.os_type);
-						window.localStorage.setItem('isConnectCalled', true);
-						broadcastEvent = true;
-					},
-					error: function(xhr){
-						console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
-					}
-				});	
+				if(window.localStorage.getItem(broadcast_id) == null) {
+					if(current_event.broadcast_id == studentID)
+						continue;
+
+					window.localStorage.setItem('broadcast_id', current_event.broadcast_id);
+					$.ajax({
+						url: sessionStorage.getItem("IPAddr") + '/setup/stream/' + studentID + '/' + clientIpAddress + '/' + current_event.broadcast_id,
+						type: 'GET',
+						crossDomain: true,
+						data: window.localStorage.getItem('oauth_token'),
+						success: function(response) {
+							var res = JSON.parse(response);
+							window.localStorage.setItem('broadcast_port', res.routes.port);
+							iframeConnect(res.routes.port, res.routes.guacomole_id, res.routes.os_type);
+							window.localStorage.setItem('isConnectCalled', true);
+							broadcastEvent = true;
+						},
+						error: function(xhr){
+							console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
+						}
+					});
+				} else {
+					console.log("Broadcasting exists");
+				}
+				broadcastEvent = true;
 			}
 		}
 		
@@ -137,6 +145,7 @@ function setupEventStream(){
 			// broadcast was previously called. Restore session
 			restoreStream();
 			window.localStorage.setItem('isConnectCalled', false);
+			window.localStorage.removeItem('broadcast_id');
 		}
 	}
 
