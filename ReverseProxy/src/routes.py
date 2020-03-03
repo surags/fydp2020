@@ -149,6 +149,8 @@ def subscribe():
         events_json["events"] = events_values
         yield "data: {}\n\n".format(json.dumps(events_json))
 
+        sleep(10)
+
 
 # Setup routes for the user.
 # client_ip: Should be the public ipv4 of the client
