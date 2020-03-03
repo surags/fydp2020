@@ -27,6 +27,12 @@ function home(){
 	document.getElementById("actualContentIframe").src = "home.html";
 }
 
+function messaging() {
+	sideNavClose();
+	document.getElementById("footer").style = "z-index:1; position: absolute; bottom: 0;";
+	document.getElementById("actualContentIframe").src = "messaging.html";
+}
+
 function students(){
 	sideNavClose();
 	document.getElementById("footer").style = "z-index:1; position: absolute; bottom: 0;"

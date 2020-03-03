@@ -27,6 +27,12 @@ function home(){
 	document.getElementById("actualContentIframe").src = "home.html";
 }
 
+function messaging() {
+	sideNavClose();
+	document.getElementById("footer").style = "z-index:1; position: absolute; bottom: 0;";
+	document.getElementById("actualContentIframe").src = "messaging.html";
+}
+
 function students(){
 	sideNavClose();
 	document.getElementById("footer").style = "z-index:1; position: absolute; bottom: 0;"
@@ -100,44 +106,53 @@ function populateOtherLogisticalData(){
 function setupEventStream(){
 	access_token = "?" + window.localStorage.getItem('oauth_token');
 	const evtSource = new EventSource(sessionStorage.getItem("IPAddr") + '/subscribe' + access_token);
-	var studentID = window.localStorage.getItem('userid');
 	// Server-Sent Event handler
 	evtSource.onmessage = function(event) {
+		var studentID = window.localStorage.getItem('userid');
 		const eventData = JSON.parse(event.data);
 		var clientIpAddress = '129.97.124.75';
 
 		var broadcastEvent = false;
 		for(var i = 0; i < eventData.events.length; i++) {
 			current_event = eventData.events[i]
-
+			console.log(current_event);
 			if(current_event.eventType == "Message"){
 				// TODO: Do something useful
 			} else if (current_event.eventType == "Broadcast"){
 				// TODO: Get rid of the hardcoded IP address
-				window.localStorage.setItem('broadcast_id', current_event.broadcast_id);
-				$.ajax({
-					url: sessionStorage.getItem("IPAddr") + '/setup/stream/' + current_event.broadcast_id + '/' + clientIpAddress + '/' + studentID,
-					type: 'GET',
-					crossDomain: true,
-					data: window.localStorage.getItem('oauth_token'),
-					success: function(response) {
-            var res = JSON.parse(response);
-            window.localStorage.setItem('broadcast_port', res.routes.port);
-						iframeConnect(res.routes.port, res.routes.guacomole_id, res.routes.os_type);
-						window.localStorage.setItem('isConnectCalled', true);
-						broadcastEvent = true;
-					},
-					error: function(xhr){
-						console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
-					}
-				});	
+				if(window.localStorage.getItem('broadcast_id') == null) {
+					if(current_event.broadcast_id == studentID)
+						continue;
+
+					window.localStorage.setItem('broadcast_id', current_event.broadcast_id);
+					$.ajax({
+						url: sessionStorage.getItem("IPAddr") + '/setup/stream/' + studentID + '/' + clientIpAddress + '/' + current_event.broadcast_id,
+						type: 'GET',
+						crossDomain: true,
+						data: window.localStorage.getItem('oauth_token'),
+						success: function(response) {
+							var res = JSON.parse(response);
+							window.localStorage.setItem('broadcast_port', res.routes.port);
+							iframeConnect(res.routes.source_port, res.routes.guacamole_id, res.routes.os_type);
+							window.localStorage.setItem('isConnectCalled', true);
+							broadcastEvent = true;
+						},
+						error: function(xhr){
+							console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
+						}
+					});
+				} else {
+					console.log("Broadcasting exists");
+				}
+				broadcastEvent = true;
 			}
 		}
 		
-		if(broadcastEvent == false && window.localStorage.getItem('isConnectCalled') == true){
+		if(broadcastEvent == false && window.localStorage.getItem('isConnectCalled') == true) {
 			// broadcast was previously called. Restore session
 			restoreStream();
 			window.localStorage.setItem('isConnectCalled', false);
+			window.localStorage.removeItem('broadcast_id');
 		}
 	}
 
@@ -145,25 +160,25 @@ function setupEventStream(){
 }
 
 function restoreStream(){
-  var user_id = window.localStorage.getItem('user_id');
+  var user_id = window.localStorage.getItem('userid');
   var client_ip = '129.97.124.75';
   var broadcast_id = window.localStorage.getItem('broadcast_id');
   var broadcast_port = window.localStorage.getItem('broadcast_port');
 	$.ajax({
-		url: sessionStorage.getItem("IPAddr") + '/restore/stream/' + user_id + '/' + client_ip + '/' + broadcast_port + '/' + broadcast_id,
+	  url: sessionStorage.getItem("IPAddr") + '/restore/stream/' + user_id + '/' + client_ip + '/' + broadcast_port + '/' + broadcast_id,
 	  type: 'GET',
 	  crossDomain: true,
-	 	data: window.localStorage.getItem('oauth_token'),
+	  data: window.localStorage.getItem('oauth_token'),
 	  success: function(response) {
-      var res = JSON.parse(response);
-      window.localStorage.removeItem('broadcast_id');
-      window.localStorage.removeItem('broadcast_port');
-			if(response.status == 200) {
-        iframeConnect(res.routes.port, res.routes.guacomole_id, res.routes.os_type);	
-      } else if(response.status == 204) {
-        //No prev session to connect to. Return to home page
-        window.location.href = "connect.html";
-      }
+        var res = JSON.parse(response);
+        window.localStorage.removeItem('broadcast_id');
+        window.localStorage.removeItem('broadcast_port');
+		if(response.status == 200) {
+          iframeConnect(res.routes.port, res.routes.guacomole_id, res.routes.os_type);	
+        } else if(response.status == 204) {
+          //No prev session to connect to. Return to home page
+          window.location.href = "connect.html";
+        }
 	  },
 	  error: function(xhr){
 			console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
@@ -187,7 +202,8 @@ function iframeConnect(port, guacamole_id, vm_type) {
 	}
   
   var frameElement = document.getElementById('actualContentIframe');
-  frameElement.src = `http://${hostName}:${port}/guacamole/#/client/${guacamole_id}/?username=${username}&password=${password}`
+  frameElement.src = `http://${hostName}:${port}/guacamole/#/client/${guacamole_id}/?username=${username}&password=${password}`;
+  console.log(`http://${hostName}:${port}/guacamole/#/client/${guacamole_id}/?username=${username}&password=${password}`);
 	// location.href = `http://${hostName}:${port}/guacamole/#/client/${guacamole_id}/?username=${username}&password=${password}`
 }
 
@@ -196,7 +212,7 @@ function startBroadcast() {
 	var teacherID = window.localStorage.getItem('userid');
 	$.ajax({
 		url: IPAddr + '/broadcast/' + teacherID,
-		type: 'GET',
+		type: 'PUT',
 		crossDomain: true,
 		data: window.localStorage.getItem('oauth_token'),
 		success: function(response) {
@@ -206,8 +222,7 @@ function startBroadcast() {
 			console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
 			alert('Error: Failed to start teacher broadcast');
 		}
-		});
-
+	});
 }
 
 function setUIBasedOnUserScope() {

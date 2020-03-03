@@ -93,8 +93,8 @@ function hideNavBarElementsForStudents() {
 		homeNavbar.style.display = "none";
 
 		// Hide permissions button
-		var permissionNavBar = window.parent.document.getElementById("permissionNavbar");
-		permissionNavBar.style.display = "none";
+		var messagingNavbar = window.parent.document.getElementById("messagingNavbar");
+		messagingNavbar.style.display = "none";
 
 		// Hide students button
 		var studentsNavBar = window.parent.document.getElementById("studentsNavbar");
