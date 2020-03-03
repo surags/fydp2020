@@ -204,7 +204,7 @@ function startBroadcast() {
 	var teacherID = window.localStorage.getItem('userid');
 	$.ajax({
 		url: IPAddr + '/broadcast/' + teacherID,
-		type: 'GET',
+		type: 'PUT',
 		crossDomain: true,
 		data: window.localStorage.getItem('oauth_token'),
 		success: function(response) {
