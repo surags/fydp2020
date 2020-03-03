@@ -116,7 +116,7 @@ class UserHelper:
             response.status = 200
         except Exception as e:
             print(e)
-            response.body = '{"error_database": "Invalid user_id or application_id",'
+            response.body = '{"error_database": "invalid user_id or application_id",'
             response.status = 400
 
         try:

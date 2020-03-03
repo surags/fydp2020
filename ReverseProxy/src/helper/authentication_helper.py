@@ -100,3 +100,5 @@ class Factory:
     def reset_router(self):
         with self.lock:
             self.authentication_helper = AuthenticationHelper()
+
+factory = Factory()

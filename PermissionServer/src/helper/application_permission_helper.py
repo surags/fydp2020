@@ -46,10 +46,6 @@ class ApplicationPermissionHelper:
         vnc_check_thread.start()
         print("Setup user")
 
-    def health_check(self, enable=True)
-        global health_check
-        health_check = enable
-
     @db.connection_context()
     def add_permission(self, application_id):
         application_info = Application.get(Application.application_id == application_id)

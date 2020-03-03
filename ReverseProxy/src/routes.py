@@ -4,6 +4,8 @@ from src.helper import router
 from src.helper import container_helper
 from src.helper import authentication_helper
 from src.helper import user_helper
+from src.helper import broadcast_helper
+
 from src.wsgi import app
 from bottle import response, request
 from bottle import post, get, put, delete
@@ -13,12 +15,11 @@ import json
 
 
 router = router.factory.get_router()
-authentication_helper = authentication_helper.Factory().get_authentication_helper()
+authentication_helper = authentication_helper.factory.get_authentication_helper()
 user_helper = user_helper.Factory().get_user_helper()
 container_helper = container_helper.ContainerHelper()
+broadcast_helper = broadcast_helper.factory.get_broadcast_helper()
 db = base_model.db
-broadcast = None
-message = None
 
 # A test call to determine if the API is working
 @get('/test')
@@ -86,12 +87,9 @@ def get_screen_snapshot(user_id):
 @put('/broadcast/<user_id>')
 @app.auth.verify_request(scopes=['teacherStreamingOS'])
 def broadcast_session(user_id):
-    global broadcast
     # Disable health check cleanup
-    router.health_check(enable=False)
-    container_helper.health_check(enable=False)
-    broadcast = dict()
-    broadcast["broadcast_id"] = user_id
+    router.health_check = False
+    broadcast_helper.broadcast = {"broadcast_id": user_id}
     response.status = 200
 
 
@@ -99,10 +97,8 @@ def broadcast_session(user_id):
 @put('/broadcast/stop')
 @app.auth.verify_request(scopes=['teacherStreamingOS'])
 def stop_broadcast_session():
-    global broadcast
-    broadcast = None
-    router.health_check(enable=True)
-    container_helper.health_check(enable=True)
+    broadcast_helper.broadcast = None
+    router.health_check = True
     response.status = 200
 
 
@@ -110,8 +106,7 @@ def stop_broadcast_session():
 @put('/broadcast/message/<data>')
 @app.auth.verify_request(scopes=['teacherStreamingOS'])
 def message_clients(data):
-    global message
-    message = data
+    broadcast_helper.message = data
     # TODO Add code to verify send to all connected clients
     response.status = 200
 
@@ -120,7 +115,6 @@ def message_clients(data):
 @get('/subscribe')
 @app.auth.verify_request(scopes=['studentTeacherStreamingOS'])
 def subscribe():
-    global broadcast
     response.content_type  = 'text/event-stream'
     response.cache_control = 'no-cache'
 
@@ -136,13 +130,13 @@ def subscribe():
         events_json = dict()
 
         # Add broadcast information
-        if broadcast is not None:
-            event_broadcast["broadcast_id"] = broadcast["broadcast_id"]
+        if broadcast_helper.broadcast is not None:
+            event_broadcast["broadcast_id"] = broadcast_helper.broadcast["broadcast_id"]
             events_values.append(event_broadcast)
 
         # Add messages
-        if message is not None:
-            event_message["data"] = message
+        if broadcast_helper.message is not None:
+            event_message["data"] = broadcast_helper.message
             events_values.append(event_message)
 
         # Send events to subscribed clients

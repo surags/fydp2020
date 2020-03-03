@@ -18,6 +18,7 @@ class OSContainerInfoManager:
         self.ip_address = self.initialize_container_ip_address()
         self.is_running = True
         self.is_free = True
+        self.health_check_enabled = True
 
     @db.connection_context()
     def initialize_container_ip_address(self):

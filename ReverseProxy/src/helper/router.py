@@ -49,9 +49,6 @@ class Router:
         (os_container.OSContainer
          .set_by_id(ip_address, {'is_running': False}))
 
-    def set_health_check(self, enable):
-        self.health_check = enable
-
     @db.connection_context()
     def get_free_container(self, os_type):
         try:

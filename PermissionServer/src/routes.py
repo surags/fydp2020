@@ -76,19 +76,3 @@ def health_check():
     response.status = 200
     response.content_type = 'application/json'
     return json.dumps(response_body)
-
-
-@post('/health/disable')
-def health_disable():
-    permission_helper.health_check(enable=False)
-    response.body = "Success"
-    response.status = 200
-    return response
-
-
-@post('/health/enable')
-def health_enable():
-    permission_helper.health_check(enable=True)
-    response.body = "Success"
-    response.status = 200
-    return response
