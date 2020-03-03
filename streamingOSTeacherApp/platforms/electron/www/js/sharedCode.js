@@ -7,10 +7,11 @@
 		$("#navBar").load("navBar.html");
 		$("#header").load("header.html");
 		
-		if(window.localStorage.getItem('setupEventStream') == null)
-		{
+		if (window.localStorage.getItem('setupEventStream') == null) {
 			setupEventStream();
 		}
+		
+		setUIBasedOnUserScope();
 		populateOtherLogisticalData();
 	});
 
@@ -207,4 +208,14 @@ function startBroadcast() {
 		}
 		});
 
+}
+
+function setUIBasedOnUserScope() {
+	var iframe = document.getElementById("actualContentIframe");
+	var userType = window.localStorage.getItem('scope');
+	if (userType == "teacher") {
+	  iframe.src = "home.html";
+	} else {
+	  iframe.src = "connect.html";
+	}
 }

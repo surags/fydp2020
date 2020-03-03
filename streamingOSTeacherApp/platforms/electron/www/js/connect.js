@@ -1,5 +1,6 @@
 (function ($) {
 	$(window).on('load', function () {
+		hideNavBarElementsForStudents();
 		availableVM();
 	});
 }(jQuery));
@@ -84,5 +85,22 @@ function availableVM(){
     }
   });
 }
+
+function hideNavBarElementsForStudents() {
+	if (window.localStorage.getItem('scope') === "student") {
+		// Hide home button
+		var homeNavbar = window.parent.document.getElementById("homeNavbar");
+		homeNavbar.style.display = "none";
+
+		// Hide permissions button
+		var permissionNavBar = window.parent.document.getElementById("permissionNavbar");
+		permissionNavBar.style.display = "none";
+
+		// Hide students button
+		var studentsNavBar = window.parent.document.getElementById("studentsNavbar");
+		studentsNavBar.style.display = "none";
+	}
+}
+
 
 setInterval(availableVM, 10000);
