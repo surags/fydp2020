@@ -9,6 +9,9 @@
 
 	$('[data-toggle="popover"]').popover()
 
+	// Clean local storage
+	window.localStorage.clear();
+
   });
 
 }(jQuery));
