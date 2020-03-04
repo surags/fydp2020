@@ -131,7 +131,6 @@ function handleStartBroadcast(current_event, clientIpAddress, userId) {
     if (current_event.broadcast_id === userId || isBroadcastConnected === "true") {
         return;
     }
-    console.log("START BROADCAST");
     $.ajax({
         url: sessionStorage.getItem("IPAddr") + '/setup/stream/' + userId + '/' + clientIpAddress + '/' + current_event.broadcast_id,
         type: 'GET',
@@ -163,8 +162,9 @@ function handleStopBroadcast(current_event, clientIpAddress, userId){
       success: function(response, otherStatus, xhr) {
         window.localStorage.removeItem('isBroadcastConnected');
         if(xhr.status == 200) {
-          var res = JSON.parse(response.data);
-          iframeConnect(res.routes.port, res.routes.guacomole_id, res.routes.os_type);
+          console.log(response);
+          var res = JSON.parse(response);
+          iframeConnect(res.routes.source_port, res.routes.guacamole_id, res.routes.os_type);
           enableSessionHealthCheck(userId);
         } else if(xhr.status == 204) {
           //No prev session to connect to. Return to home page
@@ -202,80 +202,13 @@ function setupEventStream(){
 		var userid = window.localStorage.getItem('userid');
 		const eventData = JSON.parse(event.data);
 		var clientIpAddress = '129.97.124.75';
-
-		var broadcastEvent = false;
 		for(var i = 0; i < eventData.events.length; i++) {
 			current_event = eventData.events[i]
 			console.log(current_event);
             handleEvent(current_event, clientIpAddress, userid)
-			// if(current_event.eventType == "Message"){
-			// 	// TODO: Do something useful
-			// } else if (current_event.eventType == "Broadcast"){
-			// 	// TODO: Get rid of the hardcoded IP address
-			// 	if(window.localStorage.getItem('broadcast_id') == null) {
-			// 		if(current_event.broadcast_id == studentID)
-			// 			continue;
-
-			// 		window.localStorage.setItem('broadcast_id', current_event.broadcast_id);
-			// 		$.ajax({
-			// 			url: sessionStorage.getItem("IPAddr") + '/setup/stream/' + studentID + '/' + clientIpAddress + '/' + current_event.broadcast_id,
-			// 			type: 'GET',
-			// 			crossDomain: true,
-			// 			data: window.localStorage.getItem('oauth_token'),
-			// 			success: function(response) {
-			// 				var res = JSON.parse(response);
-			// 				window.localStorage.setItem('broadcast_port', res.routes.port);
-			// 				iframeConnect(res.routes.source_port, res.routes.guacamole_id, res.routes.os_type);
-			// 				window.localStorage.setItem('isConnectCalled', true);
-			// 				broadcastEvent = true;
-			// 			},
-			// 			error: function(xhr){
-			// 				console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
-			// 			}
-			// 		});
-			// 	} else {
-			// 		console.log("Broadcasting exists");
-			// 	}
-			// 	broadcastEvent = true;
-			// }
-		}
-		
-		if(broadcastEvent == false && window.localStorage.getItem('isConnectCalled') == true) {
-			// broadcast was previously called. Restore session
-			restoreStream();
-			window.localStorage.setItem('isConnectCalled', false);
-			window.localStorage.removeItem('broadcast_id');
 		}
 	}
-
 	window.localStorage.setItem('setupEventStream', true);
-}
-
-function restoreStream(){
-    var user_id = window.localStorage.getItem('userid');
-    var client_ip = '129.97.124.75';
-    window.localStorage.setItem('isConnectCalled', true);
-	$.ajax({
-	  url: sessionStorage.getItem("IPAddr") + '/restore/stream/' + user_id,
-	  type: 'GET',
-	  crossDomain: true,
-	  data: window.localStorage.getItem('oauth_token'),
-	  success: function(response, otherStatus, xhr) {
-        window.localStorage.removeItem('broadcast_id');
-		if(xhr.status == 200) {
-          var res = JSON.parse(response);
-          iframeConnect(res.routes.port, res.routes.guacomole_id, res.routes.os_type);	
-        } else if(xhr.status == 204) {
-          //No prev session to connect to. Return to home page
-          var frameElement = document.getElementById('actualContentIframe');
-          frameElement.src = "connect.html";
-        }
-	  },
-	  error: function(xhr){
-		  console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
-          var frameElement = document.getElementById('actualContentIframe');
-          frameElement.src = "connect.html";	  }
-	});	
 }
 
 function iframeConnect(port, guacamole_id, vm_type) {

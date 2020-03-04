@@ -162,8 +162,9 @@ function handleStopBroadcast(current_event, clientIpAddress, userId){
       success: function(response, otherStatus, xhr) {
         window.localStorage.removeItem('isBroadcastConnected');
         if(xhr.status == 200) {
-          var res = JSON.parse(response.data);
-          iframeConnect(res.routes.port, res.routes.guacomole_id, res.routes.os_type);
+          console.log(response);
+          var res = JSON.parse(response);
+          iframeConnect(res.routes.source_port, res.routes.guacamole_id, res.routes.os_type);
           enableSessionHealthCheck(userId);
         } else if(xhr.status == 204) {
           //No prev session to connect to. Return to home page

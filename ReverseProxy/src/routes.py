@@ -182,8 +182,6 @@ def setup_stream(user_id, client_ip, broadcast_id):
 @get('/restore/stream/<user_id>')
 @app.auth.verify_request(scopes=['studentTeacherStreamingOS'])
 def restore_stream(user_id):
-    response.status = 200
-
     # cleanup broadcast routes
     router.delete_stream_routes(user_id)
     current_session = router.get_session(user_id)
@@ -194,6 +192,7 @@ def restore_stream(user_id):
         response.status = 200
     else:
         response.status = 204
+    return response
 
 @get('/restore/stream/healthcheck/<user_id>')
 def restore_stream_health_check(user_id):

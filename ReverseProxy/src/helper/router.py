@@ -165,12 +165,10 @@ class Router:
 
     # Get the existing user session if one exists
     def get_session(self, user_id):
-        print(session_helper.session_info_map)
         if user_id in session_helper.session_info_map:
-            current_session = dict()
-            current_session['guacamole_stream_id'] = session_helper.session_info_map[user_id].guacamole_stream_id
-            current_session['source_port'] = session_helper.session_info_map[user_id].source_port
-            current_session['os_type'] = session_helper.session_info_map[user_id].os_type
+            current_session = {'guacamole_id': session_helper.session_info_map[user_id].guacamole_stream_id,
+                               'source_port': session_helper.session_info_map[user_id].source_port,
+                               'os_type': session_helper.session_info_map[user_id].os_type}
             return current_session
         else:
             return None
@@ -259,6 +257,7 @@ class Router:
 
     def os_container_health_check(self, os_container_ip, user_id):
         while True:
+            sleep(30)
             if session_helper.session_info_map[user_id].is_health_check_enabled is True:
                 url = "http://{0}:9090/health/check".format(os_container_ip)
                 health_response = requests.get(url)
@@ -283,7 +282,6 @@ class Router:
                     elif health_response_json['is_free'] and not health_response_json['user_id']:
                         break
             # Make thread sleep for 30 seconds
-            sleep(30)
 
 
 class Factory:
