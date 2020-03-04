@@ -50,6 +50,12 @@ function connect(){
 	} 
 }
 
+function help() {
+	sideNavClose();
+	document.getElementById("footer").style = "z-index:1; position: absolute; bottom: 0;"
+	document.getElementById("actualContentIframe").src = "help.html";
+}
+
 function logout(){
 	$.ajax({
 	  url: sessionStorage.getItem("IPAddr") + '/routes/delete/' + window.localStorage.getItem('userid'),

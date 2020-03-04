@@ -81,7 +81,7 @@ function availableVM(){
 		},
     error: function(xhr){
     console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
-    alert('Invalid reqest for available VMs');
+    alert('Invalid request for available VMs');
     }
   });
 }
