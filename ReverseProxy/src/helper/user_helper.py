@@ -21,6 +21,21 @@ class UserHelper:
         pass
 
     @db.connection_context()
+    def get_userid_for_username(self, username):
+        try:
+            query = Users.select(Users.user_id).where(Users.user_name == username)
+            if len(query) == 0:
+                response.body = "Error: User does not exist"
+                response.status = 400
+                return None
+            return str(query[0].user_id)
+        except Exception as e:
+            print(e)
+            response.body = "Error: User does not exist"
+            response.status = 400
+        return None
+
+    @db.connection_context()
     def user_info(self, username):
         try:
             join_condition = Users.school_id == School.school_id

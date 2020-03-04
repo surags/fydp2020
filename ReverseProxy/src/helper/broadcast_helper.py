@@ -10,8 +10,11 @@ class BroadcastHelper:
         self.broadcast_session_info_map = {}
         self.broadcast_session_state = BroadcastStates.STOP
         self.broadcast = BroadcastStates.IDLE
-        self.message = None
         self.broadcast_message_queues = {}
+
+    def add_message_for_user(self, user_id, message):
+        if user_id in self.broadcast_message_queues:
+            self.broadcast_message_queues[user_id].put(message)
 
 
     def add_message_for_all(self, message):

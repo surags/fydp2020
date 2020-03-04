@@ -14,10 +14,10 @@ var userId = window.localStorage.getItem('userid');
 
 // TODO: onclick method for submit button
 function sendMessageToStudent() {
-    var studentID = document.getElementById("messageUserID").value;
+    var userId = document.getElementById("messageUserID").value;
     var message = document.getElementById("messageBox").value;
     $.ajax({
-        url: IPAddr + '/broadcast/message/' + studentID, 
+        url: `${IPAddr}/broadcast/message/${userId}/${message}`,
         type: 'PUT',
         crossDomain: true,
         data: oauth_token,
@@ -26,7 +26,7 @@ function sendMessageToStudent() {
             alert("Message sent successfully!");
         },
         error: function(xhr){
-            console.log('Error: Message unable to send to user ' + studentID);
+            console.log('Error: Message unable to send to user ' + userId);
         }
     });
 

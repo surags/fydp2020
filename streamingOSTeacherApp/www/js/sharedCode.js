@@ -97,6 +97,7 @@ function populateOtherLogisticalData(){
 				populateSchoolName(userData.school_name);
 				populateProfessorName(userData.first_name + " " + userData.last_name, userData.profession);
 
+                //Setup event streams for broadcast events
                 if (window.localStorage.getItem('setupEventStream') == null) {
                     setupEventStream();
                 }
@@ -115,14 +116,18 @@ function handleEvent(current_event, clientIpAddress, user_id) {
             handleStartBroadcast(current_event, clientIpAddress, user_id);
             break;
         case "stop_broadcast":
-            handleStopBroadcast(current_event, clientIpAddress, user_id)
+            handleStopBroadcast(current_event, clientIpAddress, user_id);
             break;
             //TODO: Create a handler for messages
         case "notification_message":
+            handleMessageBroadcast(current_event, clientIpAddress, user_id);
             break;
             //TODO: Create a handler for notification messages
     }
+}
 
+function handleMessageBroadcast(current_event, clientIpAddress, userId) {
+    window.alert(current_event.message_data);
 }
 
 function handleStartBroadcast(current_event, clientIpAddress, userId) {
