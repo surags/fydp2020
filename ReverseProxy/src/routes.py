@@ -1,24 +1,27 @@
 from time import sleep
+from queue import Queue
 
 from src.helper import router
 from src.helper import container_helper
 from src.helper import authentication_helper
 from src.helper import user_helper
 from src.helper import broadcast_helper
+from src.helper import session_helper
 
 from src.wsgi import app
 from bottle import response, request
 from bottle import post, get, put, delete
 from src.model import base_model
+from src.model.broadcast_states import BroadcastStates
 
 import json
-
 
 router = router.factory.get_router()
 authentication_helper = authentication_helper.factory.get_authentication_helper()
 user_helper = user_helper.Factory().get_user_helper()
 container_helper = container_helper.ContainerHelper()
 broadcast_helper = broadcast_helper.factory.get_broadcast_helper()
+session_helper = session_helper.factory.get_session_helper()
 db = base_model.db
 
 # A test call to determine if the API is working
@@ -50,8 +53,7 @@ def setup_routes(user_id, client_ip, os_type, width, height):
 @get('/routes/delete/<user_id>')
 @app.auth.verify_request(scopes=['studentTeacherStreamingOS'])
 def delete_routes(user_id):
-    container_helper.cleanup_user_session(user_id)
-    response.body = router.delete_iptable_rules(user_id)
+    router.delete_routes(user_id)
     response.status = 200
     return response
 
@@ -87,9 +89,14 @@ def get_screen_snapshot(user_id):
 @put('/broadcast/<user_id>')
 @app.auth.verify_request(scopes=['teacherStreamingOS'])
 def broadcast_session(user_id):
-    # Disable health check cleanup
-    router.health_check = False
-    broadcast_helper.broadcast = {"broadcast_id": user_id}
+    # Disable health checks
+    session_helper.update_all_health_checks(False)
+    #Keep user health check going
+    session_helper.update_health_check(user_id, True)
+    start_broadcast_event = BroadcastStates.START
+    start_broadcast_event.value["broadcast_id"] = user_id
+    broadcast_helper.broadcast_session_state = start_broadcast_event
+    broadcast_helper.add_message_for_all(start_broadcast_event.value)
     response.status = 200
 
 
@@ -97,8 +104,10 @@ def broadcast_session(user_id):
 @put('/broadcast/stop')
 @app.auth.verify_request(scopes=['teacherStreamingOS'])
 def stop_broadcast_session():
-    broadcast_helper.broadcast = None
-    router.health_check = True
+    message = BroadcastStates.STOP.value
+    message["broadcast_id"] = broadcast_helper.broadcast_session_state.value["broadcast_id"]
+    broadcast_helper.broadcast_session_state = BroadcastStates.STOP
+    broadcast_helper.add_message_for_all(message)
     response.status = 200
 
 
@@ -112,38 +121,51 @@ def message_clients(data):
 
 
 # Subscribe to Broadcast Event Stream
-@get('/subscribe')
+@get('/subscribe/<user_id>')
 @app.auth.verify_request(scopes=['studentTeacherStreamingOS'])
-def subscribe():
+def subscribe(user_id):
     response.content_type  = 'text/event-stream'
     response.cache_control = 'no-cache'
 
+    broadcast_helper.broadcast_message_queues[user_id] = Queue()
+
     # Set client-side auto-reconnect timeout, ms.
     yield 'retry: 100\n\n'
-
-    event_broadcast = {"eventType": "Broadcast", "broadcast_id": None}
-    event_message = {"eventType": "Message", "data": None}
 
     # Keep client subscribed indefinitely
     while True:
         events_values = list()
         events_json = dict()
 
-        # Add broadcast information
-        if broadcast_helper.broadcast is not None:
-            event_broadcast["broadcast_id"] = broadcast_helper.broadcast["broadcast_id"]
-            events_values.append(event_broadcast)
 
-        # Add messages
-        if broadcast_helper.message is not None:
-            event_message["data"] = broadcast_helper.message
-            events_values.append(event_message)
+        # Add broadcast information
+        if broadcast_helper.broadcast_session_state is BroadcastStates.START:
+            events_values.append(broadcast_helper.broadcast_session_state.value)
+            if not broadcast_helper.broadcast_message_queues[user_id].empty():
+                message = broadcast_helper.broadcast_message_queues[user_id].get(block=False)
+                events_values.append(message)
+            events_json["events"] = events_values
+            yield "data: {}\n\n".format(json.dumps(events_json))
+            sleep(10)
+            continue
+        else:
+            message = broadcast_helper.broadcast_message_queues[user_id].get(block=True)
+            events_values.append(message)
+
+        # if broadcast_helper.broadcast is BroadcastStates.STOP_BROADCAST:
+        #     stop_broadcast_event = BroadcastStates.STOP_BROADCAST.value
+        #     stop_broadcast_event["broadcast_id"] = broadcast_helper.broadcast["broadcast_id"]
+        #     events_values.append(stop_broadcast_event)
+        #
+        # # Add messages
+        # if broadcast_helper.message is not None:
+        #     event_message["data"] = broadcast_helper.message
+        #     events_values.append(event_message)
 
         # Send events to subscribed clients
         events_json["events"] = events_values
         yield "data: {}\n\n".format(json.dumps(events_json))
 
-        sleep(10)
 
 
 # Setup routes for the user.
@@ -156,22 +178,26 @@ def setup_stream(user_id, client_ip, broadcast_id):
     return router.setup_stream_routes(user_id, client_ip, str(broadcast_id))
 
 
-# Stop broadcast streaming and restore user session stream
-@get('/restore/stream/<user_id>/<client_ip>/<source_port>/<broadcast_id>')
+# Stop broadcast streaming and restore user session stream (if it exists)
+@get('/restore/stream/<user_id>')
 @app.auth.verify_request(scopes=['studentTeacherStreamingOS'])
-def restore_stream(user_id, client_ip, source_port, broadcast_id):
+def restore_stream(user_id):
+    response.status = 200
+
     # cleanup broadcast routes
-    router.delete_stream_routes(client_ip, source_port, broadcast_id)
-    
+    router.delete_stream_routes(user_id)
     current_session = router.get_session(user_id)
     # Check if a current session exists
     if current_session is not None:
         # All user data should exist in session helper
         response.body = json.dumps({'routes': current_session})
-        response.status = 200 
+        response.status = 200
     else:
         response.status = 204
 
+@get('/restore/stream/healthcheck/<user_id>')
+def restore_stream_health_check(user_id):
+    session_helper.update_health_check(user_id, True)
 
 # Get info about a user
 # username: The unique username for the user

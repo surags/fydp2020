@@ -45,6 +45,13 @@ class SessionHelper:
         response += ']}'
         return response
 
+    def update_all_health_checks(self, is_enabled):
+        for key, value in self.session_info_map.items():
+            value.is_health_check_enabled = is_enabled
+
+    def update_health_check(self, user_id, is_enabled):
+        if user_id in self.session_info_map:
+            self.session_info_map[user_id].is_health_check_enabled = is_enabled
 
 class Factory:
     session_helper = None

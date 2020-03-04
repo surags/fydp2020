@@ -7,10 +7,6 @@
 		$("#navBar").load("navBar.html");
 		$("#header").load("header.html");
 		
-		if (window.localStorage.getItem('setupEventStream') == null) {
-			setupEventStream();
-		}
-		
 		setUIBasedOnUserScope();
 		populateOtherLogisticalData();
 	});
@@ -100,6 +96,10 @@ function populateOtherLogisticalData(){
 				window.localStorage.setItem('userid', userData.user_id);
 				populateSchoolName(userData.school_name);
 				populateProfessorName(userData.first_name + " " + userData.last_name, userData.profession);
+
+                if (window.localStorage.getItem('setupEventStream') == null) {
+                    setupEventStream();
+                }
 			}
 		  },
 		  error: function(xhr){
@@ -109,88 +109,105 @@ function populateOtherLogisticalData(){
 	});
 }
 
+function handleEvent(current_event, clientIpAddress, user_id) {
+    switch(current_event.eventType) {
+        case "start_broadcast":
+            handleStartBroadcast(current_event, clientIpAddress, user_id);
+            break;
+        case "stop_broadcast":
+            handleStopBroadcast(current_event, clientIpAddress, user_id)
+            break;
+            //TODO: Create a handler for messages
+        case "notification_message":
+            break;
+            //TODO: Create a handler for notification messages
+    }
+
+}
+
+function handleStartBroadcast(current_event, clientIpAddress, userId) {
+    var clientIpAddress = '129.97.124.75';
+    var isBroadcastConnected = window.localStorage.getItem('isBroadcastConnected');
+    if (current_event.broadcast_id === userId || isBroadcastConnected === "true") {
+        return;
+    }
+    $.ajax({
+        url: sessionStorage.getItem("IPAddr") + '/setup/stream/' + userId + '/' + clientIpAddress + '/' + current_event.broadcast_id,
+        type: 'GET',
+        crossDomain: true,
+        data: window.localStorage.getItem('oauth_token'),
+        success: function(response) {
+            var res = JSON.parse(response);
+            window.localStorage.setItem('broadcast_port', res.routes.port);
+            iframeConnect(res.routes.source_port, res.routes.guacamole_id, res.routes.os_type);
+            window.localStorage.setItem('isBroadcastConnected', true);
+            broadcastEvent = true;
+        },
+        error: function(xhr){
+            console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
+        }
+    });
+}
+
+function handleStopBroadcast(current_event, clientIpAddress, userId){
+    window.localStorage.setItem('isConnectCalled', false);
+    if (current_event.broadcast_id === userId) {
+        return;
+    }
+    $.ajax({
+      url: sessionStorage.getItem("IPAddr") + '/restore/stream/' + userId,
+      type: 'GET',
+      crossDomain: true,
+      data: window.localStorage.getItem('oauth_token'),
+      success: function(response, otherStatus, xhr) {
+        window.localStorage.removeItem('isBroadcastConnected');
+        if(xhr.status == 200) {
+          var res = JSON.parse(response.data);
+          iframeConnect(res.routes.port, res.routes.guacomole_id, res.routes.os_type);
+          enableSessionHealthCheck(userId);
+        } else if(xhr.status == 204) {
+          //No prev session to connect to. Return to home page
+            var frameElement = document.getElementById('actualContentIframe');
+            frameElement.src = "connect.html";
+        }
+      },
+      error: function(xhr){
+            console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
+            var frameElement = document.getElementById('actualContentIframe');
+            frameElement.src = "connect.html";      }
+    }); 
+}
+
+function enableSessionHealthCheck(user_id) {
+    $.ajax({
+      url: sessionStorage.getItem("IPAddr") + '/restore/stream/healthcheck/' + user_id,
+      type: 'GET',
+      crossDomain: true,
+      data: window.localStorage.getItem('oauth_token'),
+      success: function(response) {
+      },
+      error: function(xhr){
+            console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
+      }
+    }); 
+}
+
 function setupEventStream(){
 	access_token = "?" + window.localStorage.getItem('oauth_token');
-	const evtSource = new EventSource(sessionStorage.getItem("IPAddr") + '/subscribe' + access_token);
+    var userid = window.localStorage.getItem('userid');
+	const evtSource = new EventSource(sessionStorage.getItem("IPAddr") + '/subscribe/' + userid + access_token);
 	// Server-Sent Event handler
 	evtSource.onmessage = function(event) {
-		var studentID = window.localStorage.getItem('userid');
+		var userid = window.localStorage.getItem('userid');
 		const eventData = JSON.parse(event.data);
 		var clientIpAddress = '129.97.124.75';
-
-		var broadcastEvent = false;
 		for(var i = 0; i < eventData.events.length; i++) {
 			current_event = eventData.events[i]
 			console.log(current_event);
-			if(current_event.eventType == "Message"){
-				// TODO: Do something useful
-			} else if (current_event.eventType == "Broadcast"){
-				// TODO: Get rid of the hardcoded IP address
-				if(window.localStorage.getItem('broadcast_id') == null) {
-					if(current_event.broadcast_id == studentID)
-						continue;
-
-					window.localStorage.setItem('broadcast_id', current_event.broadcast_id);
-					$.ajax({
-						url: sessionStorage.getItem("IPAddr") + '/setup/stream/' + studentID + '/' + clientIpAddress + '/' + current_event.broadcast_id,
-						type: 'GET',
-						crossDomain: true,
-						data: window.localStorage.getItem('oauth_token'),
-						success: function(response) {
-							var res = JSON.parse(response);
-							window.localStorage.setItem('broadcast_port', res.routes.port);
-							iframeConnect(res.routes.source_port, res.routes.guacamole_id, res.routes.os_type);
-							window.localStorage.setItem('isConnectCalled', true);
-							broadcastEvent = true;
-						},
-						error: function(xhr){
-							console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
-						}
-					});
-				} else {
-					console.log("Broadcasting exists");
-				}
-				broadcastEvent = true;
-			}
-		}
-		
-		if(broadcastEvent == false && window.localStorage.getItem('isConnectCalled') == true) {
-			// broadcast was previously called. Restore session
-			restoreStream();
-			window.localStorage.setItem('isConnectCalled', false);
-			window.localStorage.removeItem('broadcast_id');
+            handleEvent(current_event, clientIpAddress, userid)
 		}
 	}
-
 	window.localStorage.setItem('setupEventStream', true);
-}
-
-function restoreStream(){
-  var user_id = window.localStorage.getItem('userid');
-  var client_ip = '129.97.124.75';
-  var broadcast_id = window.localStorage.getItem('broadcast_id');
-  var broadcast_port = window.localStorage.getItem('broadcast_port');
-	$.ajax({
-	  url: sessionStorage.getItem("IPAddr") + '/restore/stream/' + user_id + '/' + client_ip + '/' + broadcast_port + '/' + broadcast_id,
-	  type: 'GET',
-	  crossDomain: true,
-	  data: window.localStorage.getItem('oauth_token'),
-	  success: function(response) {
-        var res = JSON.parse(response);
-        window.localStorage.removeItem('broadcast_id');
-        window.localStorage.removeItem('broadcast_port');
-		if(response.status == 200) {
-          iframeConnect(res.routes.port, res.routes.guacomole_id, res.routes.os_type);	
-        } else if(response.status == 204) {
-          //No prev session to connect to. Return to home page
-          window.location.href = "connect.html";
-        }
-	  },
-	  error: function(xhr){
-			console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
-			window.location.href = "connect.html";
-	  }
-	});	
 }
 
 function iframeConnect(port, guacamole_id, vm_type) {
