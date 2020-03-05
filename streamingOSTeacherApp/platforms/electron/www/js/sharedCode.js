@@ -13,6 +13,38 @@
 
 }(jQuery));
 
+var isTeacher = window.localStorage.getItem("scope") == "teacher";
+
+function broadcastButtonGreen(){
+	document.getElementById("broadcastButton").innerText = 'Start Broadcast';
+	document.getElementById("broadcastButton").style.backgroundColor = "#27A844";
+	document.getElementById("broadcastButton").style.borderColor = "#27A844";
+}
+
+function broadcastButtonRed() {
+	document.getElementById("broadcastButton").innerText = 'Stop Broadcast';
+	document.getElementById("broadcastButton").style.backgroundColor = "#c92800";
+	document.getElementById("broadcastButton").style.borderColor = "#c92800";
+}
+
+function showBroadcastButton() {
+	if (isTeacher) {
+		var broadcastButton = document.getElementById("broadcastButton");
+		if (window.localStorage.getItem('isTeacherBroadcasting') == "true")
+			broadcastButtonRed();
+		else
+			broadcastButtonGreen();
+		broadcastButton.style.visibility = 'visible';
+	}
+}
+
+function hideBroadcastButton() {
+	if (isTeacher) {
+		var broadcastButton = document.getElementById("broadcastButton");
+		broadcastButton.style.visibility = 'hidden';
+	}
+}
+
 function sideNavClose(){
 	document.getElementById("sideNavToggler").classList.remove("side-nav-expand");
 }
@@ -21,38 +53,43 @@ function home(){
 	sideNavClose();
 	document.getElementById("footer").style = "z-index:1; position: absolute; bottom: 0;";
 	document.getElementById("actualContentIframe").src = "home.html";
+	hideBroadcastButton();
 }
 
 function messaging() {
 	sideNavClose();
 	document.getElementById("footer").style = "z-index:1; position: absolute; bottom: 0;";
 	document.getElementById("actualContentIframe").src = "messaging.html";
+	if (isTeacher) hideBroadcastButton();
 }
 
 function students(){
 	sideNavClose();
 	document.getElementById("footer").style = "z-index:1; position: absolute; bottom: 0;"
 	document.getElementById("actualContentIframe").src = "students.html";
+	hideBroadcastButton();
 }
 
 function connect(){
 	sideNavClose();
 	document.getElementById("footer").style = "z-index:-1;";
 	document.getElementById("actualContentIframe").src = "connect.html";
-	var isTeacher = true; // TODO: Get the user scope from local storage 
-	if (isTeacher) {
-		var broadcastButton = document.getElementById("broadcastButton");
-		broadcastButton.style.visibility = 'visible';
-	} 
+	showBroadcastButton();
 }
 
 function help() {
 	sideNavClose();
 	document.getElementById("footer").style = "z-index:1; position: absolute; bottom: 0;"
 	document.getElementById("actualContentIframe").src = "help.html";
+	hideBroadcastButton();
 }
 
 function logout(){
+	if (isTeacher && window.localStorage.getItem('isTeacherBroadcasting') == "true") {
+		// If a teacher logs out while broadcasting, stop their broadcast
+		startOrStopBroadcast();
+	}
+
 	$.ajax({
 	  url: sessionStorage.getItem("IPAddr") + '/routes/delete/' + window.localStorage.getItem('userid'),
 	  type: 'GET',
@@ -144,8 +181,12 @@ function handleStartBroadcast(current_event, clientIpAddress, userId) {
         success: function(response) {
             var res = JSON.parse(response);
             window.localStorage.setItem('broadcast_port', res.routes.port);
-            iframeConnect(res.routes.source_port, res.routes.guacamole_id, res.routes.os_type);
-            window.localStorage.setItem('isBroadcastConnected', true);
+			iframeConnect(res.routes.source_port, res.routes.guacamole_id, res.routes.os_type);
+			
+			window.localStorage.setItem('isBroadcastConnected', true);
+			window.localStorage.setItem('isTeacherBroadcasting', "true");
+			broadcastButtonRed();
+
             broadcastEvent = true;
         },
         error: function(xhr){
@@ -165,7 +206,10 @@ function handleStopBroadcast(current_event, clientIpAddress, userId){
       crossDomain: true,
       data: window.localStorage.getItem('oauth_token'),
       success: function(response, otherStatus, xhr) {
-        window.localStorage.removeItem('isBroadcastConnected');
+		window.localStorage.removeItem('isBroadcastConnected');
+		window.localStorage.setItem('isTeacherBroadcasting', "false");
+		broadcastButtonGreen();
+
         if(xhr.status == 200) {
           console.log(response);
           var res = JSON.parse(response);
@@ -236,22 +280,44 @@ function iframeConnect(port, guacamole_id, vm_type) {
 	// location.href = `http://${hostName}:${port}/guacamole/#/client/${guacamole_id}/?username=${username}&password=${password}`
 }
 
-function startBroadcast() {
+function startOrStopBroadcast() {
 	var IPAddr = sessionStorage.getItem("IPAddr");
 	var teacherID = window.localStorage.getItem('userid');
-	$.ajax({
-		url: IPAddr + '/broadcast/' + teacherID,
-		type: 'PUT',
-		crossDomain: true,
-		data: window.localStorage.getItem('oauth_token'),
-		success: function(response) {
-			// Do nothing
-		},
-		error: function(xhr){
-			console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
-			alert('Error: Failed to start teacher broadcast');
-		}
-	});
+	if (window.localStorage.getItem('isTeacherBroadcasting') == "true") { //Stop broadcasting
+		$.ajax({
+			url: IPAddr + '/broadcast/stop',
+			type: 'PUT',
+			crossDomain: true,
+			data: window.localStorage.getItem('oauth_token'),
+			success: function(response) {
+				// Do nothing with the response
+				broadcastButtonGreen();
+				window.localStorage.setItem('isTeacherBroadcasting', "false");
+				
+			},
+			error: function(xhr){
+				console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
+				alert('Error: Failed to stop teacher broadcast');
+			}
+		});
+
+	} else { //Not broadcasting, so let's start broadcasting
+		$.ajax({
+			url: IPAddr + '/broadcast/' + teacherID,
+			type: 'PUT',
+			crossDomain: true,
+			data: window.localStorage.getItem('oauth_token'),
+			success: function(response) {
+				// Do nothing with the response
+				broadcastButtonRed();
+				window.localStorage.setItem('isTeacherBroadcasting', "true");
+			},
+			error: function(xhr){
+				console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
+				alert('Error: Failed to start teacher broadcast');
+			}
+		});
+	}
 }
 
 function setUIBasedOnUserScope() {
