@@ -23,10 +23,13 @@
 	<!-- Content Wrapper START -->
 	<div class="main-content">
 	  <div class="container-fluid">
-        <label for="userid">To:</label>
-        <input type="text" id="messageUserID" placeholder="Example: 6"><br><br>
-        <textarea id="messageBox" cols="40" rows="5" placeholder="Write message"></textarea><br><br>
-        <input type="submit" value="Submit" onclick="sendMessageToStudent()">
+      <h3 class="font-weight-normal" style="text-align: center">Send Message</h1><br>
+      <div style="margin: auto; width: 50%">
+        <input type="userName" id="messageUsername" class="form-control" placeholder="Username" style="width:60%;"></input><br>
+        <textarea id="messageBox" class="form-control" placeholder="Message" rows="8" style = "width:100%;"></textarea>
+        <div style = "padding:10px;"></div>
+        <input class="btn btn-success btn-block" type="button" onclick="sendMessageToStudent()" value="Submit" style="width:40%; margin-left: 30%;"></input>
+      </div>  
 	  </div>
 	</div>
 	<!-- Content Wrapper END -->

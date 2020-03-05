@@ -14,19 +14,24 @@ var userId = window.localStorage.getItem('userid');
 
 // TODO: onclick method for submit button
 function sendMessageToStudent() {
-    var userId = document.getElementById("messageUserID").value;
+    var username = document.getElementById("messageUsername").value;
     var message = document.getElementById("messageBox").value;
     $.ajax({
-        url: `${IPAddr}/broadcast/message/${userId}/${message}`,
+        url: `${IPAddr}/broadcast/message/${username}/${message}`,
         type: 'PUT',
         crossDomain: true,
         data: oauth_token,
         success: function(response) {
-            // Do nothing
+            // Empty text fields  
+            document.getElementById("messageUsername").value = "";
+            document.getElementById("messageBox").value = "";
             alert("Message sent successfully!");
         },
         error: function(xhr){
-            console.log('Error: Message unable to send to user ' + userId);
+            document.getElementById("messageUsername").value = "";
+            document.getElementById("messageBox").value = "";
+            alert("Error: Invalid User");
+            console.log('Error: Message unable to send to user ' + username);
         }
     });
 
