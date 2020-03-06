@@ -251,10 +251,12 @@ function setupEventStream(){
 		var userid = window.localStorage.getItem('userid');
 		const eventData = JSON.parse(event.data);
 		var clientIpAddress = '129.97.124.75';
-		for(var i = 0; i < eventData.events.length; i++) {
-			current_event = eventData.events[i]
-			console.log(current_event);
-            handleEvent(current_event, clientIpAddress, userid)
+		if (eventData != undefined && eventData.events != undefined) {
+			for(var i = 0; i < eventData.events.length; i++) {
+				current_event = eventData.events[i];
+				console.log(current_event);
+				handleEvent(current_event, clientIpAddress, userid);
+			}
 		}
 	}
 	window.localStorage.setItem('setupEventStream', true);

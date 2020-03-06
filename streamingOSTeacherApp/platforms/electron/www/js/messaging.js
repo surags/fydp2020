@@ -30,8 +30,8 @@ function sendMessageToStudent() {
         error: function(xhr){
             document.getElementById("messageUsername").value = "";
             document.getElementById("messageBox").value = "";
-            alert("Error: Invalid User");
-            console.log('Error: Message unable to send to user ' + username);
+            alert("Unfortunately your message could not be sent. Please try again later.");
+            console.log('Error: Unable to send message to ' + username);
         }
     });
 

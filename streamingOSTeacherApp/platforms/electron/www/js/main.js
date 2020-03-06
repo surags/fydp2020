@@ -10,6 +10,7 @@ var applicationId = [];
 var studentData = [];
 var currStudentFrontEndIndex = 0;
 var currStudentBackEndIndex = 0;
+var previousHighlightedStudent; 
 
 var IPAddr = 'http://40.117.173.75:9090';
 //var IPAddr = 'http://rp:9090'; //Vidit Changes
@@ -49,8 +50,22 @@ function populateStudentList(){
 			var cell = row.insertCell(0);
 			var a = document.createElement('a');
 			a.style = "padding-left: 5%; height: 52px;"
+			if(i === 0){
+				a.style.backgroundColor = "cornsilk";
+				previousHighlightedStudent = a;
+				currStudentBackEndIndex = studentData[i].studentId;
+				currStudentFrontEndIndex = i;
+			}
 			a.id = "tableRowId_" + studentData[i].studentId + "_position_" + i;
 			a.onclick = function(e) {
+				// Change the background color of the cell on click. 
+				e.currentTarget.style.backgroundColor = "cornsilk";
+				if(previousHighlightedStudent != e.currentTarget){
+					previousHighlightedStudent.style.backgroundColor = "";
+				}
+							
+				previousHighlightedStudent = e.currentTarget;
+				
 				var splitOutput= e.currentTarget.id.split("_");
 				currStudentBackEndIndex = splitOutput[1];
 				populateStatusTable(currStudentBackEndIndex);
@@ -185,9 +200,9 @@ function populateStatusTable(userId){
 
 				cellInput.addEventListener('change', (event) => {
 				  if (event.target.checked) {
-					giveAccessClicked(event.target.id.split('_')[0]);
+					giveAccessClicked(event);
 				  } else {
-					revokeAccessClicked(event.target.id.split('_')[0]);
+					revokeAccessClicked(event);
 				  }
 				});
 
@@ -232,7 +247,8 @@ function toggleButtons(){
 	}
 }
 
-function giveAccessClicked(applicationValue){
+function giveAccessClicked(event){
+	var applicationValue = event.target.id.split('_')[0];
 	var applicationId = studentData[currStudentFrontEndIndex].applicationData[applicationValue].applicationId;
 
 	$.ajax({
@@ -250,12 +266,15 @@ function giveAccessClicked(applicationValue){
 		divSpan.innerHTML = "Active";
 	  },
 	  error: function(xhr){
+		// If there was an error, revert the checked status of the checkbox back to false.
+		event.target.checked = false;
         console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
 	  }
 	});
 }
 
-function revokeAccessClicked(applicationValue){
+function revokeAccessClicked(event){
+	var applicationValue = event.target.id.split('_')[0];
 	var applicationId = studentData[currStudentFrontEndIndex].applicationData[applicationValue].applicationId;
 
 	$.ajax({
@@ -272,6 +291,8 @@ function revokeAccessClicked(applicationValue){
 		divSpan.innerHTML = "Inactive";
 	  },
 	  error: function(xhr){
+		// If there was an error, revert the checked status of the checkbox back to true.
+		event.target.checked = true;
         console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
 	  }
 	});
