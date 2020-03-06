@@ -53,6 +53,8 @@ function populateStudentList(){
 			if(i === 0){
 				a.style.backgroundColor = "cornsilk";
 				previousHighlightedStudent = a;
+				currStudentBackEndIndex = studentData[i].studentId;
+				currStudentFrontEndIndex = i;
 			}
 			a.id = "tableRowId_" + studentData[i].studentId + "_position_" + i;
 			a.onclick = function(e) {
