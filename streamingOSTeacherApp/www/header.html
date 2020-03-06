@@ -18,8 +18,8 @@
 </head>
 
 <!-- Header START -->
-<div class="header navbar">
-  <div class="header-container">
+<div id = "header-nav" class="header navbar">
+  <div id = "header-container" class="header-container">
     <ul class="nav-left">
       <li>
         <a class="sidenav-fold-toggler" href="javascript:void(0);">
@@ -30,10 +30,10 @@
         </a>
       </li>
     </ul>
-    <div id = "professorInfoDiv" class="nav-logo">
+    <div id="professorInfoDiv" class="nav-logo">
       <img style="width: 23%;" src="img/user.png" alt=""></img>
-      <div id="professorNameDiv"
-        style="font-size:17px;text-align:justify; padding:0.5%;white-space:pre-wrap; float: right; width: 77%;">{professorName}&#10;{profession}</div>
+      <div id="professorNameDiv" style="font-size:17px;text-align:justify; padding:0.5%;white-space:pre-wrap; float: right; width: 77%;">
+        {professorName}&#10;{profession}</div>
     </div>
     <div id="schoolNameDiv" style="font-size:28px;width:50%; padding-top:1.5%;padding-left:9%;" class="nav-logo">{schoolName}</div>
     <div id="status" style = "text-align: center; visibility: hidden;">Loading</div>
@@ -53,4 +53,5 @@
 <script src="js/bootstrap.min.js"></script>
 <script src="js/jquery.app.js"></script>
 <script src="js/sharedCode.js"></script>
+
 </html>
