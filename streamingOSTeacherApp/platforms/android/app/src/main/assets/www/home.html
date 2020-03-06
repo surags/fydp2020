@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>StreamingOS: Low Cost Education System</title>
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+  <!-- Fonts -->
+  <link rel="stylesheet" type="text/css" href="fonts/line-icons.css">
+  <!-- Main Style -->
+  <link rel="stylesheet" type="text/css" href="css/main.css">
+  <!-- Responsive Style -->
+  <link rel="stylesheet" type="text/css" href="css/responsive.css">
+
+</head>
+
+<body>
+	<!-- Page Container START -->
+	<div class="page-container">
+	<!-- Content Wrapper START -->
+	<div class="main-content" style="display:flex;">
+	  <div class="container-fluid">
+		<div>
+		  <div class="col-md-6" style="float:left; height: 200px; overflow-y: scroll;">
+			<div class="card">
+			  <div class="card-header">
+				<h4 class="card-title">App Permissions</h4>
+			  </div>
+			  <div class="table table-responsive">
+				<table id="applicationStatusTable" style = "scroll-behavior: auto;" class="table table-sm">
+				  <thead>
+					<td class="text-dark text-semibold">App Name</td>
+					<td class="text-dark text-semibold">Permission Status</td>
+					<td class="text-dark text-semibold">Option</td>
+				  </thead>
+				</table>
+			  </div>
+			</div>
+		  </div>
+		  <div class="col-md-6" style="float:right; height: 400px; overflow-y: scroll;">
+			<div class="card">
+			  <div class="card-header border-bottom">
+				<h4 class="card-title">Students</h4>
+			  </div>
+			  <div>
+				<table id="studentsTable" style = "scroll-behavior: auto;" class="table table-sm row-clickable table-hover">
+				</table>
+			  </div>
+			</div>
+		  </div>
+		  <div class="col-md-6" style="float:left; height: 200px; overflow-y: scroll;">
+			<div class="card">
+			  <div class="card-header">
+				<h4 class="card-title">Permission Statistics</h4>
+			  </div>
+			  <div class="table table-responsive">
+				<table id="statisticsTable" style = "scroll-behavior: auto;" class="table table-sm">
+				  <thead>
+					<td class="text-dark text-semibold">App Name</td>
+					<td class="text-dark text-semibold">Total Inactive Permissions</td>
+					<td class="text-dark text-semibold">Total Active Permissions</td>
+					<tr>
+					  <th scope="row">Mozilla Firefox</th>
+					  <td>20</td>
+					  <td>20</td>
+					</tr>
+					<tr>
+					  <th scope="row">Microsoft Word</th>
+					  <td>20</td>
+					  <td>20</td>
+					</tr>
+					<tr>
+					  <th scope="row">Google Chrome</th>
+					  <td>20</td>
+					  <td>20</td>
+					</tr>
+					<tr>
+					  <th scope="row">Teacher's Portal</th>
+					  <td>20</td>
+					  <td>20</td>
+					</tr>
+				  </thead>
+				</table>
+			  </div>
+			</div>
+		  </div>
+		</div>
+	  </div>
+	</div>
+	<!-- Content Wrapper END -->
+	</div>
+	<!-- Page Container END -->
+	<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="js/jquery-min.js"></script>
+    <script src="js/popper.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/jquery.app.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

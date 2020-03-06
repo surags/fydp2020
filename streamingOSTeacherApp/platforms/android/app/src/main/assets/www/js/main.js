@@ -1,35 +1,24 @@
-
 (function($) {
   $(window).on('load', function() {
-  	
-    /* Page Loader active
-    ========================================================*/
-    $('#preloader').fadeOut();
-
-    $('[data-toggle="tooltip"]').tooltip()
-
-	$('[data-toggle="popover"]').popover();
-	
-	$("#footer").load("footer.html"); 
-	
-	populateOtherLogisticalData();
 	populateStudentList();
-  });      
+  });
 
 }(jQuery));
 
 var applicationList = [];
 var applicationId = [];
 var studentData = [];
-var currStudentIndex = 0;
+var currStudentFrontEndIndex = 0;
+var currStudentBackEndIndex = 0;
+var previousHighlightedStudent; 
 
 var IPAddr = 'http://40.117.173.75:9090';
 //var IPAddr = 'http://rp:9090'; //Vidit Changes
 
 var oauth_token = window.localStorage.getItem('oauth_token');
-	
+
 function studentNameChange(){
-	currStudentIndex = getStudentIndexfromUserId();
+	currStudentFrontEndIndex = getStudentIndexfromUserId();
 	updateStatusTable();
 }
 
@@ -37,7 +26,7 @@ function applicationNameChange(){
 	toggleButtons();
 }
 
-function populateStudentList(){  		
+function populateStudentList(){
 	$.ajax({
 	  url: IPAddr + '/school/10/studentlist',
 	  type: 'GET',
@@ -46,7 +35,7 @@ function populateStudentList(){
 	  success: function(responseText) {
 		var myData = JSON.parse(responseText);
 		if(myData){
-			for(var i = 0; i < myData.students.length; i++){				
+			for(var i = 0; i < myData.students.length; i++){
 				studentData.push({
 					studentName: myData.students[i].first_name + " " + myData.students[i].last_name,
 					studentId: myData.students[i].user_id,
@@ -54,15 +43,38 @@ function populateStudentList(){
 			}
 		}
 		var studentsTable = document.getElementById("studentsTable");
-	
+
 		for(var i = 0; i < studentData.length; i++){
 			//option.value = studentData[i].studentId ;
-			var row = studentsTable.insertRow();			
+			var row = studentsTable.insertRow();
 			var cell = row.insertCell(0);
-			cell.innerHTML = studentData[i].studentName;
+			var a = document.createElement('a');
+			a.style = "padding-left: 5%; height: 52px;"
+			if(i === 0){
+				a.style.backgroundColor = "cornsilk";
+				previousHighlightedStudent = a;
+				currStudentBackEndIndex = studentData[i].studentId;
+				currStudentFrontEndIndex = i;
+			}
+			a.id = "tableRowId_" + studentData[i].studentId + "_position_" + i;
+			a.onclick = function(e) {
+				// Change the background color of the cell on click. 
+				e.currentTarget.style.backgroundColor = "cornsilk";
+				if(previousHighlightedStudent != e.currentTarget){
+					previousHighlightedStudent.style.backgroundColor = "";
+				}
+							
+				previousHighlightedStudent = e.currentTarget;
+				
+				var splitOutput= e.currentTarget.id.split("_");
+				currStudentBackEndIndex = splitOutput[1];
+				populateStatusTable(currStudentBackEndIndex);
+				currStudentFrontEndIndex = splitOutput[3];
+			};
+			a.innerHTML = studentData[i].studentName;
+			cell.appendChild(a);
 		}
 		
-		window.localStorage.setItem('userid', studentData[0].studentId);
 		populateApplicationList();
 	  },
 	  error: function(xhr){
@@ -75,7 +87,7 @@ function populateStudentList(){
 
 function populateApplicationList(){
 	var applicationStatusTable = document.getElementById("applicationStatusTable");
-	
+
 	$.ajax({
 		  url: IPAddr + '/applications',
 		  type: 'GET',
@@ -95,10 +107,10 @@ function populateApplicationList(){
 							hasAccess: false,
 						});
 					}
-					studentData[i].applicationData = applicationData;				
+					studentData[i].applicationData = applicationData;
 				}
-			}			
-			populateStatusTable();
+			}
+			populateStatusTable(window.localStorage.getItem('userid'));
 		  },
 		  error: function(xhr){
 			console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
@@ -107,9 +119,7 @@ function populateApplicationList(){
 	});
 }
 
-function populateStatusTable(){
-	var userId = window.localStorage.getItem('userid');
-	
+function populateStatusTable(userId){
 	$.ajax({
 		  url: IPAddr + '/user/' + userId + '/applications',
 		  type: 'GET',
@@ -120,80 +130,86 @@ function populateStatusTable(){
 			if(myData){
 				for(var i = 0; i < myData.applications.length; i++){
 					index = getApplicationIndexfromApplicationId(myData.applications[i].application_id);
-					studentData[currStudentIndex].applicationData[index].hasAccess = true;
+					studentData[currStudentFrontEndIndex].applicationData[index].hasAccess = true;
 				}
 			}
-			
+
 			// toggleButtons();
-			
+
 			var applicationStatusTable = document.getElementById("applicationStatusTable");
+
+			var rowCount = applicationStatusTable.rows.length; 
+			while(--rowCount) {
+				applicationStatusTable.deleteRow(rowCount);
+			}
+			
 			var offset = 1;
-			for(var i = 0; i < studentData[currStudentIndex].applicationData.length; i++){
+			for(var i = 0; i < studentData[currStudentFrontEndIndex].applicationData.length; i++){
 				var row = applicationStatusTable.insertRow(offset + i);
 				var cell1 = row.insertCell(0);
 				var cell2 = row.insertCell(1);
 				var cell3 = row.insertCell(2);
-								
+
 				var cellImg = document.createElement('img');
-				cellImg.src = "img/applicationLogos/" + studentData[currStudentIndex].applicationData[i].applicationId + ".png";
+				cellImg.src = "img/applicationLogos/" + studentData[currStudentFrontEndIndex].applicationData[i].applicationId + ".png";
 				cellImg.style = "width:15%; margin-right: 2px;";
-				
+
 				var cellSpan = document.createElement('span')
-				cellSpan.innerHTML = studentData[currStudentIndex].applicationData[i].applicationName;
+				cellSpan.innerHTML = studentData[currStudentFrontEndIndex].applicationData[i].applicationName;
 				cellSpan.classList = "title text-semibold";
 				cell1.appendChild(cellImg);
 				cell1.appendChild(cellSpan);
-				
+
 				var cellSpan = document.createElement('span');
 				cellSpan.id = i.toString() + '_cellSpan';
-				
+
 				var divSpan = document.createElement('div');
 				divSpan.id = i.toString() + '_divSpan';
-				
+
 				cellSpan.style = "width:8px; height:8px; padding: 6px;";
 				divSpan.style = "display:inline; padding: 10%;";
-				
-				if(studentData[currStudentIndex].applicationData[i].hasAccess === true){
-					cellSpan.classList = "btn btn-circle btn-success";	
+
+				if(studentData[currStudentFrontEndIndex].applicationData[i].hasAccess === true){
+					cellSpan.classList = "btn btn-circle btn-success";
 					divSpan.innerHTML = "Active";
 				}
 				else{
-					cellSpan.classList = "media-img btn btn-circle btn-danger";	
-					divSpan.innerHTML = "Inactive";					
+					cellSpan.classList = "media-img btn btn-circle btn-danger";
+					divSpan.innerHTML = "Inactive";
 				}
-				
+
 				cell2.appendChild(cellSpan);
 				cell2.appendChild(divSpan);
-				
+
 				var cellLabel = document.createElement('label');
 				cellLabel.classList = "switch";
-				
+
 				var cellInput = document.createElement('input');
 				cellInput.setAttribute("type", "checkbox");
 				cellInput.id = i.toString() + '_checkbox';
-				
+
 				var cellSpan = document.createElement('span');
 				cellSpan.classList = "slider round";
-				
-				if(studentData[currStudentIndex].applicationData[i].hasAccess === true){
+
+				if(studentData[currStudentFrontEndIndex].applicationData[i].hasAccess === true){
 					cellInput.checked = true;
 				}
 				else {
-					cellInput.checked = false;				
+					cellInput.checked = false;
 				}
-				
+
 				cellInput.addEventListener('change', (event) => {
 				  if (event.target.checked) {
-					giveAccessClicked(event.target.id.split('_')[0]);
+					giveAccessClicked(event);
 				  } else {
-					revokeAccessClicked(event.target.id.split('_')[0]);
+					revokeAccessClicked(event);
 				  }
 				});
-				
+
 				cellLabel.appendChild(cellInput);
 				cellLabel.appendChild(cellSpan);
-				
-				cell3.appendChild(cellLabel);			
+
+				cell3.appendChild(cellLabel);
 			}
 		  },
 		  error: function(xhr){
@@ -203,149 +219,111 @@ function populateStatusTable(){
 	});
 }
 
-function toggleButtons(){		
+function toggleButtons(){
 	index = getApplicationIndexfromApplicationId(document.getElementById("applicationDropdown").value);
-	
-	if(studentData[currStudentIndex].applicationData[index].hasAccess === true){
+	var giveAccessButton;
+	var revokeAccessButton;
+
+	if(studentData[currStudentFrontEndIndex].applicationData[index].hasAccess === true){
 		// If the student already has access to the app, give option to revoke it and disable give access button
-		var giveAccessButton = document.getElementById("giveAccessButton");
+		giveAccessButton = document.getElementById("giveAccessButton");
 		giveAccessButton.disabled = true;
 		giveAccessButton.className = "btn btn-inverse-primary";
-		
-		var revokeAccessButton = document.getElementById("revokeAccessButton");
+
+		revokeAccessButton = document.getElementById("revokeAccessButton");
 		revokeAccessButton.disabled = false;
 		revokeAccessButton.className = "btn btn-primary";
 	}
 	else{
 		// If the student doesn't have access to the app, give option to give access to it and disable revoke access button
-		var revokeAccessButton = document.getElementById("revokeAccessButton");
+		revokeAccessButton = document.getElementById("revokeAccessButton");
 		revokeAccessButton.disabled = true;
 		revokeAccessButton.className = "btn btn-inverse-primary";
-		
-		var giveAccessButton = document.getElementById("giveAccessButton");
+
+		giveAccessButton = document.getElementById("giveAccessButton");
 		giveAccessButton.disabled = false;
 		giveAccessButton.className = "btn btn-primary";
-	
-	}	
+
+	}
 }
 
-function populateSchoolName(schoolName){
-	document.getElementById("schoolNameDiv").innerHTML = document.getElementById("schoolNameDiv").innerHTML.replace("{schoolName}",schoolName.toUpperCase());
-	
-}
+function giveAccessClicked(event){
+	var applicationValue = event.target.id.split('_')[0];
+	var applicationId = studentData[currStudentFrontEndIndex].applicationData[applicationValue].applicationId;
 
-
-function populateProfessorName(professorName){
-	document.getElementById("professorNameDiv").innerHTML = document.getElementById("professorNameDiv").innerHTML.replace("{professorName}",professorName);
-	
-}
-
-function giveAccessClicked(applicationValue){
-	var userId = window.localStorage.getItem('userid'); 	
-	var applicationId = studentData[currStudentIndex].applicationData[applicationValue].applicationId;
-	
 	$.ajax({
-	  url: IPAddr + '/user/' + userId + '/grant/' + applicationId,
+	  url: IPAddr + '/user/' + currStudentBackEndIndex + '/grant/' + applicationId,
 	  type: 'PUT',
 	  data: oauth_token,
 	  crossDomain: true,
 	  success: function() {
-		studentData[currStudentIndex].applicationData[getApplicationIndexfromApplicationId(applicationId)].hasAccess = true;		
-		
+		studentData[currStudentFrontEndIndex].applicationData[getApplicationIndexfromApplicationId(applicationId)].hasAccess = true;
+
 		var cellSpan = document.getElementById(applicationValue.toString() + '_cellSpan');
 		var divSpan = document.getElementById(applicationValue.toString() + '_divSpan');
-		
-		cellSpan.classList = "btn btn-circle btn-success";	
+
+		cellSpan.classList = "btn btn-circle btn-success";
 		divSpan.innerHTML = "Active";
 	  },
 	  error: function(xhr){
+		// If there was an error, revert the checked status of the checkbox back to false.
+		event.target.checked = false;
         console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
 	  }
 	});
 }
 
-function revokeAccessClicked(applicationValue){
-	var userId = window.localStorage.getItem('userid');
-	var applicationId = studentData[currStudentIndex].applicationData[applicationValue].applicationId;
-	
+function revokeAccessClicked(event){
+	var applicationValue = event.target.id.split('_')[0];
+	var applicationId = studentData[currStudentFrontEndIndex].applicationData[applicationValue].applicationId;
+
 	$.ajax({
-	  url: IPAddr + '/user/' + userId + '/revoke/' + applicationId,
+	  url: IPAddr + '/user/' + currStudentBackEndIndex + '/revoke/' + applicationId,
 	  type: 'DELETE',
 	  data: oauth_token,
 	  success: function() {
-		studentData[currStudentIndex].applicationData[getApplicationIndexfromApplicationId(applicationId)].hasAccess = false;	
-		
+		studentData[currStudentFrontEndIndex].applicationData[getApplicationIndexfromApplicationId(applicationId)].hasAccess = false;
+
 		var cellSpan = document.getElementById(applicationValue.toString() + '_cellSpan');
 		var divSpan = document.getElementById(applicationValue.toString() + '_divSpan');
-		
-		cellSpan.classList = "media-img btn btn-circle btn-danger";	
-		divSpan.innerHTML = "Inactive";					
+
+		cellSpan.classList = "media-img btn btn-circle btn-danger";
+		divSpan.innerHTML = "Inactive";
 	  },
 	  error: function(xhr){
+		// If there was an error, revert the checked status of the checkbox back to true.
+		event.target.checked = true;
         console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
 	  }
 	});
 }
 
-
-function getStudentIndexfromUserId(){
-	index = 0;
-	for(var i = 0; i < studentData.length; i++){
-		if(studentData[i].studentId === parseInt(document.getElementById("studentDropdown").value)){
-			index = i;
-		}
-	}
-	
-	return index;
-}
-
-
 function getApplicationIndexfromApplicationId(inpApplicationId){
 	index = 0;
-	for(var i = 0; i < studentData[currStudentIndex].applicationData.length; i++){
-		if(studentData[currStudentIndex].applicationData[i].applicationId === parseInt(inpApplicationId)){
+	for(var i = 0; i < studentData[currStudentFrontEndIndex].applicationData.length; i++){
+		if(studentData[currStudentFrontEndIndex].applicationData[i].applicationId === parseInt(inpApplicationId)){
 			index = i;
 		}
 	}
-	
+
 	return index;
 }
 
 function returnSuccessString(isGrant){
 	var myStr = "Successfully revoked application access.";
-	
+
 	if(isGrant){
 		myStr = myStr.replace("revoked","granted");
 		return myStr;
 	}
-	
+
 	return myStr;
 }
 
-function populateOtherLogisticalData(){
-	$.ajax({
-		  url: IPAddr + '/user/' + window.localStorage.getItem('userName') + '/info',
-		  type: 'GET',
-		  crossDomain: true,
-		  data:oauth_token,
-		  success: function(responseText) {
-			var myData = JSON.parse(responseText);
-			if(myData){
-				populateSchoolName(myData.user[0].school_name);
-				populateProfessorName(myData.user[0].first_name + " " + myData.user[0].last_name);
-			}	
-		  },
-		  error: function(xhr){
-			console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
-			alert('Invalid username and password combination');
-		  }
-	});	
-}
-	
 function updateStatusTable(){
 	while(document.getElementById("statusTable").rows.length > 1) {
 			document.getElementById("statusTable").deleteRow(1);
 	}
-	
+
 	populateStatusTable();
 }

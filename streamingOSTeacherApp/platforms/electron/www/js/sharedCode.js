@@ -1,16 +1,42 @@
 (function($) {
-	$(window).on('load', function() {
-
-		/* Page Loader active
+  $(window).on("load", function() {
+    /* Page Loader active
 		========================================================*/
 		$("#footer").load("footer.html");
 		$("#navBar").load("navBar.html");
 		$("#header").load("header.html");
-		
+
 		setUIBasedOnUserScope();
 		populateOtherLogisticalData();
-	});
 
+    var swipe = new Hammer(document);
+    //enable all directions
+    swipe.get("pan").set({
+      direction: Hammer.DIRECTION_ALL,
+      threshold: 1,
+      velocity: 0.1,
+      drag_min_distance: 1,
+      swipe_velocity: 0.1
+    });
+    // listen to events...
+    swipe.on("panup pandown", function(ev) {
+      ev.preventDefault();
+
+      if (ev.type == "panup") {
+        console.log("swipe up");
+        window.parent.document.getElementById("header-container").style.display = "none";
+        window.parent.document.getElementById("header-nav").style.height ="10px";
+        // window.parent.document.getElementById("side-nav").style.display ="none";
+        sideNavClose();
+      } else if (ev.type == "pandown") {
+        console.log("swipe down");
+        window.parent.document.getElementById("header-container").style.display = "block";
+        window.parent.document.getElementById("header-nav").style.height ="65px";
+        // window.parent.document.getElementById("side-nav").style.display ="block";
+        // sideNavClose();
+      }
+		});
+	});
 }(jQuery));
 
 var isTeacher = window.localStorage.getItem("scope") == "teacher";
@@ -108,16 +134,86 @@ function logout(){
 	});
 }
 
-
-function populateSchoolName(schoolName){
-	document.getElementById("schoolNameDiv").innerHTML = document.getElementById("schoolNameDiv").innerHTML.replace("{schoolName}",schoolName.toUpperCase());
+function logout() {
+  $.ajax({
+    url:
+      sessionStorage.getItem("IPAddr") +
+      "/routes/delete/" +
+      window.localStorage.getItem("userid"),
+    type: "GET",
+    crossDomain: true,
+    data: window.localStorage.getItem("oauth_token"),
+    success: function(response) {
+      console.log("Logged out");
+      window.location.href = "login.html";
+    },
+    error: function(xhr) {
+      console.log(
+        "Request Status: " +
+          xhr.status +
+          " Status Text: " +
+          xhr.statusText +
+          " " +
+          xhr.responseText
+      );
+      window.location.href = "login.html";
+    }
+  });
 }
 
+function populateSchoolName(schoolName) {
+  document.getElementById("schoolNameDiv").innerHTML = document
+    .getElementById("schoolNameDiv")
+    .innerHTML.replace("{schoolName}", schoolName.toUpperCase());
+}
 
-function populateProfessorName(professorName, profession){
-	document.getElementById("professorNameDiv").innerHTML = document.getElementById("professorNameDiv").innerHTML.replace("{professorName}",professorName);
-	document.getElementById("professorNameDiv").innerHTML = document.getElementById("professorNameDiv").innerHTML.replace("{profession}",profession);
+function populateProfessorName(professorName, profession) {
+  document.getElementById(
+    "professorNameDiv"
+  ).innerHTML = document
+    .getElementById("professorNameDiv")
+    .innerHTML.replace("{professorName}", professorName);
+  document.getElementById(
+    "professorNameDiv"
+  ).innerHTML = document
+    .getElementById("professorNameDiv")
+    .innerHTML.replace("{profession}", profession);
+}
 
+function populateOtherLogisticalData() {
+  $.ajax({
+    url:
+      sessionStorage.getItem("IPAddr") +
+      "/user/" +
+      window.localStorage.getItem("userName") +
+      "/info",
+    type: "GET",
+    crossDomain: true,
+    data: window.localStorage.getItem("oauth_token"),
+    success: function(responseText) {
+      var userData = JSON.parse(responseText).user[0];
+
+      if (userData) {
+        window.localStorage.setItem("userid", userData.user_id);
+        populateSchoolName(userData.school_name);
+        populateProfessorName(
+          userData.first_name + " " + userData.last_name,
+          userData.profession
+        );
+      }
+    },
+    error: function(xhr) {
+      console.log(
+        "Request Status: " +
+          xhr.status +
+          " Status Text: " +
+          xhr.statusText +
+          " " +
+          xhr.responseText
+      );
+      alert("Invalid username and password combination");
+    }
+  });
 }
 
 function populateOtherLogisticalData(){
@@ -128,7 +224,7 @@ function populateOtherLogisticalData(){
 		  data:window.localStorage.getItem('oauth_token'),
 		  success: function(responseText) {
 			var userData= JSON.parse(responseText).user[0];
-			
+
 			if(userData){
 				window.localStorage.setItem('userid', userData.user_id);
 				populateSchoolName(userData.school_name);
@@ -182,7 +278,7 @@ function handleStartBroadcast(current_event, clientIpAddress, userId) {
             var res = JSON.parse(response);
             window.localStorage.setItem('broadcast_port', res.routes.port);
 			iframeConnect(res.routes.source_port, res.routes.guacamole_id, res.routes.os_type);
-			
+
 			window.localStorage.setItem('isBroadcastConnected', true);
 			window.localStorage.setItem('isTeacherBroadcasting', "true");
 			broadcastButtonRed();
@@ -225,7 +321,7 @@ function handleStopBroadcast(current_event, clientIpAddress, userId){
             console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
             var frameElement = document.getElementById('actualContentIframe');
             frameElement.src = "connect.html";      }
-    }); 
+    });
 }
 
 function enableSessionHealthCheck(user_id) {
@@ -239,7 +335,7 @@ function enableSessionHealthCheck(user_id) {
       error: function(xhr){
             console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
       }
-    }); 
+    });
 }
 
 function setupEventStream(){
@@ -266,7 +362,7 @@ function iframeConnect(port, guacamole_id, vm_type) {
 	var username = ""
 	var password = ""
 	var hostName = '40.117.173.75';
-  
+
 	if (vm_type == 'Linux') {
 	  username = "root"
 	  password = "password"
@@ -275,7 +371,7 @@ function iframeConnect(port, guacamole_id, vm_type) {
 	  username = "fydp-root"
 	  password = "@FYDPWindowsServer2020"
 	}
-  
+
   var frameElement = document.getElementById('actualContentIframe');
   frameElement.src = `http://${hostName}:${port}/guacamole/#/client/${guacamole_id}/?username=${username}&password=${password}`;
   console.log(`http://${hostName}:${port}/guacamole/#/client/${guacamole_id}/?username=${username}&password=${password}`);
@@ -295,7 +391,7 @@ function startOrStopBroadcast() {
 				// Do nothing with the response
 				broadcastButtonGreen();
 				window.localStorage.setItem('isTeacherBroadcasting', "false");
-				
+
 			},
 			error: function(xhr){
 				console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);

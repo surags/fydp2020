@@ -659,7 +659,7 @@ hr {
 }
 
 .side-nav {
-  width: 250px;
+  /* width: 250px; */
   background-color: #ffffff;
   z-index: 1000;
   top: 65px;
@@ -2932,7 +2932,7 @@ button:focus {
     #logreg-forms{
         width:300px;
     }
-    
+
     #logreg-forms  .social-login{
         width:200px;
         margin:0 auto;
@@ -2944,15 +2944,15 @@ button:focus {
         color:white;
         width:200px;
         height: 56px;
-        
+
     }
     #logreg-forms .social-btn:nth-child(1){
         margin-bottom: 5px;
     }
     #logreg-forms .social-btn span{
         display: none;
-    }    
-} 
+    }
+}
 
 /* Slider */
 /* The switch - the box around the slider */
@@ -3017,4 +3017,3 @@ input:checked + .slider:before {
 .slider.round:before {
   border-radius: 50%;
 }
-  

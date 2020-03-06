@@ -1,0 +1,19 @@
+directories:
+  output: /Users/Vinayak_Sharma/Desktop/4A/FYDP/temp/FYDP/streamingOSTeacherApp/platforms/electron/build
+  buildResources: /Users/Vinayak_Sharma/Desktop/4A/FYDP/temp/FYDP/streamingOSTeacherApp/platforms/electron/build-res
+  app: /Users/Vinayak_Sharma/Desktop/4A/FYDP/temp/FYDP/streamingOSTeacherApp/platforms/electron/www
+appId: com.streamingOS.teacherapp
+productName: streamingOSTeacherApp
+electronVersion: 4.0.1
+electronDownload:
+  version: 4.0.1
+mac:
+  type: distribution
+  icon: installer.png
+  target:
+    - target: dmg
+      arch:
+        - x64
+    - target: zip
+      arch:
+        - x64

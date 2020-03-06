@@ -4,6 +4,9 @@
         <param name="android-package" value="org.apache.cordova.whitelist.WhitelistPlugin" />
         <param name="onload" value="true" />
     </feature>
+    <feature name="KioskPlugin">
+        <param name="android-package" value="jk.cordova.plugin.kiosk.KioskPlugin" />
+    </feature>
     <name>streamingOSTeacherApp</name>
     <description>
         A sample Apache Cordova application that responds to the deviceready event.
@@ -13,6 +16,7 @@
     </author>
     <content src="index.html" />
     <access origin="*" />
+    <allow-navigation href="*" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
     <allow-intent href="tel:*" />
@@ -21,4 +25,5 @@
     <allow-intent href="geo:*" />
     <allow-intent href="market:*" />
     <preference name="loglevel" value="DEBUG" />
+    <preference name="Fullscreen" value="true" />
 </widget>

@@ -6,7 +6,8 @@
   "description": "A sample Apache Cordova application that responds to the deviceready event.",
   "dependencies": {
     "cordova-android": "^8.1.0",
-    "cordova-electron": "^1.1.1"
+    "cordova-electron": "^1.1.1",
+    "cordova-plugin-kiosk": "git+https://github.com/hkalina/cordova-plugin-kiosk.git#v2.0"
   },
   "homepage": "http://cordova.io",
   "license": "Apache-2.0",

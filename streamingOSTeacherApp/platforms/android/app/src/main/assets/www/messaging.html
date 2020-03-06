@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>StreamingOS: Low Cost Education System</title>
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+  <!-- Fonts -->
+  <link rel="stylesheet" type="text/css" href="fonts/line-icons.css">
+  <!-- Main Style -->
+  <link rel="stylesheet" type="text/css" href="css/main.css">
+  <!-- Responsive Style -->
+  <link rel="stylesheet" type="text/css" href="css/responsive.css">
+
+</head>
+
+<body>
+  <!-- Page Container START -->
+  <div class="page-container">
+	<!-- Content Wrapper START -->
+	<div class="main-content">
+	  <div class="container-fluid">
+      <h3 class="font-weight-normal" style="text-align: center">Send Message</h1><br>
+      <div style="margin: auto; width: 50%">
+        <input type="userName" id="messageUsername" class="form-control" placeholder="Username" style="width:60%;"></input><br>
+        <textarea id="messageBox" class="form-control" placeholder="Message" rows="8" style = "width:100%;"></textarea>
+        <div style = "padding:10px;"></div>
+        <input class="btn btn-success btn-block" type="button" onclick="sendMessageToStudent()" value="Submit" style="width:40%; margin-left: 30%;"></input>
+      </div>  
+	  </div>
+	</div>
+	<!-- Content Wrapper END -->
+  </div>
+  <!-- Page Container END -->
+  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  <script src="js/jquery-min.js"></script>
+  <script src="js/popper.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/jquery.app.js"></script>
+  <script src="js/messaging.js"></script>
+</body>
+</html>

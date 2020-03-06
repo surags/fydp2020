@@ -14,14 +14,16 @@
   "license": "Apache-2.0",
   "dependencies": {
     "cordova-android": "^8.1.0",
-    "cordova-electron": "^1.1.1"
+    "cordova-electron": "^1.1.1",
+    "cordova-plugin-kiosk": "git+https://github.com/hkalina/cordova-plugin-kiosk.git#v2.0"
   },
   "devDependencies": {
     "cordova-plugin-whitelist": "^1.3.4"
   },
   "cordova": {
     "plugins": {
-      "cordova-plugin-whitelist": {}
+      "cordova-plugin-whitelist": {},
+      "cordova-plugin-kiosk": {}
     },
     "platforms": [
       "android"

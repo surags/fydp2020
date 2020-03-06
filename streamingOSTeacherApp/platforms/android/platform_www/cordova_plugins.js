@@ -1,16 +1,16 @@
 cordova.define('cordova/plugin_list', function(require, exports, module) {
   module.exports = [
     {
-      "id": "cordova-plugin-keyboard.keyboard",
-      "file": "plugins/cordova-plugin-keyboard/www/keyboard.js",
-      "pluginId": "cordova-plugin-keyboard",
+      "id": "cordova-plugin-kiosk.kioskPlugin",
+      "file": "plugins/cordova-plugin-kiosk/kiosk.js",
+      "pluginId": "cordova-plugin-kiosk",
       "clobbers": [
-        "window.Keyboard"
+        "window.KioskPlugin"
       ]
     }
   ];
   module.exports.metadata = {
     "cordova-plugin-whitelist": "1.3.4",
-    "cordova-plugin-keyboard": "1.2.0"
+    "cordova-plugin-kiosk": "0.2"
   };
 });
