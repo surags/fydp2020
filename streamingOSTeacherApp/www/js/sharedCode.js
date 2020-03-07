@@ -302,8 +302,9 @@ function handleStopBroadcast(current_event, clientIpAddress, userId){
           enableSessionHealthCheck(userId);
         } else if(xhr.status == 204) {
           //No prev session to connect to. Return to home page
-            var frameElement = document.getElementById('actualContentIframe');
-            frameElement.src = "connect.html";
+            // var frameElement = document.getElementById('actualContentIframe');
+            // frameElement.src = "connect.html";
+            connect();
         }
       },
       error: function(xhr){
@@ -361,6 +362,7 @@ function iframeConnect(port, guacamole_id, vm_type) {
 	  password = "@FYDPWindowsServer2020"
 	}
 
+  document.getElementById("footer").style = "z-index:-1;";
   var frameElement = document.getElementById('actualContentIframe');
   frameElement.src = `http://${hostName}:${port}/guacamole/#/client/${guacamole_id}/?username=${username}&password=${password}`;
   console.log(`http://${hostName}:${port}/guacamole/#/client/${guacamole_id}/?username=${username}&password=${password}`);
