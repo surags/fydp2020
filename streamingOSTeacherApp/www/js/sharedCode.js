@@ -168,53 +168,42 @@ function populateSchoolName(schoolName) {
 }
 
 function populateProfessorName(professorName, profession) {
-  document.getElementById(
-    "professorNameDiv"
-  ).innerHTML = document
-    .getElementById("professorNameDiv")
-    .innerHTML.replace("{professorName}", professorName);
-  document.getElementById(
-    "professorNameDiv"
-  ).innerHTML = document
-    .getElementById("professorNameDiv")
-    .innerHTML.replace("{profession}", profession);
+  document.getElementById("professorNameDiv").innerHTML = document.getElementById("professorNameDiv").innerHTML.replace("{professorName}", professorName);
+  document.getElementById("professorNameDiv").innerHTML = document.getElementById("professorNameDiv").innerHTML.replace("{profession}", profession);
 }
 
-function populateOtherLogisticalData() {
-  $.ajax({
-    url:
-      sessionStorage.getItem("IPAddr") +
-      "/user/" +
-      window.localStorage.getItem("userName") +
-      "/info",
-    type: "GET",
-    crossDomain: true,
-    data: window.localStorage.getItem("oauth_token"),
-    success: function(responseText) {
-      var userData = JSON.parse(responseText).user[0];
+// function populateOtherLogisticalData() {
+  // $.ajax({
+    // url:
+      // sessionStorage.getItem("IPAddr") +
+      // "/user/" +
+      // window.localStorage.getItem("userName") +
+      // "/info",
+    // type: "GET",
+    // crossDomain: true,
+    // data: window.localStorage.getItem("oauth_token"),
+    // success: function(responseText) {
+      // var userData = JSON.parse(responseText).user[0];
 
-      if (userData) {
-        window.localStorage.setItem("userid", userData.user_id);
-        populateSchoolName(userData.school_name);
-        populateProfessorName(
-          userData.first_name + " " + userData.last_name,
-          userData.profession
-        );
-      }
-    },
-    error: function(xhr) {
-      console.log(
-        "Request Status: " +
-          xhr.status +
-          " Status Text: " +
-          xhr.statusText +
-          " " +
-          xhr.responseText
-      );
-      alert("Invalid username and password combination");
-    }
-  });
-}
+      // if (userData) {
+        // window.localStorage.setItem("userid", userData.user_id);
+        // populateSchoolName(userData.school_name);
+        // populateProfessorName(userData.first_name + " " + userData.last_name,userData.profession);
+      // }
+    // },
+    // error: function(xhr) {
+      // console.log(
+        // "Request Status: " +
+          // xhr.status +
+          // " Status Text: " +
+          // xhr.statusText +
+          // " " +
+          // xhr.responseText
+      // );
+      // alert("Invalid username and password combination");
+    // }
+  // });
+// }
 
 function populateOtherLogisticalData(){
 	$.ajax({
