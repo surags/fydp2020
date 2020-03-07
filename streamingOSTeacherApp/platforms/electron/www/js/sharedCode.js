@@ -77,7 +77,25 @@ function sideNavClose(){
 	document.getElementById("sideNavToggler").classList.remove("side-nav-expand");
 }
 
+function cleanupRoutes() {
+  if (window.localStorage.getItem('isSpying') == "true") {
+    $.ajax({
+      url: sessionStorage.getItem("IPAddr") + '/restore/stream/' + window.localStorage.getItem('userid'),
+      type: 'GET',
+      crossDomain: true,
+      data: window.localStorage.getItem('oauth_token'),
+      success: function(response) {
+        window.localStorage.setItem('isSpying', "false");
+      },
+      error: function(xhr){
+        console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);           
+      }
+    });
+  }
+}
+
 function home(){
+  cleanupRoutes();
   sideNavClose();
   window.localStorage.setItem('isBroadcastConnected', false);
 	document.getElementById("footer").style = "z-index:1; position: absolute; bottom: 0;";
@@ -86,6 +104,7 @@ function home(){
 }
 
 function messaging() {
+  cleanupRoutes();
   sideNavClose();
   window.localStorage.setItem('isBroadcastConnected', false);
 	document.getElementById("footer").style = "z-index:1; position: absolute; bottom: 0;";
@@ -94,6 +113,7 @@ function messaging() {
 }
 
 function students(){
+  cleanupRoutes();
   sideNavClose();
   window.localStorage.setItem('isBroadcastConnected', false);
 	document.getElementById("footer").style = "z-index:1; position: absolute; bottom: 0;"
@@ -102,6 +122,7 @@ function students(){
 }
 
 function connect(){
+  cleanupRoutes();
   sideNavClose();
   window.localStorage.setItem('isBroadcastConnected', false);
 	document.getElementById("footer").style = "z-index:-1;";
@@ -110,6 +131,7 @@ function connect(){
 }
 
 function help() {
+  cleanupRoutes();
   sideNavClose();
   window.localStorage.setItem('isBroadcastConnected', false);
 	document.getElementById("footer").style = "z-index:1; position: absolute; bottom: 0;"
@@ -118,6 +140,7 @@ function help() {
 }
 
 function logout(){
+  cleanupRoutes();
 	if (isTeacher && window.localStorage.getItem('isTeacherBroadcasting') == "true") {
 		// If a teacher logs out while broadcasting, stop their broadcast
 		startOrStopBroadcast();

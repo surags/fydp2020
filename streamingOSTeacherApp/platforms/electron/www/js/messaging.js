@@ -15,7 +15,6 @@ var userId = window.localStorage.getItem('userid');
 function sendMessageToStudent() {
     var username = document.getElementById("messageUsername").value;
     var message = document.getElementById("messageBox").value;
-    var encodedmessage = encodeURIComponent(message);
     $.ajax({
         url: `${IPAddr}/broadcast/message/${username}?${oauth_token}`,
         type: 'PUT',

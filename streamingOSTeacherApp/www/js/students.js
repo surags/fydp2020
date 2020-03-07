@@ -197,6 +197,7 @@ function createImageAndOverlayDivs(id, studentID, studentScreenID) {
       success: function (response) {
         var obj = JSON.parse(response);
         guacamoleConnectViewOnly(obj.routes.source_port, obj.routes.guacamole_id, obj.routes.os_type);
+        window.localStorage.setItem('isSpying', "true");
       },
       error: function (xhr) {
         console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
