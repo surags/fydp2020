@@ -7,6 +7,14 @@ cordova.define('cordova/plugin_list', function (require, exports, module) {
         "clobbers": [
             "window.KioskPlugin"
         ]
+    },
+    {
+        "file": "plugins/cordova-plugin-keyboard/www/keyboard.js",
+        "id": "cordova-plugin-keyboard.keyboard",
+        "pluginId": "cordova-plugin-keyboard",
+        "clobbers": [
+            "window.Keyboard"
+        ]
     }
 ];
 
@@ -14,7 +22,8 @@ cordova.define('cordova/plugin_list', function (require, exports, module) {
             // TOP OF METADATA
             {
     "cordova-plugin-whitelist": "1.3.4",
-    "cordova-plugin-kiosk": "0.2"
+    "cordova-plugin-kiosk": "0.2",
+    "cordova-plugin-keyboard": "1.2.0"
 }
             // BOTTOM OF METADATA
         });
