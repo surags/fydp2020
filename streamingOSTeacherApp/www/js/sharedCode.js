@@ -78,35 +78,40 @@ function sideNavClose(){
 }
 
 function home(){
-	sideNavClose();
+  sideNavClose();
+  window.localStorage.setItem('isBroadcastConnected', false);
 	document.getElementById("footer").style = "z-index:1; position: absolute; bottom: 0;";
 	document.getElementById("actualContentIframe").src = "home.html";
 	hideBroadcastButton();
 }
 
 function messaging() {
-	sideNavClose();
+  sideNavClose();
+  window.localStorage.setItem('isBroadcastConnected', false);
 	document.getElementById("footer").style = "z-index:1; position: absolute; bottom: 0;";
 	document.getElementById("actualContentIframe").src = "messaging.html";
 	if (isTeacher) hideBroadcastButton();
 }
 
 function students(){
-	sideNavClose();
+  sideNavClose();
+  window.localStorage.setItem('isBroadcastConnected', false);
 	document.getElementById("footer").style = "z-index:1; position: absolute; bottom: 0;"
 	document.getElementById("actualContentIframe").src = "students.html";
 	hideBroadcastButton();
 }
 
 function connect(){
-	sideNavClose();
+  sideNavClose();
+  window.localStorage.setItem('isBroadcastConnected', false);
 	document.getElementById("footer").style = "z-index:-1;";
 	document.getElementById("actualContentIframe").src = "connect.html";
 	showBroadcastButton();
 }
 
 function help() {
-	sideNavClose();
+  sideNavClose();
+  window.localStorage.setItem('isBroadcastConnected', false);
 	document.getElementById("footer").style = "z-index:1; position: absolute; bottom: 0;"
 	document.getElementById("actualContentIframe").src = "help.html";
 	hideBroadcastButton();
