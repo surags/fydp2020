@@ -23,13 +23,15 @@
       ev.preventDefault();
 
       if (ev.type == "panup") {
-        console.log("swipe up");
+        // console.log("swipe up");
+        var frameElement = document.getElementById('actualContentIframe');
+        frameElement.focus();
         window.parent.document.getElementById("header-container").style.display = "none";
         window.parent.document.getElementById("header-nav").style.height ="10px";
         // window.parent.document.getElementById("side-nav").style.display ="none";
         sideNavClose();
       } else if (ev.type == "pandown") {
-        console.log("swipe down");
+        // console.log("swipe down");
         window.parent.document.getElementById("header-container").style.display = "block";
         window.parent.document.getElementById("header-nav").style.height ="65px";
         // window.parent.document.getElementById("side-nav").style.display ="block";
