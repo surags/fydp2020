@@ -15,6 +15,8 @@ from src.model import base_model
 from src.model.broadcast_states import BroadcastStates
 
 import json
+import queue
+
 
 router = router.factory.get_router()
 authentication_helper = authentication_helper.factory.get_authentication_helper()
@@ -132,7 +134,8 @@ def subscribe(user_id):
     response.content_type  = 'text/event-stream'
     response.cache_control = 'no-cache'
 
-    broadcast_helper.broadcast_message_queues[user_id] = Queue()
+    if user_id not in broadcast_helper.broadcast_message_queues:
+        broadcast_helper.broadcast_message_queues[user_id] = Queue()
 
     # Set client-side auto-reconnect timeout, ms.
     yield 'retry: 100\n\n'
@@ -141,7 +144,6 @@ def subscribe(user_id):
     while True:
         events_values = list()
         events_json = dict()
-
 
         # Add broadcast information
         if broadcast_helper.broadcast_session_state is BroadcastStates.START:
@@ -154,22 +156,19 @@ def subscribe(user_id):
             sleep(10)
             continue
         else:
-            message = broadcast_helper.broadcast_message_queues[user_id].get(block=True)
-            events_values.append(message)
+            try:
+                message = broadcast_helper.broadcast_message_queues[user_id].get(block=True, timeout=20)
+                print(user_id)
+                events_values.append(message)
 
-        # if broadcast_helper.broadcast is BroadcastStates.STOP_BROADCAST:
-        #     stop_broadcast_event = BroadcastStates.STOP_BROADCAST.value
-        #     stop_broadcast_event["broadcast_id"] = broadcast_helper.broadcast["broadcast_id"]
-        #     events_values.append(stop_broadcast_event)
-        #
-        # # Add messages
-        # if broadcast_helper.message is not None:
-        #     event_message["data"] = broadcast_helper.message
-        #     events_values.append(event_message)
+                # Send events to subscribed client
+                events_json["events"] = events_values
+                yield "data: {}\n\n".format(json.dumps(events_json))
+            except Exception as e:
+                #This is done to ensure the client is still connected to us
+                yield "data: {}\n\n"
 
-        # Send events to subscribed clients
-        events_json["events"] = events_values
-        yield "data: {}\n\n".format(json.dumps(events_json))
+
 
 
 
