@@ -256,7 +256,7 @@ function handleEvent(current_event, clientIpAddress, user_id) {
 }
 
 function handleMessageBroadcast(current_event, clientIpAddress, userId) {
-    window.alert(current_event.message_data);
+    window.alert(decodeURIComponent(current_event.message_data));
 }
 
 function handleStartBroadcast(current_event, clientIpAddress, userId) {

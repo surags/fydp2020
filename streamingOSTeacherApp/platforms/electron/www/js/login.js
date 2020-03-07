@@ -59,6 +59,8 @@ function login(){
 				success: function(response) {
 					window.localStorage.setItem('userName', userName);
 					window.localStorage.setItem('oauth_token', response);
+					//"access_token=NMJI5qp2igpgxtimYb28i23tWb8Cc1&expires_in=3600&token_type=Bearer&scope=teacherStreamingOS%20studentTeacherStreamingOS&refresh_token=bZM0a3Jtp4tdhMu6nPFxoqyB6USdR1"
+					// window.localStorage.setItem()
 					window.location.href = "master.html";
 				},
 				error: function(xhr){

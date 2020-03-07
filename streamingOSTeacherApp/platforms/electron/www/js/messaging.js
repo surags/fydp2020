@@ -12,15 +12,16 @@ var oauth_token = window.localStorage.getItem('oauth_token');
 var userId = window.localStorage.getItem('userid');
 
 
-// TODO: onclick method for submit button
 function sendMessageToStudent() {
     var username = document.getElementById("messageUsername").value;
     var message = document.getElementById("messageBox").value;
+    var encodedmessage = encodeURIComponent(message);
     $.ajax({
-        url: `${IPAddr}/broadcast/message/${username}/${message}`,
+        url: `${IPAddr}/broadcast/message/${username}?${oauth_token}`,
         type: 'PUT',
         crossDomain: true,
-        data: oauth_token,
+        data: JSON.stringify(message),
+        contentType: "application/json",
         success: function(response) {
             // Empty text fields  
             document.getElementById("messageUsername").value = "";

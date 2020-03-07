@@ -23,13 +23,15 @@
       ev.preventDefault();
 
       if (ev.type == "panup") {
-        console.log("swipe up");
+        // console.log("swipe up");
+        var frameElement = document.getElementById('actualContentIframe');
+        frameElement.focus();
         window.parent.document.getElementById("header-container").style.display = "none";
         window.parent.document.getElementById("header-nav").style.height ="10px";
         // window.parent.document.getElementById("side-nav").style.display ="none";
         sideNavClose();
       } else if (ev.type == "pandown") {
-        console.log("swipe down");
+        // console.log("swipe down");
         window.parent.document.getElementById("header-container").style.display = "block";
         window.parent.document.getElementById("header-nav").style.height ="65px";
         // window.parent.document.getElementById("side-nav").style.display ="block";
@@ -76,35 +78,40 @@ function sideNavClose(){
 }
 
 function home(){
-	sideNavClose();
+  sideNavClose();
+  window.localStorage.setItem('isBroadcastConnected', false);
 	document.getElementById("footer").style = "z-index:1; position: absolute; bottom: 0;";
 	document.getElementById("actualContentIframe").src = "home.html";
 	hideBroadcastButton();
 }
 
 function messaging() {
-	sideNavClose();
+  sideNavClose();
+  window.localStorage.setItem('isBroadcastConnected', false);
 	document.getElementById("footer").style = "z-index:1; position: absolute; bottom: 0;";
 	document.getElementById("actualContentIframe").src = "messaging.html";
 	if (isTeacher) hideBroadcastButton();
 }
 
 function students(){
-	sideNavClose();
+  sideNavClose();
+  window.localStorage.setItem('isBroadcastConnected', false);
 	document.getElementById("footer").style = "z-index:1; position: absolute; bottom: 0;"
 	document.getElementById("actualContentIframe").src = "students.html";
 	hideBroadcastButton();
 }
 
 function connect(){
-	sideNavClose();
+  sideNavClose();
+  window.localStorage.setItem('isBroadcastConnected', false);
 	document.getElementById("footer").style = "z-index:-1;";
 	document.getElementById("actualContentIframe").src = "connect.html";
 	showBroadcastButton();
 }
 
 function help() {
-	sideNavClose();
+  sideNavClose();
+  window.localStorage.setItem('isBroadcastConnected', false);
 	document.getElementById("footer").style = "z-index:1; position: absolute; bottom: 0;"
 	document.getElementById("actualContentIframe").src = "help.html";
 	hideBroadcastButton();
@@ -249,7 +256,7 @@ function handleEvent(current_event, clientIpAddress, user_id) {
 }
 
 function handleMessageBroadcast(current_event, clientIpAddress, userId) {
-    window.alert(current_event.message_data);
+    window.alert(decodeURIComponent(current_event.message_data));
 }
 
 function handleStartBroadcast(current_event, clientIpAddress, userId) {

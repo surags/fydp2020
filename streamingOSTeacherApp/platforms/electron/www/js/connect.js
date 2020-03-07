@@ -52,7 +52,7 @@ function connectVM(vm_type) {
 		},
 		error: function (xhr) {
 			console.log('Request Status: ' + xhr.status + ' Status Text: ' + xhr.statusText + ' ' + xhr.responseText);
-			alert('Invalid username and password combination');
+			alert('Unfortunately, this VM is not available.');
 		}
 	});
 }
