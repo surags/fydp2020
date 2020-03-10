@@ -117,13 +117,20 @@ def stop_broadcast_session():
 @put('/broadcast/message/<username>')
 @app.auth.verify_request(scopes=['teacherStreamingOS'])
 def message_clients(username):
-    user_id = user_helper.get_userid_for_username(username)
-    if user_id is None:
-        return
-    print(user_id)
-    message = {"eventType": "notification_message", "message_data": request.json}
-    broadcast_helper.add_message_for_user(user_id, message)
-    # TODO Add code to verify send to all connected clients
+    print(username)
+    user_names = username.split(',', 2)
+    for user_name in user_names:
+        user_name = user_name.strip()
+        message = {"eventType": "notification_message", "message_data": request.json}
+        if username == "all":
+            broadcast_helper.add_message_for_all(message)
+        else:
+            user_id = user_helper.get_userid_for_username(user_name)
+            if user_id is None:
+                return
+            print(user_id)
+            broadcast_helper.add_message_for_user(user_id, message)
+        # TODO Add code to verify send to all connected clients
     response.status = 200
 
 

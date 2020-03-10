@@ -68,7 +68,7 @@ class UserHelper:
     @db.connection_context()
     def student_list(self, school_id):
         query = Users.select(Users.user_id, Users.user_name, Users.first_name, Users.last_name).where(
-            Users.user_type == "Student" and Users.school_id == school_id).dicts()
+            (Users.user_type == "student") & (Users.school_id == school_id)).dicts()
         response.body = json.dumps({'students': list(query)})
         response.status = 200
         return response

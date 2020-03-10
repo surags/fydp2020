@@ -10,7 +10,7 @@ class SessionHelper:
         self.setup_ports()
 
     def setup_ports(self):
-        for i in range(0, 5):
+        for i in range(0, 11):
             self.port_queue.put(8080 + i)
 
     def add_to_port_queue(self, port):

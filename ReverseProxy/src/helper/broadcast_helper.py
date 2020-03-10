@@ -16,8 +16,8 @@ class BroadcastHelper:
         if user_id in self.broadcast_message_queues:
             self.broadcast_message_queues[user_id].put(message)
 
-
     def add_message_for_all(self, message):
+        print(message)
         for key, value in self.broadcast_message_queues.items():
             value.put(message)
 
