@@ -14,7 +14,7 @@ Our team would like to acknowledge our consultant, Professor Wojciech Golab. Pro
 
 ### 1.1 Motivation
 
-As technology improves in the 21st century, using mobile devices for educational purposes is becoming increasingly more common in primary and secondary schools. However, the devices come at a high cost. In the United States, it is estimated that the cost of educational technology ranges from $142 to $490 per student [1]. In addition, this technology becomes quickly outdated and needs to be replaced, forcing schools to spend continuous amounts of money on maintenance. With StreamingOS, we aim to alleviate these costs by providing students and teachers with inexpensive thin endpoint devices, with the resource-heavy applications/OS being streamed to these devices from a backend server using container virtualization.
+As technology improves in the 21st century, using mobile devices for educational purposes is becoming increasingly more common in primary and secondary schools. However, the devices come at a high cost. In the United States, it is estimated that the cost of educational technology ranges from $142 to $490 per student. In addition, this technology becomes quickly outdated and needs to be replaced, forcing schools to spend continuous amounts of money on maintenance. With StreamingOS, we aim to alleviate these costs by providing students and teachers with inexpensive thin endpoint devices, with the resource-heavy applications/OS being streamed to these devices from a backend server using container virtualization.
 
 ### 1.2 Project Objective
 
