@@ -1,4 +1,4 @@
-# FYDP - StreamingOS
+# StreamingOS - Fourth Year Design Project
 
 StreamingOS: Low Cost Education System
 
