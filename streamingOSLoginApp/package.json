@@ -22,7 +22,7 @@
     "express": "^4.17.1",
     "module": "^1.2.5",
     "requirejs": "^2.3.6",
-    "shelljs": "^0.8.3",
+    "shelljs": "^0.8.5",
     "super": "^0.2.3",
     "util": "^0.12.1"
   },
