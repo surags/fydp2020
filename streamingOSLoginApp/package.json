@@ -19,7 +19,7 @@
     "cordova-plugin-keyboard": "^1.2.0",
     "exec": "^0.2.1",
     "exports": "0.0.1",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "module": "^1.2.5",
     "requirejs": "^2.3.6",
     "shelljs": "^0.8.3",
